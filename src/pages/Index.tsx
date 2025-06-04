@@ -10,6 +10,7 @@ import { useFlashcards } from '@/hooks/useFlashcards';
 
 const Index = () => {
   const [activeView, setActiveView] = useState('study');
+  const [hideNavbar, setHideNavbar] = useState(false);
   const { data: supabaseFlashcards = [] } = useFlashcards();
 
   // Convert Supabase flashcards to the expected format
@@ -35,13 +36,18 @@ const Index = () => {
     setActiveView('study');
   };
 
+  const handleHideNavbar = (hide: boolean) => {
+    setHideNavbar(hide);
+  };
+
   const renderActiveView = () => {
     switch (activeView) {
       case 'study':
         return (
           <StudyView 
             flashcards={flashcards} 
-            onUpdateFlashcard={handleUpdateFlashcard} 
+            onUpdateFlashcard={handleUpdateFlashcard}
+            onHideNavbar={handleHideNavbar}
           />
         );
       case 'playlist':
@@ -61,7 +67,8 @@ const Index = () => {
         return (
           <StudyView 
             flashcards={flashcards} 
-            onUpdateFlashcard={handleUpdateFlashcard} 
+            onUpdateFlashcard={handleUpdateFlashcard}
+            onHideNavbar={handleHideNavbar}
           />
         );
     }
@@ -69,7 +76,9 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-netflix-black">
-      <Navbar activeView={activeView} onViewChange={setActiveView} />
+      {!hideNavbar && (
+        <Navbar activeView={activeView} onViewChange={setActiveView} />
+      )}
       {renderActiveView()}
     </div>
   );

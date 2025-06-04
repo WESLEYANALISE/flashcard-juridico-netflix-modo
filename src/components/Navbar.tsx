@@ -58,7 +58,7 @@ const Navbar = ({ activeView, onViewChange }: NavbarProps) => {
                       min-h-[60px] sm:min-h-[70px] lg:min-h-[80px]
                       w-[60px] sm:w-[75px] lg:w-[90px]
                       rounded-xl sm:rounded-2xl 
-                      transition-all duration-500 ease-out 
+                      transition-all duration-300 ease-out 
                       group overflow-hidden
                       ${isActive 
                         ? 'bg-gradient-to-br from-netflix-red to-netflix-red/80 text-white shadow-lg shadow-netflix-red/30 scale-105' 
@@ -68,7 +68,7 @@ const Navbar = ({ activeView, onViewChange }: NavbarProps) => {
                   >
                     {/* Background glow effect */}
                     <div className={`
-                      absolute inset-0 rounded-xl sm:rounded-2xl transition-all duration-500 
+                      absolute inset-0 rounded-xl sm:rounded-2xl transition-all duration-300 
                       ${isActive 
                         ? 'bg-gradient-to-br from-netflix-red/20 to-transparent opacity-100' 
                         : 'bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100'
@@ -79,7 +79,6 @@ const Navbar = ({ activeView, onViewChange }: NavbarProps) => {
                     <div className={`
                       relative z-10 flex flex-col items-center justify-center 
                       transition-all duration-300 gap-1
-                      ${isActive ? 'animate-pulse' : 'group-hover:animate-bounce'}
                     `}>
                       <Icon className={`
                         w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6
@@ -105,7 +104,7 @@ const Navbar = ({ activeView, onViewChange }: NavbarProps) => {
                     
                     {/* Active indicator dot */}
                     {isActive && (
-                      <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white rounded-full animate-pulse shadow-lg" />
+                      <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white rounded-full shadow-lg" />
                     )}
                     
                     {/* Ripple effect on click */}
@@ -116,13 +115,6 @@ const Navbar = ({ activeView, onViewChange }: NavbarProps) => {
                         ${isActive ? 'opacity-20' : 'opacity-10'}
                       `} />
                     </div>
-                    
-                    {/* Shimmer effect for active button */}
-                    {isActive && (
-                      <div className="absolute inset-0 rounded-xl sm:rounded-2xl overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 animate-shimmer" />
-                      </div>
-                    )}
                   </Button>
                 );
               })}

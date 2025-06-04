@@ -11,6 +11,7 @@ interface AnimatedFlashCardProps {
   isExiting?: boolean;
   exitDirection?: 'left' | 'right';
   tema?: string;
+  isEntering?: boolean;
 }
 
 const AnimatedFlashCard = ({
@@ -19,7 +20,8 @@ const AnimatedFlashCard = ({
   areaColor,
   isExiting = false,
   exitDirection = 'right',
-  tema
+  tema,
+  isEntering = false
 }: AnimatedFlashCardProps) => {
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -38,15 +40,21 @@ const AnimatedFlashCard = ({
     onAnswer(correct);
   };
 
-  const cardExitClass = isExiting 
-    ? exitDirection === 'right' 
-      ? 'translate-x-full opacity-0 scale-95' 
-      : '-translate-x-full opacity-0 scale-95' 
-    : 'translate-x-0 opacity-100 scale-100';
+  const getCardTransform = () => {
+    if (isEntering) {
+      return 'translate-x-full opacity-0 scale-95';
+    }
+    if (isExiting) {
+      return exitDirection === 'right' 
+        ? 'translate-x-full opacity-0 scale-95' 
+        : '-translate-x-full opacity-0 scale-95';
+    }
+    return 'translate-x-0 opacity-100 scale-100';
+  };
 
   return (
     <div className="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl mx-auto relative px-2">
-      <div className={`relative transform transition-all duration-500 ease-out ${cardExitClass}`}>
+      <div className={`relative transform transition-all duration-700 ease-out ${getCardTransform()}`}>
         {/* Main Card */}
         <div className="w-full bg-gradient-to-br from-neutral-900/95 via-neutral-800/95 to-neutral-900/95 rounded-xl sm:rounded-2xl border border-neutral-600/40 overflow-hidden shadow-xl backdrop-blur-lg transition-all duration-300 hover:scale-[1.02]">
           

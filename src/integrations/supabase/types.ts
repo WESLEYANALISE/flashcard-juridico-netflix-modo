@@ -2176,6 +2176,33 @@ export type Database = {
         }
         Relationships: []
       }
+      flash_cards_enigma: {
+        Row: {
+          area: string | null
+          created_at: string
+          id: number
+          pergunta: string | null
+          resposta: string | null
+          tema: string | null
+        }
+        Insert: {
+          area?: string | null
+          created_at?: string
+          id?: number
+          pergunta?: string | null
+          resposta?: string | null
+          tema?: string | null
+        }
+        Update: {
+          area?: string | null
+          created_at?: string
+          id?: number
+          pergunta?: string | null
+          resposta?: string | null
+          tema?: string | null
+        }
+        Relationships: []
+      }
       flash_cards_improved: {
         Row: {
           area: string

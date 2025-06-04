@@ -17,17 +17,19 @@ import ErrorBoundary from './ErrorBoundary';
 interface StudyViewProps {
   flashcards: Flashcard[];
   onUpdateFlashcard: (id: string, updates: Partial<Flashcard>) => void;
+  onHideNavbar?: (hide: boolean) => void;
 }
 
 type StudyStep = 'categories' | 'themes' | 'studying';
 
-const StudyView = ({ onUpdateFlashcard }: StudyViewProps) => {
+const StudyView = ({ onUpdateFlashcard, onHideNavbar }: StudyViewProps) => {
   const [currentStep, setCurrentStep] = useState<StudyStep>('categories');
   const [selectedArea, setSelectedArea] = useState<string | null>(null);
   const [selectedThemes, setSelectedThemes] = useState<string[]>([]);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [isShuffled, setIsShuffled] = useState(false);
   const [isCardExiting, setIsCardExiting] = useState(false);
+  const [isCardEntering, setIsCardEntering] = useState(false);
   const [exitDirection, setExitDirection] = useState<'left' | 'right'>('right');
   const [sessionStats, setSessionStats] = useState({
     correct: 0,
@@ -57,6 +59,13 @@ const StudyView = ({ onUpdateFlashcard }: StudyViewProps) => {
     isLoading: selectedFlashcardsLoading,
     error: selectedFlashcardsError
   } = useFlashcardsByAreaAndThemes(selectedArea || '', selectedThemes);
+
+  // Control navbar visibility based on study step
+  useEffect(() => {
+    if (onHideNavbar) {
+      onHideNavbar(currentStep === 'studying');
+    }
+  }, [currentStep, onHideNavbar]);
 
   // Error handling
   useEffect(() => {
@@ -100,6 +109,9 @@ const StudyView = ({ onUpdateFlashcard }: StudyViewProps) => {
         maxStreak: 0,
         completed: false
       });
+      // Show entering animation for first card
+      setIsCardEntering(true);
+      setTimeout(() => setIsCardEntering(false), 100);
     }
   }, [currentStep, selectedThemes, isShuffled]);
 
@@ -140,10 +152,13 @@ const StudyView = ({ onUpdateFlashcard }: StudyViewProps) => {
       setIsCardExiting(false);
       if (currentCardIndex < currentCards.length - 1) {
         setCurrentCardIndex(currentCardIndex + 1);
+        // Show entering animation for next card
+        setIsCardEntering(true);
+        setTimeout(() => setIsCardEntering(false), 100);
       } else {
         setSessionStats(prev => ({ ...prev, completed: true }));
       }
-    }, 600);
+    }, 700);
   };
 
   const handleBackToCategories = () => {
@@ -323,7 +338,7 @@ const StudyView = ({ onUpdateFlashcard }: StudyViewProps) => {
               </div>
             </div>
 
-            {/* Compact Flashcard */}
+            {/* Flashcard with improved animations */}
             <div className="max-w-2xl mx-auto">
               <AnimatedFlashCard 
                 flashcard={currentCard} 
@@ -332,6 +347,7 @@ const StudyView = ({ onUpdateFlashcard }: StudyViewProps) => {
                 isExiting={isCardExiting} 
                 exitDirection={exitDirection} 
                 tema={selectedFlashcards[currentCardIndex]?.tema}
+                isEntering={isCardEntering}
               />
             </div>
           </div>
