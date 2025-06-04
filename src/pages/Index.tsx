@@ -6,21 +6,32 @@ import StatsView from '@/components/StatsView';
 import SettingsView from '@/components/SettingsView';
 import PlaylistView from '@/components/PlaylistView';
 import DailyMissions from '@/components/DailyMissions';
+import { useFlashcards } from '@/hooks/useFlashcards';
+import { generateCategoriesFromAreas } from '@/utils/flashcardMapper';
 
 const Index = () => {
   const [activeView, setActiveView] = useState('study');
-  const [flashcards, setFlashcards] = useState([]);
+  const { data: supabaseFlashcards = [] } = useFlashcards();
+
+  // Convert Supabase flashcards to the expected format
+  const flashcards = supabaseFlashcards.map(card => ({
+    id: card.id.toString(),
+    question: card.pergunta,
+    answer: card.resposta,
+    category: card.area,
+    difficulty: 'Médio' as const,
+    studied: false,
+    correctAnswers: 0,
+    totalAttempts: 0,
+    lastStudied: undefined,
+  }));
 
   const handleUpdateFlashcard = (id: string, updates: any) => {
-    setFlashcards(prev => 
-      prev.map(card => 
-        card.id === id ? { ...card, ...updates } : card
-      )
-    );
+    // This would update the flashcard in the future
+    console.log('Updating flashcard:', id, updates);
   };
 
   const handleStudyPlaylist = (playlistId: string) => {
-    // Implementation for studying a specific playlist
     console.log('Studying playlist:', playlistId);
     setActiveView('study');
   };
@@ -44,7 +55,7 @@ const Index = () => {
       case 'missions':
         return <DailyMissions />;
       case 'stats':
-        return <StatsView />;
+        return <StatsView flashcards={flashcards} />;
       case 'settings':
         return <SettingsView />;
       default:

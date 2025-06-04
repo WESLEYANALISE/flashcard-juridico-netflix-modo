@@ -12,15 +12,19 @@ export interface SupabaseFlashcard {
 }
 
 const validateFlashcards = (data: unknown[]): SupabaseFlashcard[] => {
-  return data.map((item, index) => {
+  const validFlashcards: SupabaseFlashcard[] = [];
+  
+  data.forEach((item, index) => {
     try {
       const validatedItem = SupabaseFlashcardSchema.parse(item);
-      return validatedItem;
+      validFlashcards.push(validatedItem);
     } catch (error) {
       console.warn(`Invalid flashcard at index ${index}:`, error);
-      throw new Error(`Dados inválidos no flashcard ${index + 1}`);
+      // Skip invalid items instead of throwing
     }
   });
+  
+  return validFlashcards;
 };
 
 export const useFlashcards = () => {

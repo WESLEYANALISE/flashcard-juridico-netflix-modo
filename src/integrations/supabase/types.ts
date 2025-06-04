@@ -4543,6 +4543,33 @@ export type Database = {
         }
         Relationships: []
       }
+      Questoes_Preencher: {
+        Row: {
+          Area: string | null
+          Assunto: string | null
+          Definicao: string | null
+          id: number
+          Tema: string | null
+          Termo: string | null
+        }
+        Insert: {
+          Area?: string | null
+          Assunto?: string | null
+          Definicao?: string | null
+          id?: number
+          Tema?: string | null
+          Termo?: string | null
+        }
+        Update: {
+          Area?: string | null
+          Assunto?: string | null
+          Definicao?: string | null
+          id?: number
+          Tema?: string | null
+          Termo?: string | null
+        }
+        Relationships: []
+      }
       redacao_artigos: {
         Row: {
           categoria: string
