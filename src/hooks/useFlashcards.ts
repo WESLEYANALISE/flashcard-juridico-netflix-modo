@@ -2,7 +2,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { SupabaseFlashcardSchema } from '@/schemas/flashcard';
-import { z } from 'zod';
 
 export interface SupabaseFlashcard {
   id: number;
@@ -15,7 +14,8 @@ export interface SupabaseFlashcard {
 const validateFlashcards = (data: unknown[]): SupabaseFlashcard[] => {
   return data.map((item, index) => {
     try {
-      return SupabaseFlashcardSchema.parse(item);
+      const validatedItem = SupabaseFlashcardSchema.parse(item);
+      return validatedItem;
     } catch (error) {
       console.warn(`Invalid flashcard at index ${index}:`, error);
       throw new Error(`Dados inválidos no flashcard ${index + 1}`);
