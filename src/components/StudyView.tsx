@@ -255,13 +255,13 @@ const StudyView = ({ onUpdateFlashcard }: StudyViewProps) => {
     );
   }
 
-  // Study session
+  // Study session with no background effects and responsive sizing
   if (currentStep === 'studying' && selectedArea && currentCard) {
     if (selectedFlashcardsLoading) {
       return (
-        <div className="min-h-screen bg-netflix-black relative overflow-hidden">
-          <div className="relative z-10 px-2 sm:px-4 py-4 sm:py-8">
-            <div className="max-w-4xl mx-auto">
+        <div className="min-h-screen bg-netflix-black">
+          <div className="px-2 sm:px-4 py-4 sm:py-8">
+            <div className="max-w-2xl mx-auto">
               <CardSkeleton />
             </div>
           </div>
@@ -271,19 +271,9 @@ const StudyView = ({ onUpdateFlashcard }: StudyViewProps) => {
 
     return (
       <ErrorBoundary>
-        <div className="min-h-screen bg-netflix-black relative overflow-hidden">
-          {/* Legal Background Elements */}
-          <div className="absolute inset-0 opacity-5">
-            <div className="absolute top-10 left-10 text-8xl font-serif text-white/10 rotate-12">§</div>
-            <div className="absolute top-32 right-20 text-6xl font-serif text-white/10 -rotate-12">⚖</div>
-            <div className="absolute bottom-20 left-20 text-7xl font-serif text-white/10 rotate-6">Art.</div>
-            <div className="absolute bottom-40 right-10 text-5xl font-serif text-white/10 -rotate-6">Lei</div>
-            <div className="absolute top-1/2 left-1/3 text-4xl font-serif text-white/10 rotate-45">CF</div>
-            <div className="absolute top-2/3 right-1/3 text-4xl font-serif text-white/10 -rotate-45">CC</div>
-          </div>
-
-          <div className="relative z-10 px-2 sm:px-4 py-4 sm:py-8">
-            {/* Minimal Top Controls */}
+        <div className="min-h-screen bg-netflix-black">
+          <div className="px-2 sm:px-4 py-4 sm:py-8">
+            {/* Compact Top Controls */}
             <div className="max-w-2xl mx-auto mb-6">
               <div className="flex items-center justify-between">
                 <Button 
@@ -333,7 +323,7 @@ const StudyView = ({ onUpdateFlashcard }: StudyViewProps) => {
               </div>
             </div>
 
-            {/* Flashcard */}
+            {/* Compact Flashcard */}
             <div className="max-w-2xl mx-auto">
               <AnimatedFlashCard 
                 flashcard={currentCard} 

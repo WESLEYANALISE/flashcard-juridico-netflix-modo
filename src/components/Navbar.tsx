@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Scale, BarChart3, BookOpen, Settings, Menu, X } from 'lucide-react';
+import { Scale, BarChart3, BookOpen, Settings, List, Trophy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface NavbarProps {
@@ -9,18 +9,20 @@ interface NavbarProps {
 }
 
 const Navbar = ({ activeView, onViewChange }: NavbarProps) => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const menuItems = [
     { id: 'study', label: 'Estudar', icon: BookOpen },
+    { id: 'playlist', label: 'Playlists', icon: List },
+    { id: 'missions', label: 'Missões', icon: Trophy },
     { id: 'stats', label: 'Estatísticas', icon: BarChart3 },
     { id: 'settings', label: 'Configurações', icon: Settings }
   ];
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-netflix-black/90 backdrop-blur-md border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-netflix-black/95 backdrop-blur-md border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center space-x-3">
@@ -33,8 +35,8 @@ const Navbar = ({ activeView, onViewChange }: NavbarProps) => {
               </div>
             </div>
 
-            {/* Desktop Menu */}
-            <div className="hidden md:flex items-center space-x-1">
+            {/* Desktop Menu - Icons with Labels */}
+            <div className="hidden lg:flex items-center space-x-1">
               {menuItems.map((item) => {
                 const Icon = item.icon;
                 return (
@@ -42,14 +44,38 @@ const Navbar = ({ activeView, onViewChange }: NavbarProps) => {
                     key={item.id}
                     variant="ghost"
                     onClick={() => onViewChange(item.id)}
-                    className={`relative px-4 py-2 rounded-lg transition-all duration-300 ${
+                    className={`relative flex flex-col items-center px-4 py-2 h-14 rounded-lg transition-all duration-300 ${
                       activeView === item.id
                         ? 'bg-white/10 text-white'
                         : 'text-gray-300 hover:text-white hover:bg-white/5'
                     }`}
                   >
-                    <Icon className="w-4 h-4 mr-2" />
-                    {item.label}
+                    <Icon className="w-5 h-5 mb-1" />
+                    <span className="text-xs font-medium">{item.label}</span>
+                    {activeView === item.id && (
+                      <div className="absolute bottom-0 left-0 right-0 h-0.5 netflix-gradient rounded-full" />
+                    )}
+                  </Button>
+                );
+              })}
+            </div>
+
+            {/* Tablet Menu - Icons Only */}
+            <div className="hidden md:flex lg:hidden items-center space-x-1">
+              {menuItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Button
+                    key={item.id}
+                    variant="ghost"
+                    onClick={() => onViewChange(item.id)}
+                    className={`relative p-3 rounded-lg transition-all duration-300 ${
+                      activeView === item.id
+                        ? 'bg-white/10 text-white'
+                        : 'text-gray-300 hover:text-white hover:bg-white/5'
+                    }`}
+                  >
+                    <Icon className="w-5 h-5" />
                     {activeView === item.id && (
                       <div className="absolute bottom-0 left-0 right-0 h-0.5 netflix-gradient rounded-full" />
                     )}
@@ -60,16 +86,20 @@ const Navbar = ({ activeView, onViewChange }: NavbarProps) => {
 
             {/* Mobile Menu Button */}
             <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="md:hidden text-white p-2"
             >
-              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              <div className="w-6 h-6 flex flex-col justify-center space-y-1">
+                <div className={`h-0.5 bg-current transition-all ${isMobileMenuOpen ? 'rotate-45 translate-y-1' : ''}`} />
+                <div className={`h-0.5 bg-current transition-all ${isMobileMenuOpen ? 'opacity-0' : ''}`} />
+                <div className={`h-0.5 bg-current transition-all ${isMobileMenuOpen ? '-rotate-45 -translate-y-1' : ''}`} />
+              </div>
             </button>
           </div>
         </div>
 
         {/* Mobile Menu */}
-        {isMenuOpen && (
+        {isMobileMenuOpen && (
           <div className="md:hidden bg-netflix-dark/95 backdrop-blur-md border-t border-white/10 animate-slide-up">
             <div className="px-4 py-2 space-y-1">
               {menuItems.map((item) => {
@@ -79,7 +109,7 @@ const Navbar = ({ activeView, onViewChange }: NavbarProps) => {
                     key={item.id}
                     onClick={() => {
                       onViewChange(item.id);
-                      setIsMenuOpen(false);
+                      setIsMobileMenuOpen(false);
                     }}
                     className={`w-full flex items-center px-4 py-3 rounded-lg transition-all duration-300 ${
                       activeView === item.id

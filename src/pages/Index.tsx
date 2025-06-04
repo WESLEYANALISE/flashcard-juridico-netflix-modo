@@ -1,66 +1,66 @@
 
 import { useState } from 'react';
-import { useFlashcards } from '@/hooks/useFlashcards';
-import { mapSupabaseFlashcard } from '@/utils/flashcardMapper';
-import { Flashcard } from '@/types/flashcard';
 import Navbar from '@/components/Navbar';
 import StudyView from '@/components/StudyView';
 import StatsView from '@/components/StatsView';
 import SettingsView from '@/components/SettingsView';
+import PlaylistView from '@/components/PlaylistView';
+import DailyMissions from '@/components/DailyMissions';
 
 const Index = () => {
   const [activeView, setActiveView] = useState('study');
-  const [localFlashcards, setLocalFlashcards] = useState<Record<string, Partial<Flashcard>>>({});
-  
-  const { data: supabaseFlashcards = [], isLoading, error } = useFlashcards();
+  const [flashcards, setFlashcards] = useState([]);
 
-  // Convert Supabase flashcards to our format and merge with local updates
-  const flashcards: Flashcard[] = supabaseFlashcards.map(supabaseCard => {
-    const mappedCard = mapSupabaseFlashcard(supabaseCard);
-    const localUpdates = localFlashcards[mappedCard.id] || {};
-    return { ...mappedCard, ...localUpdates };
-  });
-
-  const handleUpdateFlashcard = (id: string, updates: Partial<Flashcard>) => {
-    setLocalFlashcards(prev => ({
-      ...prev,
-      [id]: { ...prev[id], ...updates }
-    }));
+  const handleUpdateFlashcard = (id: string, updates: any) => {
+    setFlashcards(prev => 
+      prev.map(card => 
+        card.id === id ? { ...card, ...updates } : card
+      )
+    );
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-netflix-black flex items-center justify-center">
-        <div className="text-white text-xl">Carregando flashcards...</div>
-      </div>
-    );
-  }
+  const handleStudyPlaylist = (playlistId: string) => {
+    // Implementation for studying a specific playlist
+    console.log('Studying playlist:', playlistId);
+    setActiveView('study');
+  };
 
-  if (error) {
-    return (
-      <div className="min-h-screen bg-netflix-black flex items-center justify-center">
-        <div className="text-white text-xl">Erro ao carregar flashcards</div>
-      </div>
-    );
-  }
-
-  const renderView = () => {
+  const renderActiveView = () => {
     switch (activeView) {
       case 'study':
-        return <StudyView flashcards={flashcards} onUpdateFlashcard={handleUpdateFlashcard} />;
+        return (
+          <StudyView 
+            flashcards={flashcards} 
+            onUpdateFlashcard={handleUpdateFlashcard} 
+          />
+        );
+      case 'playlist':
+        return (
+          <PlaylistView 
+            onClose={() => setActiveView('study')}
+            onStudyPlaylist={handleStudyPlaylist}
+          />
+        );
+      case 'missions':
+        return <DailyMissions />;
       case 'stats':
-        return <StatsView flashcards={flashcards} />;
+        return <StatsView />;
       case 'settings':
         return <SettingsView />;
       default:
-        return <StudyView flashcards={flashcards} onUpdateFlashcard={handleUpdateFlashcard} />;
+        return (
+          <StudyView 
+            flashcards={flashcards} 
+            onUpdateFlashcard={handleUpdateFlashcard} 
+          />
+        );
     }
   };
 
   return (
     <div className="min-h-screen bg-netflix-black">
       <Navbar activeView={activeView} onViewChange={setActiveView} />
-      {renderView()}
+      {renderActiveView()}
     </div>
   );
 };
