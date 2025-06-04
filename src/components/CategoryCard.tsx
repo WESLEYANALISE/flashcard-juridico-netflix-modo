@@ -64,9 +64,7 @@ const CategoryCard = ({
     }} />
       
       {/* Floating Scales */}
-      <Scale className="absolute top-4 right-4 w-4 h-4 opacity-20 animate-pulse" style={{
-      color: category.color
-    }} />
+      
     </div>;
 };
 export default CategoryCard;
