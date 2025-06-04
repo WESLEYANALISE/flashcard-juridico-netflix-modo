@@ -1,4 +1,5 @@
 
+import { Scale } from 'lucide-react';
 import { Category } from '@/types/flashcard';
 
 interface CategoryCardProps {
@@ -26,11 +27,17 @@ const CategoryCard = ({ category, cardCount, studiedCount, isSelected, onClick }
       
       <div className="relative p-6">
         <div className="flex items-start justify-between mb-4">
-          <div className="text-4xl mb-2">{category.icon}</div>
+          <div className="flex items-center space-x-3">
+            <Scale 
+              className="w-8 h-8 animate-pulse transition-all duration-300 group-hover:scale-110" 
+              style={{ color: category.color }}
+            />
+            <div className="text-3xl">{category.icon}</div>
+          </div>
           <div className="text-right">
-            <div className="text-sm text-gray-400">Estudados</div>
+            <div className="text-sm text-gray-400">Total Cards</div>
             <div className="text-lg font-semibold text-white">
-              {studiedCount}/{cardCount}
+              {cardCount}
             </div>
           </div>
         </div>
@@ -56,13 +63,19 @@ const CategoryCard = ({ category, cardCount, studiedCount, isSelected, onClick }
         
         <div className="flex justify-between items-center text-xs text-gray-500">
           <span>{Math.round(progressPercentage)}% completo</span>
-          <span>{cardCount} cards</span>
+          <span>Toque para estudar</span>
         </div>
       </div>
       
-      {/* Hover Glow Effect */}
+      {/* Enhanced Hover Effect */}
       <div className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-300 pointer-events-none"
            style={{ background: `radial-gradient(circle at center, ${category.color} 0%, transparent 70%)` }} />
+      
+      {/* Floating Scales */}
+      <Scale 
+        className="absolute top-4 right-4 w-4 h-4 opacity-20 animate-pulse"
+        style={{ color: category.color }}
+      />
     </div>
   );
 };
