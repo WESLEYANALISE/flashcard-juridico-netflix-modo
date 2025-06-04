@@ -1,12 +1,15 @@
 
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Shuffle, TrendingUp, Award, Target } from 'lucide-react';
+import { ArrowLeft, Shuffle, TrendingUp, Award, Target, Plus, List } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Flashcard } from '@/types/flashcard';
 import { useFlashcardAreas } from '@/hooks/useFlashcards';
 import { generateCategoriesFromAreas } from '@/utils/flashcardMapper';
 import CategoryCard from './CategoryCard';
 import FlashCard from './FlashCard';
+import PlaylistManager from './PlaylistManager';
+import SessionStats from './SessionStats';
+import GeneralSummary from './GeneralSummary';
 
 interface StudyViewProps {
   flashcards: Flashcard[];
@@ -17,11 +20,13 @@ const StudyView = ({ flashcards, onUpdateFlashcard }: StudyViewProps) => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [isShuffled, setIsShuffled] = useState(false);
+  const [showPlaylistManager, setShowPlaylistManager] = useState(false);
   const [sessionStats, setSessionStats] = useState({
     correct: 0,
     total: 0,
     streak: 0,
-    maxStreak: 0
+    maxStreak: 0,
+    completed: false
   });
 
   const { data: areas = [] } = useFlashcardAreas();
@@ -51,6 +56,7 @@ const StudyView = ({ flashcards, onUpdateFlashcard }: StudyViewProps) => {
 
   useEffect(() => {
     setCurrentCardIndex(0);
+    setSessionStats({ correct: 0, total: 0, streak: 0, maxStreak: 0, completed: false });
   }, [selectedCategory, isShuffled]);
 
   const handleAnswer = (correct: boolean) => {
@@ -60,7 +66,8 @@ const StudyView = ({ flashcards, onUpdateFlashcard }: StudyViewProps) => {
       correct: sessionStats.correct + (correct ? 1 : 0),
       total: sessionStats.total + 1,
       streak: correct ? sessionStats.streak + 1 : 0,
-      maxStreak: correct ? Math.max(sessionStats.streak + 1, sessionStats.maxStreak) : sessionStats.maxStreak
+      maxStreak: correct ? Math.max(sessionStats.streak + 1, sessionStats.maxStreak) : sessionStats.maxStreak,
+      completed: false
     };
     setSessionStats(newStats);
 
@@ -76,12 +83,16 @@ const StudyView = ({ flashcards, onUpdateFlashcard }: StudyViewProps) => {
       if (currentCardIndex < currentCards.length - 1) {
         setCurrentCardIndex(currentCardIndex + 1);
       } else {
-        // End of deck - show completion
-        alert(`Parabéns! Você completou esta categoria!\n\nAcertos: ${newStats.correct}/${newStats.total}\nSequência máxima: ${newStats.maxStreak}`);
-        setSelectedCategory(null);
-        setSessionStats({ correct: 0, total: 0, streak: 0, maxStreak: 0 });
+        // End of deck - mark as completed
+        setSessionStats(prev => ({ ...prev, completed: true }));
       }
     }, 1000);
+  };
+
+  const handleFinishSession = () => {
+    setSelectedCategory(null);
+    setCurrentCardIndex(0);
+    setSessionStats({ correct: 0, total: 0, streak: 0, maxStreak: 0, completed: false });
   };
 
   const handleShuffle = () => {
@@ -91,25 +102,56 @@ const StudyView = ({ flashcards, onUpdateFlashcard }: StudyViewProps) => {
   const handleBack = () => {
     setSelectedCategory(null);
     setCurrentCardIndex(0);
-    setSessionStats({ correct: 0, total: 0, streak: 0, maxStreak: 0 });
+    setSessionStats({ correct: 0, total: 0, streak: 0, maxStreak: 0, completed: false });
   };
+
+  if (showPlaylistManager) {
+    return (
+      <PlaylistManager
+        flashcards={flashcards}
+        categories={categories}
+        onClose={() => setShowPlaylistManager(false)}
+      />
+    );
+  }
 
   if (!selectedCategory) {
     return (
-      <div className="min-h-screen bg-netflix-black px-4 py-8">
+      <div className="min-h-screen bg-netflix-black px-2 sm:px-4 py-4 sm:py-8">
         <div className="max-w-7xl mx-auto">
+          {/* General Summary - Always at top */}
+          <GeneralSummary flashcards={flashcards} categories={categories} />
+
           {/* Header */}
-          <div className="text-center mb-12 animate-fade-in">
-            <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
+          <div className="text-center mb-8 sm:mb-12 animate-fade-in">
+            <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white mb-4">
               Escolha uma <span className="text-netflix-red">Categoria</span>
             </h1>
-            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+            <p className="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto px-4">
               Selecione a área do direito que deseja estudar e domine os conceitos fundamentais
             </p>
           </div>
 
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-8 justify-center">
+            <Button
+              onClick={() => setShowPlaylistManager(true)}
+              className="bg-netflix-red hover:bg-netflix-red/80 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 flex items-center justify-center"
+            >
+              <Plus className="w-5 h-5 mr-2" />
+              Criar Playlist
+            </Button>
+            <Button
+              variant="outline"
+              className="bg-white/10 border-white/20 text-white hover:bg-white/20 font-semibold py-3 px-6 rounded-xl transition-all duration-300 flex items-center justify-center"
+            >
+              <List className="w-5 h-5 mr-2" />
+              Minhas Playlists
+            </Button>
+          </div>
+
           {/* Categories Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
             {categoryStats.map((category, index) => (
               <div
                 key={category.id}
@@ -126,50 +168,31 @@ const StudyView = ({ flashcards, onUpdateFlashcard }: StudyViewProps) => {
               </div>
             ))}
           </div>
-
-          {/* Quick Stats */}
-          <div className="bg-netflix-dark/50 rounded-2xl p-6 glass-effect animate-fade-in">
-            <h3 className="text-xl font-semibold text-white mb-4">Resumo Geral</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-netflix-red">
-                  {flashcards.length}
-                </div>
-                <div className="text-sm text-gray-400">Total de Cards</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-400">
-                  {flashcards.filter(card => card.studied).length}
-                </div>
-                <div className="text-sm text-gray-400">Estudados</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-netflix-gold">
-                  {Math.round((flashcards.filter(card => card.studied).length / flashcards.length) * 100) || 0}%
-                </div>
-                <div className="text-sm text-gray-400">Progresso</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-blue-400">
-                  {categories.length}
-                </div>
-                <div className="text-sm text-gray-400">Categorias</div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
+    );
+  }
+
+  // Show session completion stats
+  if (sessionStats.completed) {
+    return (
+      <SessionStats
+        stats={sessionStats}
+        categoryName={selectedCategory}
+        onFinish={handleFinishSession}
+        onContinue={() => setSessionStats(prev => ({ ...prev, completed: false }))}
+      />
     );
   }
 
   const selectedCategoryData = categories.find(cat => cat.name === selectedCategory);
 
   return (
-    <div className="min-h-screen bg-netflix-black px-4 py-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-netflix-black px-2 sm:px-4 py-4 sm:py-8">
+      <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8 animate-fade-in">
-          <div className="flex items-center space-x-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 animate-fade-in space-y-4 sm:space-y-0">
+          <div className="flex items-center space-x-3 sm:space-x-4">
             <Button
               onClick={handleBack}
               variant="outline"
@@ -181,10 +204,10 @@ const StudyView = ({ flashcards, onUpdateFlashcard }: StudyViewProps) => {
             </Button>
             
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-white">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">
                 {selectedCategoryData?.name}
               </h1>
-              <p className="text-gray-400">
+              <p className="text-sm sm:text-base text-gray-400">
                 Card {currentCardIndex + 1} de {currentCards.length}
               </p>
             </div>
@@ -206,10 +229,10 @@ const StudyView = ({ flashcards, onUpdateFlashcard }: StudyViewProps) => {
         </div>
 
         {/* Progress Bar */}
-        <div className="mb-8 animate-fade-in">
+        <div className="mb-6 sm:mb-8 animate-fade-in">
           <div className="flex justify-between items-center mb-2">
-            <span className="text-sm text-gray-400">Progresso da Sessão</span>
-            <span className="text-sm text-gray-400">
+            <span className="text-xs sm:text-sm text-gray-400">Progresso da Sessão</span>
+            <span className="text-xs sm:text-sm text-gray-400">
               {Math.round(((currentCardIndex + 1) / currentCards.length) * 100)}%
             </span>
           </div>
@@ -220,34 +243,6 @@ const StudyView = ({ flashcards, onUpdateFlashcard }: StudyViewProps) => {
             />
           </div>
         </div>
-
-        {/* Session Stats */}
-        {sessionStats.total > 0 && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 animate-fade-in">
-            <div className="bg-green-500/20 rounded-lg p-4 text-center">
-              <Award className="w-6 h-6 text-green-400 mx-auto mb-2" />
-              <div className="text-lg font-bold text-green-400">{sessionStats.correct}</div>
-              <div className="text-xs text-gray-400">Acertos</div>
-            </div>
-            <div className="bg-blue-500/20 rounded-lg p-4 text-center">
-              <Target className="w-6 h-6 text-blue-400 mx-auto mb-2" />
-              <div className="text-lg font-bold text-blue-400">{sessionStats.total}</div>
-              <div className="text-xs text-gray-400">Total</div>
-            </div>
-            <div className="bg-orange-500/20 rounded-lg p-4 text-center">
-              <TrendingUp className="w-6 h-6 text-orange-400 mx-auto mb-2" />
-              <div className="text-lg font-bold text-orange-400">{sessionStats.streak}</div>
-              <div className="text-xs text-gray-400">Sequência</div>
-            </div>
-            <div className="bg-purple-500/20 rounded-lg p-4 text-center">
-              <Award className="w-6 h-6 text-purple-400 mx-auto mb-2" />
-              <div className="text-lg font-bold text-purple-400">
-                {sessionStats.total > 0 ? Math.round((sessionStats.correct / sessionStats.total) * 100) : 0}%
-              </div>
-              <div className="text-xs text-gray-400">Precisão</div>
-            </div>
-          </div>
-        )}
 
         {/* Flashcard */}
         {currentCard && (

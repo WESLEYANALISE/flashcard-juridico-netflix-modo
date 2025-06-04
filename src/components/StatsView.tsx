@@ -3,13 +3,18 @@ import { useMemo } from 'react';
 import { TrendingUp, Target, Award, Clock, BookOpen, Brain, Zap, Trophy } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Flashcard } from '@/types/flashcard';
-import { categories } from '@/data/flashcards';
+import { useFlashcardAreas } from '@/hooks/useFlashcards';
+import { generateCategoriesFromAreas } from '@/utils/flashcardMapper';
+import GeneralSummary from './GeneralSummary';
 
 interface StatsViewProps {
   flashcards: Flashcard[];
 }
 
 const StatsView = ({ flashcards }: StatsViewProps) => {
+  const { data: areas = [] } = useFlashcardAreas();
+  const categories = generateCategoriesFromAreas(areas);
+
   const stats = useMemo(() => {
     const totalCards = flashcards.length;
     const studiedCards = flashcards.filter(card => card.studied).length;
@@ -38,7 +43,7 @@ const StatsView = ({ flashcards }: StatsViewProps) => {
 
     // Category breakdown
     const categoryStats = categories.map(category => {
-      const categoryCards = flashcards.filter(card => card.category === category.id);
+      const categoryCards = flashcards.filter(card => card.category === category.name);
       const categoryStudied = categoryCards.filter(card => card.studied).length;
       const categoryCorrect = categoryCards.reduce((sum, card) => sum + card.correctAnswers, 0);
       const categoryAttempts = categoryCards.reduce((sum, card) => sum + card.totalAttempts, 0);
@@ -77,42 +82,45 @@ const StatsView = ({ flashcards }: StatsViewProps) => {
       totalCorrect,
       totalAttempts
     };
-  }, [flashcards]);
+  }, [flashcards, categories]);
 
   const StatCard = ({ icon: Icon, title, value, subtitle, color, gradient }: any) => (
-    <Card className="bg-netflix-dark/50 border-white/10 p-6 hover-lift glass-effect">
+    <Card className="bg-netflix-dark/50 border-white/10 p-4 sm:p-6 hover-lift glass-effect">
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <div className="flex items-center space-x-3 mb-3">
-            <div className={`p-3 rounded-lg ${gradient}`}>
-              <Icon className={`w-6 h-6 ${color}`} />
+            <div className={`p-2 sm:p-3 rounded-lg ${gradient}`}>
+              <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${color}`} />
             </div>
             <div>
-              <h3 className="font-semibold text-white">{title}</h3>
-              <p className="text-sm text-gray-400">{subtitle}</p>
+              <h3 className="font-semibold text-white text-sm sm:text-base">{title}</h3>
+              <p className="text-xs sm:text-sm text-gray-400">{subtitle}</p>
             </div>
           </div>
-          <div className="text-3xl font-bold text-white">{value}</div>
+          <div className="text-2xl sm:text-3xl font-bold text-white">{value}</div>
         </div>
       </div>
     </Card>
   );
 
   return (
-    <div className="min-h-screen bg-netflix-black px-4 py-8">
+    <div className="min-h-screen bg-netflix-black px-2 sm:px-4 py-4 sm:py-8">
       <div className="max-w-7xl mx-auto">
+        {/* General Summary at top */}
+        <GeneralSummary flashcards={flashcards} categories={categories} />
+
         {/* Header */}
-        <div className="text-center mb-12 animate-fade-in">
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
+        <div className="text-center mb-8 sm:mb-12 animate-fade-in">
+          <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white mb-4">
             Suas <span className="text-netflix-red">Estatísticas</span>
           </h1>
-          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+          <p className="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto px-4">
             Acompanhe seu progresso e performance nos estudos jurídicos
           </p>
         </div>
 
         {/* Main Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-8">
           <div className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
             <StatCard
               icon={BookOpen}
@@ -160,13 +168,13 @@ const StatsView = ({ flashcards }: StatsViewProps) => {
 
         {/* Performance by Difficulty */}
         <div className="mb-8 animate-fade-in" style={{ animationDelay: '0.5s' }}>
-          <Card className="bg-netflix-dark/50 border-white/10 p-6 glass-effect">
-            <h3 className="text-xl font-semibold text-white mb-6 flex items-center">
-              <Brain className="w-6 h-6 mr-3 text-purple-400" />
+          <Card className="bg-netflix-dark/50 border-white/10 p-4 sm:p-6 glass-effect">
+            <h3 className="text-lg sm:text-xl font-semibold text-white mb-6 flex items-center">
+              <Brain className="w-5 h-5 sm:w-6 sm:h-6 mr-3 text-purple-400" />
               Performance por Dificuldade
             </h3>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
               {stats.difficultyStats.map((difficulty, index) => {
                 const colors = [
                   { bg: 'bg-green-500/20', text: 'text-green-400', border: 'border-green-500/30' },
@@ -179,7 +187,7 @@ const StatsView = ({ flashcards }: StatsViewProps) => {
                   <div key={difficulty.difficulty} className={`p-4 rounded-lg border ${color.bg} ${color.border}`}>
                     <div className="text-center">
                       <h4 className={`font-semibold ${color.text} mb-2`}>{difficulty.difficulty}</h4>
-                      <div className={`text-2xl font-bold ${color.text} mb-1`}>
+                      <div className={`text-xl sm:text-2xl font-bold ${color.text} mb-1`}>
                         {Math.round(difficulty.accuracy)}%
                       </div>
                       <p className="text-xs text-gray-400">
@@ -205,35 +213,35 @@ const StatsView = ({ flashcards }: StatsViewProps) => {
 
         {/* Progress by Category */}
         <div className="animate-fade-in" style={{ animationDelay: '0.6s' }}>
-          <Card className="bg-netflix-dark/50 border-white/10 p-6 glass-effect">
-            <h3 className="text-xl font-semibold text-white mb-6 flex items-center">
-              <Trophy className="w-6 h-6 mr-3 text-netflix-gold" />
+          <Card className="bg-netflix-dark/50 border-white/10 p-4 sm:p-6 glass-effect">
+            <h3 className="text-lg sm:text-xl font-semibold text-white mb-6 flex items-center">
+              <Trophy className="w-5 h-5 sm:w-6 sm:h-6 mr-3 text-netflix-gold" />
               Progresso por Categoria
             </h3>
             
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {stats.categoryStats.map((category) => (
                 <div key={category.id} className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      <span className="text-2xl">{category.icon}</span>
+                      <span className="text-xl sm:text-2xl">{category.icon}</span>
                       <div>
-                        <h4 className="font-semibold text-white">{category.name}</h4>
-                        <p className="text-sm text-gray-400">
+                        <h4 className="font-semibold text-white text-sm sm:text-base">{category.name}</h4>
+                        <p className="text-xs sm:text-sm text-gray-400">
                           {category.studied}/{category.total} cards • {Math.round(category.accuracy)}% precisão
                         </p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-lg font-bold text-white">
+                      <div className="text-base sm:text-lg font-bold text-white">
                         {Math.round(category.progress)}%
                       </div>
                     </div>
                   </div>
                   
-                  <div className="w-full bg-gray-700 rounded-full h-3">
+                  <div className="w-full bg-gray-700 rounded-full h-2 sm:h-3">
                     <div
-                      className="h-3 rounded-full transition-all duration-700"
+                      className="h-2 sm:h-3 rounded-full transition-all duration-700"
                       style={{
                         width: `${category.progress}%`,
                         background: `linear-gradient(90deg, ${category.color} 0%, ${category.color}80 100%)`
@@ -248,10 +256,10 @@ const StatsView = ({ flashcards }: StatsViewProps) => {
 
         {/* Achievement Section */}
         <div className="mt-8 text-center animate-fade-in" style={{ animationDelay: '0.7s' }}>
-          <Card className="bg-gradient-to-r from-netflix-red/20 to-netflix-gold/20 border-netflix-red/30 p-8 glass-effect">
-            <Trophy className="w-16 h-16 text-netflix-gold mx-auto mb-4 animate-glow" />
-            <h3 className="text-2xl font-bold text-white mb-2">Continue Estudando!</h3>
-            <p className="text-gray-300 max-w-2xl mx-auto">
+          <Card className="bg-gradient-to-r from-netflix-red/20 to-netflix-gold/20 border-netflix-red/30 p-6 sm:p-8 glass-effect">
+            <Trophy className="w-12 h-12 sm:w-16 sm:h-16 text-netflix-gold mx-auto mb-4 animate-glow" />
+            <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">Continue Estudando!</h3>
+            <p className="text-sm sm:text-base text-gray-300 max-w-2xl mx-auto">
               Você está no caminho certo para dominar o direito. 
               {stats.studiedCards === stats.totalCards 
                 ? ' Parabéns! Você completou todos os flashcards!' 
