@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Shuffle, Scale } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -131,7 +132,7 @@ const StudyView = ({
           completed: true
         }));
       }
-    }, 500);
+    }, 600);
   };
 
   const handleBackToCategories = () => {
@@ -190,70 +191,59 @@ const StudyView = ({
   // Study session step
   if (currentStep === 'studying' && selectedArea && currentCard) {
     return (
-      <div className="min-h-screen bg-netflix-black px-2 sm:px-4 py-4 sm:py-8">
-        <div className="max-w-4xl mx-auto">
-          {/* Improved Header */}
-          <div className="bg-netflix-dark/30 backdrop-blur-sm rounded-2xl p-4 sm:p-6 mb-6 sm:mb-8 animate-fade-in border border-white/10">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0">
-              {/* Left side - Back button and Area info */}
-              <div className="flex items-center space-x-4">
-                <Button 
-                  onClick={handleBackToThemes} 
-                  variant="outline" 
-                  size="sm" 
-                  className="bg-white/10 border-white/20 text-white hover:bg-white/20 flex items-center space-x-2"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  <span className="hidden sm:inline">Temas</span>
-                </Button>
-                
-                <div className="flex items-center space-x-3">
-                  <div className="p-2 rounded-lg" style={{ backgroundColor: `${selectedCategory?.color}20` }}>
-                    <Scale 
-                      className="w-6 h-6" 
-                      style={{ color: selectedCategory?.color }}
-                    />
-                  </div>
-                  <div>
-                    <h1 className="text-xl sm:text-2xl font-bold text-white">
-                      {selectedArea}
-                    </h1>
-                    <p className="text-sm text-gray-400">
-                      {selectedThemes.join(' • ')}
-                    </p>
-                  </div>
-                </div>
-              </div>
+      <div className="min-h-screen bg-netflix-black relative overflow-hidden">
+        {/* Legal Background Elements */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute top-10 left-10 text-8xl font-serif text-white/10 rotate-12">§</div>
+          <div className="absolute top-32 right-20 text-6xl font-serif text-white/10 -rotate-12">⚖</div>
+          <div className="absolute bottom-20 left-20 text-7xl font-serif text-white/10 rotate-6">Art.</div>
+          <div className="absolute bottom-40 right-10 text-5xl font-serif text-white/10 -rotate-6">Lei</div>
+          <div className="absolute top-1/2 left-1/3 text-4xl font-serif text-white/10 rotate-45">CF</div>
+          <div className="absolute top-2/3 right-1/3 text-4xl font-serif text-white/10 -rotate-45">CC</div>
+        </div>
 
-              {/* Right side - Shuffle button */}
+        <div className="relative z-10 px-2 sm:px-4 py-4 sm:py-8">
+          {/* Minimal Top Controls */}
+          <div className="max-w-4xl mx-auto mb-8">
+            <div className="flex items-center justify-between">
               <Button 
-                onClick={handleShuffle} 
+                onClick={handleBackToThemes} 
                 variant="outline" 
                 size="sm" 
-                className={`${
-                  isShuffled 
-                    ? 'bg-netflix-red/20 border-netflix-red/50 text-netflix-red' 
-                    : 'bg-white/10 border-white/20 text-white'
-                } hover:bg-netflix-red/30 flex items-center space-x-2`}
+                className="bg-white/10 border-white/20 text-white hover:bg-white/20 flex items-center space-x-2 backdrop-blur-sm"
               >
-                <Shuffle className="w-4 h-4" />
-                <span className="hidden sm:inline">
-                  {isShuffled ? 'Embaralhado' : 'Embaralhar'}
-                </span>
+                <ArrowLeft className="w-4 h-4" />
+                <span className="hidden sm:inline">Voltar</span>
               </Button>
+              
+              <div className="flex items-center space-x-4">
+                <Button 
+                  onClick={handleShuffle} 
+                  variant="outline" 
+                  size="sm" 
+                  className={`${
+                    isShuffled 
+                      ? 'bg-netflix-red/20 border-netflix-red/50 text-netflix-red' 
+                      : 'bg-white/10 border-white/20 text-white'
+                  } hover:bg-netflix-red/30 flex items-center space-x-2 backdrop-blur-sm`}
+                >
+                  <Shuffle className="w-4 h-4" />
+                  <span className="hidden sm:inline">
+                    {isShuffled ? 'Embaralhado' : 'Embaralhar'}
+                  </span>
+                </Button>
+                
+                <div className="text-white text-sm bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2">
+                  {currentCardIndex + 1}/{currentCards.length}
+                </div>
+              </div>
             </div>
 
-            {/* Progress Bar */}
+            {/* Minimal Progress Bar */}
             <div className="mt-4">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-xs sm:text-sm text-gray-400">Progresso da Sessão</span>
-                <span className="text-xs sm:text-sm text-gray-400">
-                  {Math.round((currentCardIndex + 1) / currentCards.length * 100)}%
-                </span>
-              </div>
-              <div className="w-full bg-gray-700/50 rounded-full h-2">
+              <div className="w-full bg-gray-700/30 rounded-full h-1">
                 <div 
-                  className="h-2 rounded-full transition-all duration-500" 
+                  className="h-1 rounded-full transition-all duration-500" 
                   style={{
                     width: `${(currentCardIndex + 1) / currentCards.length * 100}%`,
                     background: `linear-gradient(90deg, ${selectedCategory?.color || '#E50914'}, ${selectedCategory?.color || '#E50914'}80)`
@@ -264,15 +254,17 @@ const StudyView = ({
           </div>
 
           {/* Flashcard */}
-          <AnimatedFlashCard 
-            flashcard={currentCard} 
-            onAnswer={handleAnswer} 
-            showAnswerByDefault={false} 
-            areaColor={selectedCategory?.color || '#E50914'} 
-            isExiting={isCardExiting} 
-            exitDirection={exitDirection} 
-            tema={selectedFlashcards[currentCardIndex]?.tema}
-          />
+          <div className="max-w-4xl mx-auto">
+            <AnimatedFlashCard 
+              flashcard={currentCard} 
+              onAnswer={handleAnswer} 
+              showAnswerByDefault={false} 
+              areaColor={selectedCategory?.color || '#E50914'} 
+              isExiting={isCardExiting} 
+              exitDirection={exitDirection} 
+              tema={selectedFlashcards[currentCardIndex]?.tema}
+            />
+          </div>
         </div>
       </div>
     );
