@@ -11,6 +11,7 @@ interface AnimatedFlashCardProps {
   areaColor: string;
   isExiting?: boolean;
   exitDirection?: 'left' | 'right';
+  tema?: string;
 }
 
 const AnimatedFlashCard = ({ 
@@ -19,7 +20,8 @@ const AnimatedFlashCard = ({
   showAnswerByDefault = false, 
   areaColor,
   isExiting = false,
-  exitDirection = 'right'
+  exitDirection = 'right',
+  tema
 }: AnimatedFlashCardProps) => {
   const [showAnswer, setShowAnswer] = useState(showAnswerByDefault);
   const [isFlipping, setIsFlipping] = useState(false);
@@ -98,7 +100,7 @@ const AnimatedFlashCard = ({
                     {flashcard.category}
                   </h2>
                   <p className="text-sm text-gray-400">
-                    Tema: {flashcard.category}
+                    Tema: {tema || 'Não especificado'}
                   </p>
                 </div>
               </div>

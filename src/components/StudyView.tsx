@@ -251,6 +251,7 @@ const StudyView = ({ onUpdateFlashcard }: StudyViewProps) => {
             areaColor={selectedCategory?.color || '#E50914'}
             isExiting={isCardExiting}
             exitDirection={exitDirection}
+            tema={selectedFlashcards[currentCardIndex]?.tema}
           />
         </div>
       </div>
