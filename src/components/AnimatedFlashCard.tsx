@@ -1,7 +1,9 @@
+
 import { useState, useEffect } from 'react';
 import { Flashcard } from '@/types/flashcard';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, XCircle, Eye, EyeOff, Scale } from 'lucide-react';
+import { CheckCircle, XCircle, Scale } from 'lucide-react';
+
 interface AnimatedFlashCardProps {
   flashcard: Flashcard;
   onAnswer: (correct: boolean) => void;
@@ -11,6 +13,7 @@ interface AnimatedFlashCardProps {
   exitDirection?: 'left' | 'right';
   tema?: string;
 }
+
 const AnimatedFlashCard = ({
   flashcard,
   onAnswer,
@@ -22,24 +25,20 @@ const AnimatedFlashCard = ({
 }: AnimatedFlashCardProps) => {
   const [showAnswer, setShowAnswer] = useState(showAnswerByDefault);
   const [isFlipping, setIsFlipping] = useState(false);
-  const [particles, setParticles] = useState<Array<{
-    id: number;
-    x: number;
-    y: number;
-    color: string;
-  }>>([]);
+
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'Fácil':
-        return 'bg-green-500/20 text-green-300 border-green-500/30';
+        return 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40';
       case 'Médio':
-        return 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30';
+        return 'bg-amber-500/20 text-amber-300 border-amber-500/40';
       case 'Difícil':
-        return 'bg-red-500/20 text-red-300 border-red-500/30';
+        return 'bg-rose-500/20 text-rose-300 border-rose-500/40';
       default:
-        return 'bg-gray-500/20 text-gray-300 border-gray-500/30';
+        return 'bg-slate-500/20 text-slate-300 border-slate-500/40';
     }
   };
+
   const handleShowAnswer = () => {
     setIsFlipping(true);
     setTimeout(() => {
@@ -47,135 +46,152 @@ const AnimatedFlashCard = ({
       setIsFlipping(false);
     }, 150);
   };
-  const handleAnswer = (correct: boolean) => {
-    // Create particles effect
-    const newParticles = Array.from({
-      length: 12
-    }, (_, i) => ({
-      id: Date.now() + i,
-      x: 20 + Math.random() * 60,
-      y: 20 + Math.random() * 60,
-      color: correct ? '#10B981' : '#EF4444'
-    }));
-    setParticles(newParticles);
 
-    // Remove particles after animation
-    setTimeout(() => setParticles([]), 1500);
+  const handleAnswer = (correct: boolean) => {
     onAnswer(correct);
   };
-  const cardExitClass = isExiting ? exitDirection === 'right' ? 'translate-x-full opacity-0 scale-95' : '-translate-x-full opacity-0 scale-95' : 'translate-x-0 opacity-100 scale-100';
-  return <div className="w-full max-w-md sm:max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-4xl mx-auto relative px-[9px]">
-      {/* Particles */}
-      {particles.map(particle => <div key={particle.id} className="absolute w-3 h-3 rounded-full pointer-events-none z-50 animate-bounce" style={{
-      backgroundColor: particle.color,
-      left: `${particle.x}%`,
-      top: `${particle.y}%`,
-      boxShadow: `0 0 10px ${particle.color}`,
-      animation: `bounce 1s ease-out forwards, fadeOut 1.5s ease-out forwards`
-    }} />)}
 
+  const cardExitClass = isExiting 
+    ? exitDirection === 'right' 
+      ? 'translate-x-full opacity-0 scale-95' 
+      : '-translate-x-full opacity-0 scale-95' 
+    : 'translate-x-0 opacity-100 scale-100';
+
+  return (
+    <div className="w-full max-w-md sm:max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-4xl mx-auto relative px-2">
       <div className={`relative transform transition-all duration-500 ease-out ${cardExitClass}`}>
         {/* Main Card */}
-        <div className={`w-full bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900 rounded-2xl sm:rounded-3xl border border-neutral-700/50 overflow-hidden shadow-2xl backdrop-blur-sm transition-all duration-300 ${isFlipping ? 'scale-98' : 'hover:scale-[1.01]'}`}>
+        <div className={`w-full bg-gradient-to-br from-neutral-900/95 via-neutral-800/95 to-neutral-900/95 rounded-2xl sm:rounded-3xl border border-neutral-600/40 overflow-hidden shadow-2xl backdrop-blur-lg transition-all duration-300 ${isFlipping ? 'scale-98' : 'hover:scale-[1.01]'}`}>
           
-          {/* Card Header */}
-          <div className="bg-gradient-to-r from-neutral-800/80 to-neutral-700/60 border-b border-neutral-600/30 p-4 sm:p-6 md:p-8 relative overflow-hidden">
-            {/* Legal background elements */}
-            <div className="absolute inset-0 opacity-5">
-              <div className="absolute top-2 left-4 text-3xl sm:text-4xl md:text-5xl font-serif text-amber-400/30">§</div>
-              <div className="absolute top-4 right-6 text-2xl sm:text-3xl font-serif text-amber-400/20">⚖</div>
-              <div className="absolute bottom-2 left-1/3 text-xl sm:text-2xl font-serif text-amber-400/20">Art.</div>
+          {/* Enhanced Card Header */}
+          <div className="relative overflow-hidden">
+            {/* Gradient background */}
+            <div className="absolute inset-0 bg-gradient-to-r from-neutral-800/90 via-neutral-700/80 to-neutral-800/90" />
+            
+            {/* Subtle pattern overlay */}
+            <div className="absolute inset-0 opacity-10">
+              <div className="absolute top-4 left-6 text-2xl font-serif text-white/30">§</div>
+              <div className="absolute top-6 right-8 text-xl font-serif text-white/20">⚖</div>
+              <div className="absolute bottom-3 left-1/3 text-lg font-serif text-white/25">Art.</div>
             </div>
             
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
-              <div className="flex items-center space-x-3 sm:space-x-4">
-                <div className="p-2 sm:p-3 rounded-xl shadow-lg border backdrop-blur-sm" style={{
-                backgroundColor: `${areaColor}15`,
-                borderColor: `${areaColor}30`
-              }}>
-                  <Scale className="w-5 h-5 sm:w-6 sm:h-6" style={{
-                  color: areaColor
-                }} />
+            <div className="relative z-10 p-6 sm:p-8">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="flex items-center space-x-4">
+                  {/* Icon container with improved styling */}
+                  <div 
+                    className="p-3 rounded-xl shadow-lg border backdrop-blur-sm transition-all duration-300"
+                    style={{
+                      backgroundColor: `${areaColor}20`,
+                      borderColor: `${areaColor}40`,
+                      boxShadow: `0 4px 12px ${areaColor}15`
+                    }}
+                  >
+                    <Scale 
+                      className="w-6 h-6 transition-transform duration-300 hover:scale-110" 
+                      style={{ color: areaColor }} 
+                    />
+                  </div>
+                  
+                  <div>
+                    <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2 tracking-wide leading-tight">
+                      {flashcard.category}
+                    </h2>
+                    {tema && (
+                      <div className="flex items-center space-x-3">
+                        <span className="text-sm text-neutral-300 font-medium">Tema:</span>
+                        <span className="text-sm font-semibold text-white bg-gradient-to-r from-neutral-700/80 to-neutral-600/80 px-3 py-1.5 rounded-full border border-neutral-500/40 shadow-md backdrop-blur-sm">
+                          {tema}
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-1 tracking-wide">
-                    {flashcard.category}
-                  </h2>
-                  {tema && <div className="flex items-center space-x-2">
-                      <span className="text-xs sm:text-sm text-neutral-400 font-medium">Tema:</span>
-                      <span className="text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-neutral-700 to-neutral-600 px-2 sm:px-3 py-1 rounded-full border border-neutral-500/30 shadow-sm">
-                        {tema}
-                      </span>
-                    </div>}
+                
+                {/* Improved difficulty badge */}
+                <div className={`px-4 py-2.5 rounded-xl text-sm font-semibold border backdrop-blur-sm shadow-lg transition-all duration-300 hover:scale-105 ${getDifficultyColor(flashcard.difficulty)}`}>
+                  {flashcard.difficulty}
                 </div>
-              </div>
-              
-              <div className={`px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold border backdrop-blur-sm ${getDifficultyColor(flashcard.difficulty)}`}>
-                {flashcard.difficulty}
               </div>
             </div>
+            
+            {/* Bottom border with area color */}
+            <div 
+              className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-current to-transparent opacity-60"
+              style={{ color: areaColor }}
+            />
           </div>
 
           {/* Card Content */}
-          <div className="p-6 sm:p-8 md:p-12 lg:p-16 relative overflow-hidden">
-            {/* Enhanced legal background */}
-            <div className="absolute inset-0 opacity-3">
-              <div className="absolute top-4 right-4 text-4xl sm:text-5xl md:text-6xl font-serif text-amber-400/20">§</div>
-              <div className="absolute bottom-6 left-4 text-3xl sm:text-4xl font-serif text-amber-400/15">Art.</div>
-              <div className="absolute top-1/3 left-1/4 text-2xl sm:text-3xl font-serif text-amber-400/10">⚖</div>
-              <div className="absolute bottom-1/3 right-1/4 text-xl sm:text-2xl font-serif text-amber-400/10">📖</div>
-              
-              {/* Document lines */}
-              <div className="absolute inset-0">
-                {[...Array(6)].map((_, i) => <div key={i} className="absolute w-full h-px bg-gradient-to-r from-transparent via-amber-400/5 to-transparent" style={{
-                top: `${20 + i * 12}%`
-              }} />)}
-              </div>
+          <div className="p-8 sm:p-12 md:p-16 lg:p-20 relative overflow-hidden">
+            {/* Subtle legal background */}
+            <div className="absolute inset-0 opacity-5">
+              <div className="absolute top-8 right-8 text-5xl font-serif text-white/20">§</div>
+              <div className="absolute bottom-12 left-8 text-4xl font-serif text-white/15">Art.</div>
+              <div className="absolute top-1/3 left-1/4 text-3xl font-serif text-white/10">⚖</div>
+              <div className="absolute bottom-1/3 right-1/4 text-2xl font-serif text-white/10">📖</div>
             </div>
 
             {/* Question */}
-            <div className="text-center mb-8 sm:mb-10 md:mb-12 relative z-10">
-              <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-6 sm:mb-8 md:mb-10 leading-relaxed tracking-wide">
+            <div className="text-center mb-12 relative z-10">
+              <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-8 leading-relaxed tracking-wide">
                 {flashcard.question}
               </h3>
               
-              {showAnswer && <div className="mt-6 sm:mt-8 p-6 sm:p-8 bg-gradient-to-br from-neutral-800/60 to-neutral-700/40 rounded-2xl border border-neutral-600/40 animate-fade-in backdrop-blur-sm shadow-xl">
-                  <div className="text-base sm:text-lg md:text-xl text-neutral-200 leading-relaxed font-medium">
+              {showAnswer && (
+                <div className="mt-8 p-8 bg-gradient-to-br from-neutral-800/70 to-neutral-700/50 rounded-2xl border border-neutral-600/50 animate-fade-in backdrop-blur-md shadow-xl">
+                  <div className="text-lg sm:text-xl md:text-2xl text-neutral-100 leading-relaxed font-medium">
                     {flashcard.answer}
                   </div>
-                </div>}
+                </div>
+              )}
             </div>
 
             {/* Controls */}
-            <div className="space-y-6 sm:space-y-8 relative z-10">
+            <div className="space-y-8 relative z-10">
               <div className="flex justify-center">
-                
+                <Button 
+                  onClick={handleShowAnswer} 
+                  variant="outline" 
+                  className="bg-white/10 border-white/30 text-white hover:bg-white/20 hover:border-white/40 transition-all duration-300 px-8 py-4 text-lg rounded-xl hover:scale-105 shadow-lg backdrop-blur-sm font-semibold"
+                >
+                  {showAnswer ? 'Ocultar Resposta' : 'Ver Resposta'}
+                </Button>
               </div>
 
-              {showAnswer && <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-6 animate-fade-in">
-                  <Button onClick={() => handleAnswer(false)} variant="outline" className="bg-red-500/15 border-red-500/40 text-red-300 hover:bg-red-500/25 hover:border-red-400/60 transition-all duration-300 sm:px-8 md:px-10 sm:py-4 md:py-5 text-base sm:text-lg md:text-xl rounded-xl hover:scale-110 shadow-lg hover:shadow-red-500/20 font-semibold flex-1 sm:flex-none py-[6px] px-[6px] mx-[19px]">
-                    <XCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3" />
+              {showAnswer && (
+                <div className="flex flex-col sm:flex-row justify-center gap-6 animate-fade-in">
+                  <Button 
+                    onClick={() => handleAnswer(false)} 
+                    variant="outline" 
+                    className="bg-rose-500/15 border-rose-500/40 text-rose-300 hover:bg-rose-500/25 hover:border-rose-400/60 transition-all duration-300 px-10 py-5 text-xl rounded-xl hover:scale-110 shadow-lg hover:shadow-rose-500/20 font-semibold flex-1 sm:flex-none"
+                  >
+                    <XCircle className="w-5 h-5 mr-3" />
                     Errei
                   </Button>
                   
-                  <Button onClick={() => handleAnswer(true)} variant="outline" className="bg-green-500/15 border-green-500/40 text-green-300 hover:bg-green-500/25 hover:border-green-400/60 transition-all duration-300 sm:px-8 md:px-10 sm:py-4 md:py-5 text-base sm:text-lg md:text-xl rounded-xl hover:scale-110 shadow-lg hover:shadow-green-500/20 font-semibold flex-1 sm:flex-none px-0 py-[5px] my-[6px] mx-[19px]">
-                    <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3" />
+                  <Button 
+                    onClick={() => handleAnswer(true)} 
+                    variant="outline" 
+                    className="bg-emerald-500/15 border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/25 hover:border-emerald-400/60 transition-all duration-300 px-10 py-5 text-xl rounded-xl hover:scale-110 shadow-lg hover:shadow-emerald-500/20 font-semibold flex-1 sm:flex-none"
+                  >
+                    <CheckCircle className="w-5 h-5 mr-3" />
                     Acertei
                   </Button>
-                </div>}
+                </div>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Decorative glow effects */}
-        <div className="absolute -top-4 -right-4 w-24 sm:w-32 h-24 sm:h-32 rounded-full blur-2xl opacity-10 pointer-events-none animate-pulse" style={{
-        backgroundColor: areaColor
-      }} />
-        <div className="absolute -bottom-4 -left-4 w-20 sm:w-24 h-20 sm:h-24 rounded-full blur-xl opacity-8 pointer-events-none animate-pulse" style={{
-        backgroundColor: areaColor,
-        animationDelay: '1s'
-      }} />
+        {/* Subtle glow effect only */}
+        <div 
+          className="absolute -top-4 -right-4 w-32 h-32 rounded-full blur-3xl opacity-5 pointer-events-none animate-pulse" 
+          style={{ backgroundColor: areaColor }} 
+        />
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default AnimatedFlashCard;

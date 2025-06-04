@@ -5,9 +5,9 @@ import { SupabaseFlashcardSchema } from '@/schemas/flashcard';
 
 export interface SupabaseFlashcard {
   id: number;
+  area: string;
   pergunta: string;
   resposta: string;
-  area: string;
   tema: string;
 }
 
@@ -39,7 +39,7 @@ export const useFlashcards = () => {
         }
 
         if (!data) {
-          throw new Error('Nenhum dado retornado do servidor');
+          return [];
         }
 
         return validateFlashcards(data);
@@ -48,40 +48,6 @@ export const useFlashcards = () => {
         throw error;
       }
     },
-    retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
-  });
-};
-
-export const useFlashcardsByArea = (area: string) => {
-  return useQuery({
-    queryKey: ['flashcards', area],
-    queryFn: async () => {
-      try {
-        const { data, error } = await supabase
-          .from('flash_cards')
-          .select('*')
-          .eq('area', area)
-          .order('tema', { ascending: true });
-
-        if (error) {
-          console.error('Error fetching flashcards by area:', error);
-          throw new Error(`Erro ao buscar flashcards da área ${area}: ${error.message}`);
-        }
-
-        if (!data) {
-          return [];
-        }
-
-        return validateFlashcards(data);
-      } catch (error) {
-        console.error('Error in useFlashcardsByArea:', error);
-        throw error;
-      }
-    },
-    enabled: !!area,
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
     staleTime: 5 * 60 * 1000,
@@ -108,14 +74,7 @@ export const useFlashcardAreas = () => {
           return [];
         }
 
-        // Validate and get unique areas
-        const uniqueAreas = [...new Set(data.map(item => {
-          if (typeof item.area !== 'string' || !item.area.trim()) {
-            throw new Error('Área inválida encontrada nos dados');
-          }
-          return item.area;
-        }))];
-
+        const uniqueAreas = [...new Set(data.map(item => item.area))].filter(Boolean);
         return uniqueAreas;
       } catch (error) {
         console.error('Error in useFlashcardAreas:', error);
@@ -124,7 +83,7 @@ export const useFlashcardAreas = () => {
     },
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-    staleTime: 10 * 60 * 1000, // 10 minutes (areas change less frequently)
-    gcTime: 15 * 60 * 1000, // 15 minutes
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 };
