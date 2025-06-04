@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Flashcard } from '@/types/flashcard';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, XCircle, Eye, EyeOff, Scale, Gavel, Book, FileText } from 'lucide-react';
+import { CheckCircle, XCircle, Eye, EyeOff, Scale } from 'lucide-react';
 
 interface AnimatedFlashCardProps {
   flashcard: Flashcard;
@@ -29,10 +29,10 @@ const AnimatedFlashCard = ({
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case 'Fácil': return 'bg-green-500/20 text-green-400 border-green-500/30';
-      case 'Médio': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
-      case 'Difícil': return 'bg-red-500/20 text-red-400 border-red-500/30';
-      default: return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+      case 'Fácil': return 'bg-green-500/20 text-green-300 border-green-500/30';
+      case 'Médio': return 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30';
+      case 'Difícil': return 'bg-red-500/20 text-red-300 border-red-500/30';
+      default: return 'bg-gray-500/20 text-gray-300 border-gray-500/30';
     }
   };
 
@@ -41,12 +41,12 @@ const AnimatedFlashCard = ({
     setTimeout(() => {
       setShowAnswer(!showAnswer);
       setIsFlipping(false);
-    }, 250);
+    }, 150);
   };
 
   const handleAnswer = (correct: boolean) => {
-    // Create enhanced particles effect
-    const newParticles = Array.from({ length: 15 }, (_, i) => ({
+    // Create particles effect
+    const newParticles = Array.from({ length: 12 }, (_, i) => ({
       id: Date.now() + i,
       x: 20 + Math.random() * 60,
       y: 20 + Math.random() * 60,
@@ -55,7 +55,7 @@ const AnimatedFlashCard = ({
     setParticles(newParticles);
 
     // Remove particles after animation
-    setTimeout(() => setParticles([]), 2000);
+    setTimeout(() => setParticles([]), 1500);
 
     onAnswer(correct);
   };
@@ -67,137 +67,136 @@ const AnimatedFlashCard = ({
     : 'translate-x-0 opacity-100 scale-100';
 
   return (
-    <div className="max-w-4xl mx-auto relative">
-      {/* Enhanced Particles with CSS animations */}
-      {particles.map((particle, index) => (
+    <div className="w-full max-w-md sm:max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-4xl mx-auto relative px-4">
+      {/* Particles */}
+      {particles.map((particle) => (
         <div
           key={particle.id}
-          className="absolute w-4 h-4 rounded-full pointer-events-none z-50 animate-bounce"
+          className="absolute w-3 h-3 rounded-full pointer-events-none z-50 animate-bounce"
           style={{
             backgroundColor: particle.color,
             left: `${particle.x}%`,
             top: `${particle.y}%`,
-            animationDuration: `${1.5 + index * 0.1}s`,
-            animationDelay: `${index * 0.05}s`,
-            boxShadow: `0 0 15px ${particle.color}`,
-            animation: `bounce 1.5s ease-out ${index * 0.05}s forwards, fadeOut 2s ease-out forwards`
+            boxShadow: `0 0 10px ${particle.color}`,
+            animation: `bounce 1s ease-out forwards, fadeOut 1.5s ease-out forwards`
           }}
         />
       ))}
 
-      <div className={`relative transform transition-all duration-700 ease-out ${cardExitClass}`}>
-        {/* Enhanced Card Container with Professional Styling */}
-        <div className={`w-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-3xl border border-slate-700/50 overflow-hidden shadow-2xl backdrop-blur-sm transition-all duration-500 ${isFlipping ? 'scale-[0.98] rotate-1 shadow-xl' : 'hover:scale-[1.01] hover:-rotate-0.5 hover:shadow-3xl'}`}>
+      <div className={`relative transform transition-all duration-500 ease-out ${cardExitClass}`}>
+        {/* Main Card */}
+        <div className={`w-full bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900 rounded-2xl sm:rounded-3xl border border-neutral-700/50 overflow-hidden shadow-2xl backdrop-blur-sm transition-all duration-300 ${isFlipping ? 'scale-98' : 'hover:scale-[1.01]'}`}>
           
-          {/* Card Header with Professional Legal Theme */}
-          <div className="bg-gradient-to-r from-slate-800/80 via-slate-700/60 to-slate-800/80 border-b border-slate-600/50 p-8 backdrop-blur-sm relative overflow-hidden">
-            {/* Legal pattern background */}
+          {/* Card Header */}
+          <div className="bg-gradient-to-r from-neutral-800/80 to-neutral-700/60 border-b border-neutral-600/30 p-4 sm:p-6 md:p-8 relative overflow-hidden">
+            {/* Legal background elements */}
             <div className="absolute inset-0 opacity-5">
-              <div className="absolute top-4 left-8 text-6xl font-serif text-amber-400/30">§</div>
-              <div className="absolute top-8 right-12 text-4xl font-serif text-amber-400/20">Art.</div>
-              <div className="absolute bottom-4 left-1/3 text-3xl font-serif text-amber-400/20">⚖</div>
+              <div className="absolute top-2 left-4 text-3xl sm:text-4xl md:text-5xl font-serif text-amber-400/30">§</div>
+              <div className="absolute top-4 right-6 text-2xl sm:text-3xl font-serif text-amber-400/20">⚖</div>
+              <div className="absolute bottom-2 left-1/3 text-xl sm:text-2xl font-serif text-amber-400/20">Art.</div>
             </div>
             
-            <div className="flex items-center justify-between relative z-10">
-              <div className="flex items-center space-x-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
+              <div className="flex items-center space-x-3 sm:space-x-4">
                 <div 
-                  className="p-4 rounded-2xl shadow-lg border backdrop-blur-sm"
+                  className="p-2 sm:p-3 rounded-xl shadow-lg border backdrop-blur-sm"
                   style={{ 
                     backgroundColor: `${areaColor}15`,
                     borderColor: `${areaColor}30`
                   }}
                 >
                   <Scale 
-                    className="w-8 h-8" 
+                    className="w-5 h-5 sm:w-6 sm:h-6" 
                     style={{ color: areaColor }}
                   />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-white mb-2 tracking-wide">
+                  <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-1 tracking-wide">
                     {flashcard.category}
                   </h2>
-                  <div className="flex items-center space-x-3">
-                    <span className="text-sm text-slate-400 font-medium">Tema:</span>
-                    <span className="text-sm font-semibold text-white bg-gradient-to-r from-slate-700 to-slate-600 px-4 py-2 rounded-full border border-slate-500/30 shadow-sm">
-                      {tema || 'Não especificado'}
-                    </span>
-                  </div>
+                  {tema && (
+                    <div className="flex items-center space-x-2">
+                      <span className="text-xs sm:text-sm text-neutral-400 font-medium">Tema:</span>
+                      <span className="text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-neutral-700 to-neutral-600 px-2 sm:px-3 py-1 rounded-full border border-neutral-500/30 shadow-sm">
+                        {tema}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
               
-              <div className={`px-5 py-3 rounded-2xl text-sm font-semibold border backdrop-blur-sm ${getDifficultyColor(flashcard.difficulty)}`}>
+              <div className={`px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold border backdrop-blur-sm ${getDifficultyColor(flashcard.difficulty)}`}>
                 {flashcard.difficulty}
               </div>
             </div>
           </div>
 
-          {/* Enhanced Card Content with Legal Elements */}
-          <div className="p-12 sm:p-16 relative overflow-hidden">
-            {/* Enhanced Legal pattern background */}
+          {/* Card Content */}
+          <div className="p-6 sm:p-8 md:p-12 lg:p-16 relative overflow-hidden">
+            {/* Enhanced legal background */}
             <div className="absolute inset-0 opacity-3">
-              <div className="absolute top-8 right-8 text-7xl font-serif text-amber-400/20">§</div>
-              <div className="absolute bottom-12 left-8 text-5xl font-serif text-amber-400/15">Art.</div>
-              <div className="absolute top-1/3 left-1/4 text-4xl font-serif text-amber-400/10">⚖</div>
-              <div className="absolute bottom-1/3 right-1/4 text-3xl font-serif text-amber-400/10">📖</div>
-              <div className="absolute top-2/3 right-1/3 text-4xl font-serif text-amber-400/10">⚖</div>
+              <div className="absolute top-4 right-4 text-4xl sm:text-5xl md:text-6xl font-serif text-amber-400/20">§</div>
+              <div className="absolute bottom-6 left-4 text-3xl sm:text-4xl font-serif text-amber-400/15">Art.</div>
+              <div className="absolute top-1/3 left-1/4 text-2xl sm:text-3xl font-serif text-amber-400/10">⚖</div>
+              <div className="absolute bottom-1/3 right-1/4 text-xl sm:text-2xl font-serif text-amber-400/10">📖</div>
               
-              {/* Legal document lines */}
+              {/* Document lines */}
               <div className="absolute inset-0">
-                {[...Array(8)].map((_, i) => (
+                {[...Array(6)].map((_, i) => (
                   <div 
                     key={i}
                     className="absolute w-full h-px bg-gradient-to-r from-transparent via-amber-400/5 to-transparent"
-                    style={{ top: `${15 + i * 10}%` }}
+                    style={{ top: `${20 + i * 12}%` }}
                   />
                 ))}
               </div>
             </div>
 
             {/* Question */}
-            <div className="text-center mb-12 relative z-10">
-              <h3 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-10 leading-relaxed tracking-wide">
+            <div className="text-center mb-8 sm:mb-10 md:mb-12 relative z-10">
+              <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-6 sm:mb-8 md:mb-10 leading-relaxed tracking-wide">
                 {flashcard.question}
               </h3>
               
               {showAnswer && (
-                <div className="mt-12 p-10 bg-gradient-to-br from-slate-800/60 to-slate-700/40 rounded-3xl border border-slate-600/40 animate-fade-in backdrop-blur-sm shadow-2xl">
-                  <div className="text-xl text-slate-200 leading-relaxed font-medium">
+                <div className="mt-6 sm:mt-8 p-6 sm:p-8 bg-gradient-to-br from-neutral-800/60 to-neutral-700/40 rounded-2xl border border-neutral-600/40 animate-fade-in backdrop-blur-sm shadow-xl">
+                  <div className="text-base sm:text-lg md:text-xl text-neutral-200 leading-relaxed font-medium">
                     {flashcard.answer}
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Enhanced Controls */}
-            <div className="space-y-10 relative z-10">
+            {/* Controls */}
+            <div className="space-y-6 sm:space-y-8 relative z-10">
               <div className="flex justify-center">
                 <Button
                   onClick={handleShowAnswer}
                   variant="outline"
-                  className="bg-slate-800/40 border-slate-600/50 text-white hover:bg-slate-700/60 hover:border-slate-500/70 transition-all duration-400 px-12 py-6 text-xl rounded-2xl backdrop-blur-sm shadow-xl hover:shadow-2xl hover:scale-105 font-semibold"
+                  className="bg-neutral-800/40 border-neutral-600/50 text-white hover:bg-neutral-700/60 hover:border-neutral-500/70 transition-all duration-300 px-6 sm:px-8 md:px-10 py-3 sm:py-4 md:py-5 text-base sm:text-lg md:text-xl rounded-xl backdrop-blur-sm shadow-lg hover:shadow-xl hover:scale-105 font-semibold"
                 >
-                  {showAnswer ? <EyeOff className="w-6 h-6 mr-4" /> : <Eye className="w-6 h-6 mr-4" />}
+                  {showAnswer ? <EyeOff className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3" /> : <Eye className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3" />}
                   {showAnswer ? 'Ocultar' : 'Mostrar'} Resposta
                 </Button>
               </div>
 
               {showAnswer && (
-                <div className="flex justify-center gap-8 animate-fade-in">
+                <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-6 animate-fade-in">
                   <Button
                     onClick={() => handleAnswer(false)}
                     variant="outline"
-                    className="bg-red-500/15 border-red-500/40 text-red-300 hover:bg-red-500/25 hover:border-red-400/60 transition-all duration-400 px-12 py-6 text-xl rounded-2xl hover:scale-110 shadow-xl hover:shadow-red-500/20 font-semibold"
+                    className="bg-red-500/15 border-red-500/40 text-red-300 hover:bg-red-500/25 hover:border-red-400/60 transition-all duration-300 px-6 sm:px-8 md:px-10 py-3 sm:py-4 md:py-5 text-base sm:text-lg md:text-xl rounded-xl hover:scale-110 shadow-lg hover:shadow-red-500/20 font-semibold flex-1 sm:flex-none"
                   >
-                    <XCircle className="w-6 h-6 mr-4" />
+                    <XCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3" />
                     Errei
                   </Button>
                   
                   <Button
                     onClick={() => handleAnswer(true)}
                     variant="outline"
-                    className="bg-green-500/15 border-green-500/40 text-green-300 hover:bg-green-500/25 hover:border-green-400/60 transition-all duration-400 px-12 py-6 text-xl rounded-2xl hover:scale-110 shadow-xl hover:shadow-green-500/20 font-semibold"
+                    className="bg-green-500/15 border-green-500/40 text-green-300 hover:bg-green-500/25 hover:border-green-400/60 transition-all duration-300 px-6 sm:px-8 md:px-10 py-3 sm:py-4 md:py-5 text-base sm:text-lg md:text-xl rounded-xl hover:scale-110 shadow-lg hover:shadow-green-500/20 font-semibold flex-1 sm:flex-none"
                   >
-                    <CheckCircle className="w-6 h-6 mr-4" />
+                    <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3" />
                     Acertei
                   </Button>
                 </div>
@@ -206,18 +205,14 @@ const AnimatedFlashCard = ({
           </div>
         </div>
 
-        {/* Enhanced Decorative glow effects */}
+        {/* Decorative glow effects */}
         <div 
-          className="absolute -top-8 -right-8 w-40 h-40 rounded-full blur-3xl opacity-15 pointer-events-none animate-pulse"
+          className="absolute -top-4 -right-4 w-24 sm:w-32 h-24 sm:h-32 rounded-full blur-2xl opacity-10 pointer-events-none animate-pulse"
           style={{ backgroundColor: areaColor }}
         />
         <div 
-          className="absolute -bottom-8 -left-8 w-32 h-32 rounded-full blur-2xl opacity-10 pointer-events-none animate-pulse"
-          style={{ backgroundColor: areaColor, animationDelay: '1.5s' }}
-        />
-        <div 
-          className="absolute top-1/2 -right-4 w-24 h-24 rounded-full blur-xl opacity-8 pointer-events-none animate-pulse"
-          style={{ backgroundColor: areaColor, animationDelay: '3s' }}
+          className="absolute -bottom-4 -left-4 w-20 sm:w-24 h-20 sm:h-24 rounded-full blur-xl opacity-8 pointer-events-none animate-pulse"
+          style={{ backgroundColor: areaColor, animationDelay: '1s' }}
         />
       </div>
     </div>
