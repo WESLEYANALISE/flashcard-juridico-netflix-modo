@@ -1,9 +1,10 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { validateFlashcards, SupabaseFlashcard } from '@/utils/flashcardValidator';
+import { validateFlashcards } from '@/utils/flashcardValidator';
+import type { SupabaseFlashcard } from '@/utils/flashcardValidator';
 
-export { SupabaseFlashcard };
+export type { SupabaseFlashcard };
 
 export const useFlashcards = () => {
   return useQuery({

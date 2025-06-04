@@ -7,7 +7,6 @@ import SettingsView from '@/components/SettingsView';
 import PlaylistView from '@/components/PlaylistView';
 import DailyMissions from '@/components/DailyMissions';
 import { useFlashcards } from '@/hooks/useFlashcards';
-import { generateCategoriesFromAreas } from '@/utils/flashcardMapper';
 
 const Index = () => {
   const [activeView, setActiveView] = useState('study');
@@ -55,7 +54,7 @@ const Index = () => {
       case 'missions':
         return <DailyMissions />;
       case 'stats':
-        return <StatsView flashcards={flashcards} />;
+        return <StatsView />;
       case 'settings':
         return <SettingsView />;
       default:

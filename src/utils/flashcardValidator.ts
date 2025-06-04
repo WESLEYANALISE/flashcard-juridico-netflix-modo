@@ -23,7 +23,14 @@ export const validateFlashcards = (data: any[]): SupabaseFlashcard[] => {
           typeof item.resposta === 'string' && item.resposta.length > 0 &&
           typeof item.tema === 'string' && item.tema.length > 0) {
         
-        const validatedItem = SupabaseFlashcardSchema.parse(item);
+        const validatedItem: SupabaseFlashcard = {
+          id: item.id,
+          area: item.area,
+          pergunta: item.pergunta,
+          resposta: item.resposta,
+          tema: item.tema
+        };
+        
         validFlashcards.push(validatedItem);
       } else {
         console.warn(`Skipping flashcard at index ${index}: missing or invalid required fields`);
