@@ -2,8 +2,9 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Shuffle, TrendingUp, Award, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Flashcard, Category } from '@/types/flashcard';
-import { categories } from '@/data/flashcards';
+import { Flashcard } from '@/types/flashcard';
+import { useFlashcardAreas } from '@/hooks/useFlashcards';
+import { generateCategoriesFromAreas } from '@/utils/flashcardMapper';
 import CategoryCard from './CategoryCard';
 import FlashCard from './FlashCard';
 
@@ -23,8 +24,11 @@ const StudyView = ({ flashcards, onUpdateFlashcard }: StudyViewProps) => {
     maxStreak: 0
   });
 
+  const { data: areas = [] } = useFlashcardAreas();
+  const categories = generateCategoriesFromAreas(areas);
+
   const categoryStats = categories.map(category => {
-    const categoryCards = flashcards.filter(card => card.category === category.id);
+    const categoryCards = flashcards.filter(card => card.category === category.name);
     const studiedCards = categoryCards.filter(card => card.studied);
     return {
       ...category,
@@ -117,7 +121,7 @@ const StudyView = ({ flashcards, onUpdateFlashcard }: StudyViewProps) => {
                   cardCount={category.cardCount}
                   studiedCount={category.studiedCount}
                   isSelected={false}
-                  onClick={() => setSelectedCategory(category.id)}
+                  onClick={() => setSelectedCategory(category.name)}
                 />
               </div>
             ))}
@@ -158,7 +162,7 @@ const StudyView = ({ flashcards, onUpdateFlashcard }: StudyViewProps) => {
     );
   }
 
-  const selectedCategoryData = categories.find(cat => cat.id === selectedCategory);
+  const selectedCategoryData = categories.find(cat => cat.name === selectedCategory);
 
   return (
     <div className="min-h-screen bg-netflix-black px-4 py-8">

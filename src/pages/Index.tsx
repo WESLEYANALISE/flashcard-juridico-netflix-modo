@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
-import { flashcards as initialFlashcards } from '@/data/flashcards';
+import { useFlashcards } from '@/hooks/useFlashcards';
+import { mapSupabaseFlashcard } from '@/utils/flashcardMapper';
 import { Flashcard } from '@/types/flashcard';
 import Navbar from '@/components/Navbar';
 import StudyView from '@/components/StudyView';
@@ -9,13 +10,39 @@ import SettingsView from '@/components/SettingsView';
 
 const Index = () => {
   const [activeView, setActiveView] = useState('study');
-  const [flashcards, setFlashcards] = useState<Flashcard[]>(initialFlashcards);
+  const [localFlashcards, setLocalFlashcards] = useState<Record<string, Partial<Flashcard>>>({});
+  
+  const { data: supabaseFlashcards = [], isLoading, error } = useFlashcards();
+
+  // Convert Supabase flashcards to our format and merge with local updates
+  const flashcards: Flashcard[] = supabaseFlashcards.map(supabaseCard => {
+    const mappedCard = mapSupabaseFlashcard(supabaseCard);
+    const localUpdates = localFlashcards[mappedCard.id] || {};
+    return { ...mappedCard, ...localUpdates };
+  });
 
   const handleUpdateFlashcard = (id: string, updates: Partial<Flashcard>) => {
-    setFlashcards(prev => prev.map(card => 
-      card.id === id ? { ...card, ...updates } : card
-    ));
+    setLocalFlashcards(prev => ({
+      ...prev,
+      [id]: { ...prev[id], ...updates }
+    }));
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-netflix-black flex items-center justify-center">
+        <div className="text-white text-xl">Carregando flashcards...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-netflix-black flex items-center justify-center">
+        <div className="text-white text-xl">Erro ao carregar flashcards</div>
+      </div>
+    );
+  }
 
   const renderView = () => {
     switch (activeView) {
