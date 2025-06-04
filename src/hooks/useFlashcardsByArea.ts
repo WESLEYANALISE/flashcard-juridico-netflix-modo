@@ -1,34 +1,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { SupabaseFlashcardSchema } from '@/schemas/flashcard';
-import { SupabaseFlashcard } from './useFlashcards';
-
-const validateFlashcards = (data: any[]): SupabaseFlashcard[] => {
-  const validFlashcards: SupabaseFlashcard[] = [];
-  
-  data.forEach((item, index) => {
-    try {
-      // Only validate items that have all required fields
-      if (item && typeof item === 'object' && 
-          item.id !== undefined && 
-          item.area && 
-          item.pergunta && 
-          item.resposta && 
-          item.tema) {
-        const validatedItem = SupabaseFlashcardSchema.parse(item);
-        validFlashcards.push(validatedItem);
-      } else {
-        console.warn(`Skipping flashcard at index ${index}: missing required fields`);
-      }
-    } catch (error) {
-      console.warn(`Invalid flashcard at index ${index}:`, error);
-      // Skip invalid items instead of throwing
-    }
-  });
-  
-  return validFlashcards;
-};
+import { validateFlashcards, SupabaseFlashcard } from '@/utils/flashcardValidator';
 
 export const useFlashcardsByArea = (area: string) => {
   return useQuery({

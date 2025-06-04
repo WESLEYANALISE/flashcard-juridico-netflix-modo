@@ -1,5 +1,4 @@
 
-import { useState } from 'react';
 import { Scale, BarChart3, BookOpen, Settings, List, Trophy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -9,8 +8,6 @@ interface NavbarProps {
 }
 
 const Navbar = ({ activeView, onViewChange }: NavbarProps) => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
   const menuItems = [
     { id: 'study', label: 'Estudar', icon: BookOpen },
     { id: 'playlist', label: 'Playlists', icon: List },
@@ -35,96 +32,47 @@ const Navbar = ({ activeView, onViewChange }: NavbarProps) => {
               </div>
             </div>
 
-            {/* Desktop Menu - Icons with Labels */}
-            <div className="hidden lg:flex items-center space-x-1">
+            {/* Bottom Menu Style Navigation */}
+            <div className="flex items-center space-x-1 bg-netflix-dark/50 rounded-2xl p-2 border border-white/10">
               {menuItems.map((item) => {
                 const Icon = item.icon;
+                const isActive = activeView === item.id;
+                
                 return (
                   <Button
                     key={item.id}
                     variant="ghost"
                     onClick={() => onViewChange(item.id)}
-                    className={`relative flex flex-col items-center px-4 py-2 h-14 rounded-lg transition-all duration-300 ${
-                      activeView === item.id
-                        ? 'bg-white/10 text-white'
-                        : 'text-gray-300 hover:text-white hover:bg-white/5'
+                    className={`relative flex flex-col items-center px-4 py-3 h-16 rounded-xl transition-all duration-300 group active:scale-95 ${
+                      isActive
+                        ? 'bg-netflix-red text-white shadow-lg shadow-netflix-red/25'
+                        : 'text-gray-400 hover:text-white hover:bg-white/5'
                     }`}
                   >
-                    <Icon className="w-5 h-5 mb-1" />
-                    <span className="text-xs font-medium">{item.label}</span>
-                    {activeView === item.id && (
-                      <div className="absolute bottom-0 left-0 right-0 h-0.5 netflix-gradient rounded-full" />
+                    <Icon className={`w-5 h-5 mb-1 transition-all duration-300 ${
+                      isActive ? 'animate-pulse' : 'group-hover:scale-110'
+                    }`} />
+                    <span className={`text-xs font-medium transition-all duration-300 ${
+                      isActive ? 'opacity-100' : 'opacity-70 group-hover:opacity-100'
+                    }`}>
+                      {item.label}
+                    </span>
+                    
+                    {/* Active indicator */}
+                    {isActive && (
+                      <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-netflix-red rounded-full animate-bounce" />
                     )}
+                    
+                    {/* Click ripple effect */}
+                    <div className="absolute inset-0 rounded-xl overflow-hidden">
+                      <div className="absolute inset-0 bg-white/20 rounded-xl scale-0 group-active:scale-100 transition-transform duration-200 ease-out" />
+                    </div>
                   </Button>
-                );
-              })}
-            </div>
-
-            {/* Tablet Menu - Icons Only */}
-            <div className="hidden md:flex lg:hidden items-center space-x-1">
-              {menuItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <Button
-                    key={item.id}
-                    variant="ghost"
-                    onClick={() => onViewChange(item.id)}
-                    className={`relative p-3 rounded-lg transition-all duration-300 ${
-                      activeView === item.id
-                        ? 'bg-white/10 text-white'
-                        : 'text-gray-300 hover:text-white hover:bg-white/5'
-                    }`}
-                  >
-                    <Icon className="w-5 h-5" />
-                    {activeView === item.id && (
-                      <div className="absolute bottom-0 left-0 right-0 h-0.5 netflix-gradient rounded-full" />
-                    )}
-                  </Button>
-                );
-              })}
-            </div>
-
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden text-white p-2"
-            >
-              <div className="w-6 h-6 flex flex-col justify-center space-y-1">
-                <div className={`h-0.5 bg-current transition-all ${isMobileMenuOpen ? 'rotate-45 translate-y-1' : ''}`} />
-                <div className={`h-0.5 bg-current transition-all ${isMobileMenuOpen ? 'opacity-0' : ''}`} />
-                <div className={`h-0.5 bg-current transition-all ${isMobileMenuOpen ? '-rotate-45 -translate-y-1' : ''}`} />
-              </div>
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile Menu */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden bg-netflix-dark/95 backdrop-blur-md border-t border-white/10 animate-slide-up">
-            <div className="px-4 py-2 space-y-1">
-              {menuItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => {
-                      onViewChange(item.id);
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className={`w-full flex items-center px-4 py-3 rounded-lg transition-all duration-300 ${
-                      activeView === item.id
-                        ? 'bg-white/10 text-white'
-                        : 'text-gray-300 hover:text-white hover:bg-white/5'
-                    }`}
-                  >
-                    <Icon className="w-5 h-5 mr-3" />
-                    {item.label}
-                  </button>
                 );
               })}
             </div>
           </div>
-        )}
+        </div>
       </nav>
       
       {/* Spacer for fixed navbar */}
