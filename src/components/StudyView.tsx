@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Shuffle, Scale, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -285,7 +284,7 @@ const StudyView = ({ onUpdateFlashcard }: StudyViewProps) => {
 
           <div className="relative z-10 px-2 sm:px-4 py-4 sm:py-8">
             {/* Minimal Top Controls */}
-            <div className="max-w-4xl mx-auto mb-8">
+            <div className="max-w-2xl mx-auto mb-6">
               <div className="flex items-center justify-between">
                 <Button 
                   onClick={handleBackToThemes} 
@@ -335,11 +334,10 @@ const StudyView = ({ onUpdateFlashcard }: StudyViewProps) => {
             </div>
 
             {/* Flashcard */}
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-2xl mx-auto">
               <AnimatedFlashCard 
                 flashcard={currentCard} 
                 onAnswer={handleAnswer} 
-                showAnswerByDefault={false} 
                 areaColor={selectedCategory?.color || '#E50914'} 
                 isExiting={isCardExiting} 
                 exitDirection={exitDirection} 

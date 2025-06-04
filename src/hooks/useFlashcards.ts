@@ -38,7 +38,7 @@ export const useFlashcards = () => {
           throw new Error(`Erro ao buscar flashcards: ${error.message}`);
         }
 
-        if (!data) {
+        if (!data || data.length === 0) {
           return [];
         }
 
