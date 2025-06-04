@@ -1,0 +1,70 @@
+
+import { Category } from '@/types/flashcard';
+
+interface CategoryCardProps {
+  category: Category;
+  cardCount: number;
+  studiedCount: number;
+  isSelected: boolean;
+  onClick: () => void;
+}
+
+const CategoryCard = ({ category, cardCount, studiedCount, isSelected, onClick }: CategoryCardProps) => {
+  const progressPercentage = cardCount > 0 ? (studiedCount / cardCount) * 100 : 0;
+
+  return (
+    <div
+      onClick={onClick}
+      className={`relative overflow-hidden rounded-xl cursor-pointer transition-all duration-500 hover-lift group ${
+        isSelected ? 'ring-2 ring-netflix-red shadow-2xl' : ''
+      }`}
+      style={{
+        background: `linear-gradient(135deg, ${category.color}20 0%, ${category.color}10 100%)`
+      }}
+    >
+      <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />
+      
+      <div className="relative p-6">
+        <div className="flex items-start justify-between mb-4">
+          <div className="text-4xl mb-2">{category.icon}</div>
+          <div className="text-right">
+            <div className="text-sm text-gray-400">Estudados</div>
+            <div className="text-lg font-semibold text-white">
+              {studiedCount}/{cardCount}
+            </div>
+          </div>
+        </div>
+        
+        <h3 className="text-xl font-bold text-white mb-2 group-hover:text-netflix-red transition-colors">
+          {category.name}
+        </h3>
+        
+        <p className="text-gray-400 text-sm mb-4 line-clamp-2">
+          {category.description}
+        </p>
+        
+        {/* Progress Bar */}
+        <div className="w-full bg-gray-700 rounded-full h-2 mb-2">
+          <div
+            className="h-2 rounded-full transition-all duration-700 ease-out"
+            style={{
+              width: `${progressPercentage}%`,
+              background: `linear-gradient(90deg, ${category.color} 0%, ${category.color}80 100%)`
+            }}
+          />
+        </div>
+        
+        <div className="flex justify-between items-center text-xs text-gray-500">
+          <span>{Math.round(progressPercentage)}% completo</span>
+          <span>{cardCount} cards</span>
+        </div>
+      </div>
+      
+      {/* Hover Glow Effect */}
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-300 pointer-events-none"
+           style={{ background: `radial-gradient(circle at center, ${category.color} 0%, transparent 70%)` }} />
+    </div>
+  );
+};
+
+export default CategoryCard;
