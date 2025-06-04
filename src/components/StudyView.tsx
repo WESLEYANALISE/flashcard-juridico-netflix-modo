@@ -10,11 +10,14 @@ import ThemeSelector from './ThemeSelector';
 import AnimatedFlashCard from './AnimatedFlashCard';
 import SessionStats from './SessionStats';
 import GeneralSummary from './GeneralSummary';
+
 interface StudyViewProps {
   flashcards: Flashcard[];
   onUpdateFlashcard: (id: string, updates: Partial<Flashcard>) => void;
 }
+
 type StudyStep = 'categories' | 'themes' | 'studying';
+
 const StudyView = ({
   onUpdateFlashcard
 }: StudyViewProps) => {
@@ -83,16 +86,20 @@ const StudyView = ({
       });
     }
   }, [currentStep, selectedThemes, isShuffled]);
+
   const handleAreaSelect = (areaName: string) => {
     setSelectedArea(areaName);
     setCurrentStep('themes');
   };
+
   const handleThemesSelected = (themes: string[]) => {
     setSelectedThemes(themes);
     setCurrentStep('studying');
   };
+
   const handleAnswer = (correct: boolean) => {
     if (!currentCard) return;
+
     const newStats = {
       correct: sessionStats.correct + (correct ? 1 : 0),
       total: sessionStats.total + 1,
@@ -100,7 +107,9 @@ const StudyView = ({
       maxStreak: correct ? Math.max(sessionStats.streak + 1, sessionStats.maxStreak) : sessionStats.maxStreak,
       completed: false
     };
+
     setSessionStats(newStats);
+
     onUpdateFlashcard(currentCard.id, {
       studied: true,
       correctAnswers: currentCard.correctAnswers + (correct ? 1 : 0),
@@ -111,6 +120,7 @@ const StudyView = ({
     // Animate card exit
     setExitDirection(correct ? 'right' : 'left');
     setIsCardExiting(true);
+
     setTimeout(() => {
       setIsCardExiting(false);
       if (currentCardIndex < currentCards.length - 1) {
@@ -123,6 +133,7 @@ const StudyView = ({
       }
     }, 500);
   };
+
   const handleBackToCategories = () => {
     setCurrentStep('categories');
     setSelectedArea(null);
@@ -136,6 +147,7 @@ const StudyView = ({
       completed: false
     });
   };
+
   const handleBackToThemes = () => {
     setCurrentStep('themes');
     setSelectedThemes([]);
@@ -148,9 +160,11 @@ const StudyView = ({
       completed: false
     });
   };
+
   const handleFinishSession = () => {
     handleBackToCategories();
   };
+
   const handleContinueSession = () => {
     setCurrentCardIndex(0);
     setSessionStats(prev => ({
@@ -158,6 +172,7 @@ const StudyView = ({
       completed: false
     }));
   };
+
   const handleShuffle = () => {
     setIsShuffled(!isShuffled);
   };
@@ -174,59 +189,98 @@ const StudyView = ({
 
   // Study session step
   if (currentStep === 'studying' && selectedArea && currentCard) {
-    return <div className="min-h-screen bg-netflix-black px-2 sm:px-4 py-4 sm:py-8">
+    return (
+      <div className="min-h-screen bg-netflix-black px-2 sm:px-4 py-4 sm:py-8">
         <div className="max-w-4xl mx-auto">
-          {/* Header */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 animate-fade-in space-y-4 sm:space-y-0">
-            <div className="flex items-center space-x-3 sm:space-x-4">
-              <Button onClick={handleBackToThemes} variant="outline" size="sm" className="bg-white/10 border-white/20 text-white hover:bg-white/20">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Temas
-              </Button>
-              
-              <div className="flex items-center space-x-3">
-                <Scale className="w-6 h-6 animate-pulse" style={{
-                color: selectedCategory?.color
-              }} />
-                <div>
-                  <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">
-                    {selectedArea}
-                  </h1>
-                  
+          {/* Improved Header */}
+          <div className="bg-netflix-dark/30 backdrop-blur-sm rounded-2xl p-4 sm:p-6 mb-6 sm:mb-8 animate-fade-in border border-white/10">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0">
+              {/* Left side - Back button and Area info */}
+              <div className="flex items-center space-x-4">
+                <Button 
+                  onClick={handleBackToThemes} 
+                  variant="outline" 
+                  size="sm" 
+                  className="bg-white/10 border-white/20 text-white hover:bg-white/20 flex items-center space-x-2"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span className="hidden sm:inline">Temas</span>
+                </Button>
+                
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 rounded-lg" style={{ backgroundColor: `${selectedCategory?.color}20` }}>
+                    <Scale 
+                      className="w-6 h-6" 
+                      style={{ color: selectedCategory?.color }}
+                    />
+                  </div>
+                  <div>
+                    <h1 className="text-xl sm:text-2xl font-bold text-white">
+                      {selectedArea}
+                    </h1>
+                    <p className="text-sm text-gray-400">
+                      {selectedThemes.join(' • ')}
+                    </p>
+                  </div>
                 </div>
               </div>
+
+              {/* Right side - Shuffle button */}
+              <Button 
+                onClick={handleShuffle} 
+                variant="outline" 
+                size="sm" 
+                className={`${
+                  isShuffled 
+                    ? 'bg-netflix-red/20 border-netflix-red/50 text-netflix-red' 
+                    : 'bg-white/10 border-white/20 text-white'
+                } hover:bg-netflix-red/30 flex items-center space-x-2`}
+              >
+                <Shuffle className="w-4 h-4" />
+                <span className="hidden sm:inline">
+                  {isShuffled ? 'Embaralhado' : 'Embaralhar'}
+                </span>
+              </Button>
             </div>
 
-            <Button onClick={handleShuffle} variant="outline" size="sm" className={`${isShuffled ? 'bg-netflix-red/20 border-netflix-red/50 text-netflix-red' : 'bg-white/10 border-white/20 text-white'} hover:bg-netflix-red/30`}>
-              <Shuffle className="w-4 h-4 mr-2" />
-              {isShuffled ? 'Embaralhado' : 'Embaralhar'}
-            </Button>
-          </div>
-
-          {/* Progress Bar */}
-          <div className="mb-6 sm:mb-8 animate-fade-in">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-xs sm:text-sm text-gray-400">Progresso da Sessão</span>
-              <span className="text-xs sm:text-sm text-gray-400">
-                {Math.round((currentCardIndex + 1) / currentCards.length * 100)}%
-              </span>
-            </div>
-            <div className="w-full bg-gray-700 rounded-full h-2">
-              <div className="h-2 rounded-full transition-all duration-500" style={{
-              width: `${(currentCardIndex + 1) / currentCards.length * 100}%`,
-              background: `linear-gradient(90deg, ${selectedCategory?.color || '#E50914'}, ${selectedCategory?.color || '#E50914'}80)`
-            }} />
+            {/* Progress Bar */}
+            <div className="mt-4">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-xs sm:text-sm text-gray-400">Progresso da Sessão</span>
+                <span className="text-xs sm:text-sm text-gray-400">
+                  {Math.round((currentCardIndex + 1) / currentCards.length * 100)}%
+                </span>
+              </div>
+              <div className="w-full bg-gray-700/50 rounded-full h-2">
+                <div 
+                  className="h-2 rounded-full transition-all duration-500" 
+                  style={{
+                    width: `${(currentCardIndex + 1) / currentCards.length * 100}%`,
+                    background: `linear-gradient(90deg, ${selectedCategory?.color || '#E50914'}, ${selectedCategory?.color || '#E50914'}80)`
+                  }} 
+                />
+              </div>
             </div>
           </div>
 
           {/* Flashcard */}
-          <AnimatedFlashCard flashcard={currentCard} onAnswer={handleAnswer} showAnswerByDefault={false} areaColor={selectedCategory?.color || '#E50914'} isExiting={isCardExiting} exitDirection={exitDirection} tema={selectedFlashcards[currentCardIndex]?.tema} />
+          <AnimatedFlashCard 
+            flashcard={currentCard} 
+            onAnswer={handleAnswer} 
+            showAnswerByDefault={false} 
+            areaColor={selectedCategory?.color || '#E50914'} 
+            isExiting={isCardExiting} 
+            exitDirection={exitDirection} 
+            tema={selectedFlashcards[currentCardIndex]?.tema}
+          />
         </div>
-      </div>;
+      </div>
+    );
   }
 
   // Categories overview (default)
-  return <div className="min-h-screen bg-netflix-black px-2 sm:px-4 py-4 sm:py-8">
+  return (
+    <div className="min-h-screen bg-netflix-black px-2 sm:px-4 py-4 sm:py-8">
       <div className="max-w-7xl mx-auto">
         {/* General Summary - Always at top */}
         <GeneralSummary flashcards={[]} categories={categories} />
@@ -243,13 +297,25 @@ const StudyView = ({
 
         {/* Categories Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
-          {categoryStats.map((category, index) => <div key={category.id} className="animate-fade-in" style={{
-          animationDelay: `${index * 0.1}s`
-        }}>
-              <CategoryCard category={category} cardCount={category.cardCount} studiedCount={category.studiedCount} isSelected={false} onClick={() => handleAreaSelect(category.name)} />
-            </div>)}
+          {categoryStats.map((category, index) => (
+            <div 
+              key={category.id} 
+              className="animate-fade-in" 
+              style={{ animationDelay: `${index * 0.1}s` }}
+            >
+              <CategoryCard 
+                category={category} 
+                cardCount={category.cardCount} 
+                studiedCount={category.studiedCount} 
+                isSelected={false} 
+                onClick={() => handleAreaSelect(category.name)} 
+              />
+            </div>
+          ))}
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default StudyView;
