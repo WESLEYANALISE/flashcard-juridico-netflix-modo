@@ -1,7 +1,5 @@
-
 import { Scale } from 'lucide-react';
 import { Category } from '@/types/flashcard';
-
 interface CategoryCardProps {
   category: Category;
   cardCount: number;
@@ -9,30 +7,26 @@ interface CategoryCardProps {
   isSelected: boolean;
   onClick: () => void;
 }
-
-const CategoryCard = ({ category, cardCount, studiedCount, isSelected, onClick }: CategoryCardProps) => {
-  const progressPercentage = cardCount > 0 ? (studiedCount / cardCount) * 100 : 0;
-
-  return (
-    <div
-      onClick={onClick}
-      className={`relative overflow-hidden rounded-xl cursor-pointer transition-all duration-500 hover-lift group ${
-        isSelected ? 'ring-2 ring-netflix-red shadow-2xl' : ''
-      }`}
-      style={{
-        background: `linear-gradient(135deg, ${category.color}20 0%, ${category.color}10 100%)`
-      }}
-    >
+const CategoryCard = ({
+  category,
+  cardCount,
+  studiedCount,
+  isSelected,
+  onClick
+}: CategoryCardProps) => {
+  const progressPercentage = cardCount > 0 ? studiedCount / cardCount * 100 : 0;
+  return <div onClick={onClick} className={`relative overflow-hidden rounded-xl cursor-pointer transition-all duration-500 hover-lift group ${isSelected ? 'ring-2 ring-netflix-red shadow-2xl' : ''}`} style={{
+    background: `linear-gradient(135deg, ${category.color}20 0%, ${category.color}10 100%)`
+  }}>
       <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />
       
       <div className="relative p-6">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center space-x-3">
-            <Scale 
-              className="w-8 h-8 animate-pulse transition-all duration-300 group-hover:scale-110" 
-              style={{ color: category.color }}
-            />
-            <div className="text-3xl">{category.icon}</div>
+            <Scale className="w-8 h-8 animate-pulse transition-all duration-300 group-hover:scale-110" style={{
+            color: category.color
+          }} />
+            
           </div>
           <div className="text-right">
             <div className="text-sm text-gray-400">Total Cards</div>
@@ -52,13 +46,10 @@ const CategoryCard = ({ category, cardCount, studiedCount, isSelected, onClick }
         
         {/* Progress Bar */}
         <div className="w-full bg-gray-700 rounded-full h-2 mb-2">
-          <div
-            className="h-2 rounded-full transition-all duration-700 ease-out"
-            style={{
-              width: `${progressPercentage}%`,
-              background: `linear-gradient(90deg, ${category.color} 0%, ${category.color}80 100%)`
-            }}
-          />
+          <div className="h-2 rounded-full transition-all duration-700 ease-out" style={{
+          width: `${progressPercentage}%`,
+          background: `linear-gradient(90deg, ${category.color} 0%, ${category.color}80 100%)`
+        }} />
         </div>
         
         <div className="flex justify-between items-center text-xs text-gray-500">
@@ -68,16 +59,14 @@ const CategoryCard = ({ category, cardCount, studiedCount, isSelected, onClick }
       </div>
       
       {/* Enhanced Hover Effect */}
-      <div className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-300 pointer-events-none"
-           style={{ background: `radial-gradient(circle at center, ${category.color} 0%, transparent 70%)` }} />
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-300 pointer-events-none" style={{
+      background: `radial-gradient(circle at center, ${category.color} 0%, transparent 70%)`
+    }} />
       
       {/* Floating Scales */}
-      <Scale 
-        className="absolute top-4 right-4 w-4 h-4 opacity-20 animate-pulse"
-        style={{ color: category.color }}
-      />
-    </div>
-  );
+      <Scale className="absolute top-4 right-4 w-4 h-4 opacity-20 animate-pulse" style={{
+      color: category.color
+    }} />
+    </div>;
 };
-
 export default CategoryCard;
