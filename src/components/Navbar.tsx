@@ -18,11 +18,11 @@ const Navbar = ({ activeView, onViewChange }: NavbarProps) => {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-netflix-black/95 backdrop-blur-md border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center justify-center h-16">
-            {/* Centered Menu Icons */}
-            <div className="flex items-center space-x-2 bg-netflix-dark/50 rounded-2xl p-2 border border-white/10">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-netflix-black/98 backdrop-blur-xl border-b border-white/10 shadow-2xl">
+        <div className="max-w-6xl mx-auto px-6 py-3">
+          <div className="flex items-center justify-center">
+            {/* Modern Bottom Menu Style Navigation */}
+            <div className="flex items-center gap-1 bg-gradient-to-r from-netflix-dark/80 to-netflix-gray/50 rounded-3xl p-3 border border-white/15 shadow-2xl backdrop-blur-md">
               {menuItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = activeView === item.id;
@@ -32,30 +32,55 @@ const Navbar = ({ activeView, onViewChange }: NavbarProps) => {
                     key={item.id}
                     variant="ghost"
                     onClick={() => onViewChange(item.id)}
-                    className={`relative flex flex-col items-center px-4 py-3 h-16 rounded-xl transition-all duration-300 group active:scale-95 ${
+                    className={`relative flex flex-col items-center justify-center px-6 py-4 min-h-[80px] w-[90px] rounded-2xl transition-all duration-500 ease-out group overflow-hidden ${
                       isActive
-                        ? 'bg-netflix-red text-white shadow-lg shadow-netflix-red/25'
-                        : 'text-gray-400 hover:text-white hover:bg-white/5'
+                        ? 'bg-gradient-to-br from-netflix-red to-netflix-red/80 text-white shadow-lg shadow-netflix-red/30 scale-105'
+                        : 'text-gray-300 hover:text-white hover:bg-white/10 hover:scale-105 active:scale-95'
                     }`}
                   >
-                    <Icon className={`w-5 h-5 mb-1 transition-all duration-300 ${
-                      isActive ? 'animate-pulse' : 'group-hover:scale-110'
+                    {/* Background glow effect */}
+                    <div className={`absolute inset-0 rounded-2xl transition-all duration-500 ${
+                      isActive 
+                        ? 'bg-gradient-to-br from-netflix-red/20 to-transparent opacity-100' 
+                        : 'bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100'
                     }`} />
-                    <span className={`text-xs font-medium transition-all duration-300 ${
-                      isActive ? 'opacity-100' : 'opacity-70 group-hover:opacity-100'
-                    }`}>
-                      {item.label}
-                    </span>
                     
-                    {/* Active indicator */}
+                    {/* Icon container */}
+                    <div className={`relative z-10 flex flex-col items-center justify-center transition-all duration-300 ${
+                      isActive ? 'animate-pulse' : 'group-hover:animate-bounce'
+                    }`}>
+                      <Icon className={`w-6 h-6 mb-2 transition-all duration-300 ${
+                        isActive 
+                          ? 'text-white drop-shadow-lg' 
+                          : 'text-gray-300 group-hover:text-white group-hover:scale-110'
+                      }`} />
+                      <span className={`text-xs font-semibold tracking-wide transition-all duration-300 ${
+                        isActive 
+                          ? 'text-white opacity-100 font-bold' 
+                          : 'text-gray-400 opacity-80 group-hover:opacity-100 group-hover:text-white'
+                      }`}>
+                        {item.label}
+                      </span>
+                    </div>
+                    
+                    {/* Active indicator dot */}
                     {isActive && (
-                      <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-netflix-red rounded-full animate-bounce" />
+                      <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-white rounded-full animate-pulse shadow-lg" />
                     )}
                     
-                    {/* Click ripple effect */}
-                    <div className="absolute inset-0 rounded-xl overflow-hidden">
-                      <div className="absolute inset-0 bg-white/20 rounded-xl scale-0 group-active:scale-100 transition-transform duration-200 ease-out" />
+                    {/* Ripple effect on click */}
+                    <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
+                      <div className={`absolute inset-0 bg-white/30 rounded-2xl scale-0 group-active:scale-110 transition-transform duration-300 ease-out ${
+                        isActive ? 'opacity-20' : 'opacity-10'
+                      }`} />
                     </div>
+                    
+                    {/* Shimmer effect for active button */}
+                    {isActive && (
+                      <div className="absolute inset-0 rounded-2xl overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 animate-shimmer" />
+                      </div>
+                    )}
                   </Button>
                 );
               })}
@@ -64,8 +89,8 @@ const Navbar = ({ activeView, onViewChange }: NavbarProps) => {
         </div>
       </nav>
       
-      {/* Spacer for fixed navbar */}
-      <div className="h-16" />
+      {/* Spacer for fixed navbar with proper height */}
+      <div className="h-[100px]" />
     </>
   );
 };
