@@ -149,10 +149,7 @@ const AnimatedFlashCard = ({
             {/* Controls */}
             <div className="space-y-6 sm:space-y-8 relative z-10">
               <div className="flex justify-center">
-                <Button onClick={handleShowAnswer} variant="outline" className="bg-neutral-800/40 border-neutral-600/50 text-white hover:bg-neutral-700/60 hover:border-neutral-500/70 transition-all duration-300 px-6 sm:px-8 md:px-10 py-3 sm:py-4 md:py-5 text-base sm:text-lg md:text-xl rounded-xl backdrop-blur-sm shadow-lg hover:shadow-xl hover:scale-105 font-semibold">
-                  {showAnswer ? <EyeOff className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3" /> : <Eye className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3" />}
-                  {showAnswer ? 'Ocultar' : 'Mostrar'} Resposta
-                </Button>
+                
               </div>
 
               {showAnswer && <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-6 animate-fade-in">
