@@ -1,6 +1,5 @@
 
-import { useState } from 'react';
-import { BookOpen, BarChart3, List, RotateCcw, Menu, X } from 'lucide-react';
+import { BarChart3, BookOpen, Settings, List } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface NavbarProps {
@@ -9,92 +8,113 @@ interface NavbarProps {
 }
 
 const Navbar = ({ activeView, onViewChange }: NavbarProps) => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  const navItems = [
-    { id: 'study', label: 'Estudar', icon: BookOpen },
-    { id: 'playlist', label: 'Playlists', icon: List },
-    { id: 'stats', label: 'Estatísticas', icon: BarChart3 },
-    { id: 'review', label: 'Revisar', icon: RotateCcw },
+  const menuItems = [
+    {
+      id: 'study',
+      label: 'Estudar',
+      icon: BookOpen
+    },
+    {
+      id: 'playlist',
+      label: 'Playlists',
+      icon: List
+    },
+    {
+      id: 'stats',
+      label: 'Estatísticas',
+      icon: BarChart3
+    },
+    {
+      id: 'settings',
+      label: 'Configurações',
+      icon: Settings
+    }
   ];
 
-  const handleNavClick = (viewId: string) => {
-    onViewChange(viewId);
-    setIsMobileMenuOpen(false);
-  };
-
   return (
-    <nav className="bg-netflix-dark/95 backdrop-blur-md border-b border-white/10 sticky top-0 z-40">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-netflix-red rounded-lg flex items-center justify-center">
-              <BookOpen className="w-5 h-5 text-white" />
+    <>
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-netflix-black/95 backdrop-blur-xl border-b border-white/10 shadow-2xl">
+        <div className="w-full px-3 sm:px-6 py-3">
+          <div className="flex items-center justify-center">
+            <div className="flex items-center gap-1 sm:gap-2 bg-gradient-to-r from-netflix-dark/90 to-netflix-gray/60 rounded-2xl sm:rounded-3xl p-2 sm:p-3 border border-white/15 shadow-2xl backdrop-blur-md overflow-hidden max-w-full">
+              {menuItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = activeView === item.id;
+                
+                return (
+                  <Button
+                    key={item.id}
+                    variant="ghost"
+                    onClick={() => onViewChange(item.id)}
+                    className={`
+                      relative flex flex-col items-center justify-center 
+                      px-2 sm:px-4 lg:px-6 py-2 sm:py-3 lg:py-4
+                      min-h-[60px] sm:min-h-[70px] lg:min-h-[80px]
+                      w-[60px] sm:w-[75px] lg:w-[90px]
+                      rounded-xl sm:rounded-2xl 
+                      transition-all duration-300 ease-out 
+                      group overflow-hidden
+                      ${isActive 
+                        ? 'bg-gradient-to-br from-netflix-red to-netflix-red/80 text-white shadow-lg shadow-netflix-red/30 scale-105' 
+                        : 'text-gray-300 hover:text-white hover:bg-white/10 hover:scale-105 active:scale-95'
+                      }
+                    `}
+                  >
+                    <div className={`
+                      absolute inset-0 rounded-xl sm:rounded-2xl transition-all duration-300 
+                      ${isActive 
+                        ? 'bg-gradient-to-br from-netflix-red/20 to-transparent opacity-100' 
+                        : 'bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100'
+                      }
+                    `} />
+                    
+                    <div className={`
+                      relative z-10 flex flex-col items-center justify-center 
+                      transition-all duration-300 gap-1
+                    `}>
+                      <Icon className={`
+                        w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6
+                        transition-all duration-300 flex-shrink-0
+                        ${isActive 
+                          ? 'text-white drop-shadow-lg' 
+                          : 'text-gray-300 group-hover:text-white group-hover:scale-110'
+                        }
+                      `} />
+                      <span className={`
+                        text-[10px] sm:text-xs lg:text-xs 
+                        font-medium sm:font-semibold 
+                        tracking-wide transition-all duration-300 
+                        text-center leading-tight max-w-full
+                        ${isActive 
+                          ? 'text-white opacity-100 font-bold' 
+                          : 'text-gray-400 opacity-80 group-hover:opacity-100 group-hover:text-white'
+                        }
+                      `}>
+                        {item.label}
+                      </span>
+                    </div>
+                    
+                    {isActive && (
+                      <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white rounded-full shadow-lg" />
+                    )}
+                    
+                    <div className="absolute inset-0 rounded-xl sm:rounded-2xl overflow-hidden pointer-events-none">
+                      <div className={`
+                        absolute inset-0 bg-white/30 rounded-xl sm:rounded-2xl scale-0 
+                        group-active:scale-110 transition-transform duration-300 ease-out 
+                        ${isActive ? 'opacity-20' : 'opacity-10'}
+                      `} />
+                    </div>
+                  </Button>
+                );
+              })}
             </div>
-            <h1 className="text-xl font-bold text-white">FlashCards Jurídicos</h1>
-          </div>
-
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-1">
-            {navItems.map((item) => (
-              <Button
-                key={item.id}
-                variant={activeView === item.id ? 'default' : 'ghost'}
-                onClick={() => handleNavClick(item.id)}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 ${
-                  activeView === item.id
-                    ? 'bg-netflix-red text-white shadow-lg'
-                    : 'text-gray-300 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                <item.icon className="w-4 h-4" />
-                <span>{item.label}</span>
-              </Button>
-            ))}
-          </div>
-
-          {/* Mobile menu button */}
-          <div className="md:hidden">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="text-gray-300 hover:text-white"
-            >
-              {isMobileMenuOpen ? (
-                <X className="w-6 h-6" />
-              ) : (
-                <Menu className="w-6 h-6" />
-              )}
-            </Button>
           </div>
         </div>
-
-        {/* Mobile Navigation */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-white/10">
-            <div className="space-y-2">
-              {navItems.map((item) => (
-                <Button
-                  key={item.id}
-                  variant={activeView === item.id ? 'default' : 'ghost'}
-                  onClick={() => handleNavClick(item.id)}
-                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 ${
-                    activeView === item.id
-                      ? 'bg-netflix-red text-white shadow-lg'
-                      : 'text-gray-300 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  <item.icon className="w-5 h-5" />
-                  <span>{item.label}</span>
-                </Button>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    </nav>
+      </nav>
+      
+      <div className="h-[76px] sm:h-[86px] lg:h-[100px]" />
+    </>
   );
 };
 
