@@ -41,7 +41,7 @@ export const useUserFlashcardProgress = () => {
     queryKey: ['user-flashcard-progress'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('user_flashcard_progress')
+        .from('user_flashcard_progress' as any)
         .select('*')
         .order('last_studied', { ascending: false });
 
@@ -57,7 +57,7 @@ export const useUserOverallProgress = () => {
     queryKey: ['user-overall-progress'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('user_overall_progress')
+        .from('user_overall_progress' as any)
         .select('*')
         .single();
 
@@ -73,7 +73,7 @@ export const useUserStudySessions = () => {
     queryKey: ['user-study-sessions'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('user_study_sessions')
+        .from('user_study_sessions' as any)
         .select('*')
         .order('session_date', { ascending: false })
         .limit(10);
@@ -102,7 +102,7 @@ export const useUpdateFlashcardProgress = () => {
     }) => {
       // Get current progress
       const { data: currentProgress } = await supabase
-        .from('user_flashcard_progress')
+        .from('user_flashcard_progress' as any)
         .select('*')
         .eq('flashcard_id', flashcardId)
         .single();
@@ -113,7 +113,7 @@ export const useUpdateFlashcardProgress = () => {
 
       // Upsert flashcard progress
       const { error: progressError } = await supabase
-        .from('user_flashcard_progress')
+        .from('user_flashcard_progress' as any)
         .upsert({
           flashcard_id: flashcardId,
           flashcard_area: area,
@@ -128,7 +128,7 @@ export const useUpdateFlashcardProgress = () => {
 
       // Create study session entry
       const { error: sessionError } = await supabase
-        .from('user_study_sessions')
+        .from('user_study_sessions' as any)
         .insert({
           area,
           total_cards: 1,

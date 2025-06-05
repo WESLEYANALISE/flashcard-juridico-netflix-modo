@@ -18,7 +18,7 @@ export const useUserPlaylists = () => {
     queryKey: ['user-playlists'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('user_playlists')
+        .from('user_playlists' as any)
         .select('*')
         .order('updated_at', { ascending: false });
 
@@ -40,8 +40,11 @@ export const useCreatePlaylist = () => {
       flashcard_ids: number[];
     }) => {
       const { data, error } = await supabase
-        .from('user_playlists')
-        .insert(playlist)
+        .from('user_playlists' as any)
+        .insert({
+          ...playlist,
+          user_id: (await supabase.auth.getUser()).data.user?.id
+        })
         .select()
         .single();
 
@@ -66,7 +69,7 @@ export const useUpdatePlaylist = () => {
       updates: Partial<UserPlaylist>;
     }) => {
       const { data, error } = await supabase
-        .from('user_playlists')
+        .from('user_playlists' as any)
         .update({ ...updates, updated_at: new Date().toISOString() })
         .eq('id', id)
         .select()
@@ -87,7 +90,7 @@ export const useDeletePlaylist = () => {
   return useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
-        .from('user_playlists')
+        .from('user_playlists' as any)
         .delete()
         .eq('id', id);
 
