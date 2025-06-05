@@ -80,6 +80,9 @@ const Index = () => {
     setHideNavbar(hide);
   };
 
+  // Show navbar only when on study view and not hiding it
+  const shouldShowNavbar = activeView === 'study' && !hideNavbar;
+
   const renderActiveView = () => {
     switch (activeView) {
       case 'study':
@@ -119,7 +122,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-netflix-black">
-      {!hideNavbar && (
+      {shouldShowNavbar && (
         <Navbar activeView={activeView} onViewChange={setActiveView} />
       )}
       {renderActiveView()}

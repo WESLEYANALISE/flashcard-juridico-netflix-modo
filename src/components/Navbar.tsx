@@ -1,4 +1,3 @@
-
 import { BarChart3, BookOpen, List, RefreshCw, Settings, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { 
@@ -78,7 +77,7 @@ const Navbar = ({ activeView, onViewChange }: NavbarProps) => {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-netflix-black/95 backdrop-blur-xl border-b border-white/10 shadow-2xl">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-netflix-black/98 backdrop-blur-xl border-b border-white/10 shadow-2xl">
         <div className="w-full px-3 sm:px-6 py-3">
           <div className="flex items-center justify-between">
             {/* Settings Dropdown */}
@@ -87,18 +86,18 @@ const Navbar = ({ activeView, onViewChange }: NavbarProps) => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-gray-300 hover:text-white hover:bg-white/10"
+                  className="text-gray-300 hover:text-white hover:bg-netflix-dark/60 border border-white/10 hover:border-white/20 transition-all duration-200"
                 >
                   <Settings className="w-5 h-5" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-netflix-dark border-white/20">
-                <DropdownMenuItem onClick={handleResetStats} className="text-orange-400 hover:text-orange-300">
+              <DropdownMenuContent className="bg-netflix-dark/95 border-white/20 backdrop-blur-xl">
+                <DropdownMenuItem onClick={handleResetStats} className="text-orange-400 hover:text-orange-300 hover:bg-orange-500/20">
                   <RefreshCw className="w-4 h-4 mr-2" />
                   Resetar Estatísticas
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-white/20" />
-                <DropdownMenuItem onClick={handleLogout} className="text-red-400 hover:text-red-300">
+                <DropdownMenuItem onClick={handleLogout} className="text-red-400 hover:text-red-300 hover:bg-red-500/20">
                   <LogOut className="w-4 h-4 mr-2" />
                   Logout
                 </DropdownMenuItem>
@@ -106,7 +105,7 @@ const Navbar = ({ activeView, onViewChange }: NavbarProps) => {
             </DropdownMenu>
 
             {/* Navigation Menu */}
-            <div className="flex items-center gap-1 sm:gap-2 bg-gradient-to-r from-netflix-dark/90 to-netflix-gray/60 rounded-2xl sm:rounded-3xl p-2 sm:p-3 border border-white/15 shadow-2xl backdrop-blur-md overflow-hidden max-w-full">
+            <div className="flex items-center gap-1 sm:gap-2 bg-netflix-dark/90 rounded-2xl sm:rounded-3xl p-2 sm:p-3 border border-white/15 shadow-2xl backdrop-blur-md overflow-hidden max-w-full">
               {menuItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = activeView === item.id;
@@ -125,19 +124,11 @@ const Navbar = ({ activeView, onViewChange }: NavbarProps) => {
                       transition-all duration-300 ease-out 
                       group overflow-hidden
                       ${isActive 
-                        ? 'bg-gradient-to-br from-netflix-red to-netflix-red/80 text-white shadow-lg shadow-netflix-red/30 scale-105' 
-                        : 'text-gray-300 hover:text-white hover:bg-white/10 hover:scale-105 active:scale-95'
+                        ? 'bg-netflix-red text-white shadow-lg shadow-netflix-red/30 scale-105 border border-netflix-red/50' 
+                        : 'text-gray-300 hover:text-white hover:bg-netflix-gray/50 hover:scale-105 active:scale-95 border border-transparent hover:border-white/20'
                       }
                     `}
                   >
-                    <div className={`
-                      absolute inset-0 rounded-xl sm:rounded-2xl transition-all duration-300 
-                      ${isActive 
-                        ? 'bg-gradient-to-br from-netflix-red/20 to-transparent opacity-100' 
-                        : 'bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100'
-                      }
-                    `} />
-                    
                     <div className={`
                       relative z-10 flex flex-col items-center justify-center 
                       transition-all duration-300 gap-1
@@ -167,14 +158,6 @@ const Navbar = ({ activeView, onViewChange }: NavbarProps) => {
                     {isActive && (
                       <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white rounded-full shadow-lg" />
                     )}
-                    
-                    <div className="absolute inset-0 rounded-xl sm:rounded-2xl overflow-hidden pointer-events-none">
-                      <div className={`
-                        absolute inset-0 bg-white/30 rounded-xl sm:rounded-2xl scale-0 
-                        group-active:scale-110 transition-transform duration-300 ease-out 
-                        ${isActive ? 'opacity-20' : 'opacity-10'}
-                      `} />
-                    </div>
                   </Button>
                 );
               })}

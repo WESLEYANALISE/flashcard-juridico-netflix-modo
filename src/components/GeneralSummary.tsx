@@ -19,41 +19,64 @@ const GeneralSummary = ({ flashcards, categories }: GeneralSummaryProps) => {
   const accuracy = userStats?.accuracy || 0;
   const progress = totalCards > 0 ? Math.round((studiedCards / totalCards) * 100) : 0;
 
+  const summaryItems = [
+    {
+      icon: BookOpen,
+      value: totalCards,
+      label: 'Total de Cards',
+      color: 'text-blue-400',
+      bgColor: 'bg-blue-500/15',
+      borderColor: 'border-blue-500/30'
+    },
+    {
+      icon: Target,
+      value: studiedCards,
+      label: 'Estudados',
+      color: 'text-green-400',
+      bgColor: 'bg-green-500/15',
+      borderColor: 'border-green-500/30'
+    },
+    {
+      icon: Award,
+      value: `${accuracy}%`,
+      label: 'Precisão',
+      color: 'text-netflix-red',
+      bgColor: 'bg-netflix-red/15',
+      borderColor: 'border-netflix-red/30'
+    },
+    {
+      icon: TrendingUp,
+      value: `${progress}%`,
+      label: 'Progresso',
+      color: 'text-netflix-gold',
+      bgColor: 'bg-netflix-gold/15',
+      borderColor: 'border-netflix-gold/30'
+    }
+  ];
+
   return (
-    <div className="bg-netflix-dark/50 rounded-2xl p-4 sm:p-6 glass-effect animate-fade-in mb-8 sm:mb-12">
-      <h3 className="text-lg sm:text-xl font-semibold text-white mb-4 text-center">Resumo Geral</h3>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <div className="text-center p-3 sm:p-4 bg-blue-500/20 rounded-xl">
-          <BookOpen className="w-6 h-6 sm:w-8 sm:h-8 text-blue-400 mx-auto mb-2" />
-          <div className="text-xl sm:text-2xl font-bold text-blue-400">
-            {totalCards}
-          </div>
-          <div className="text-xs sm:text-sm text-gray-400">Total de Cards</div>
-        </div>
-        
-        <div className="text-center p-3 sm:p-4 bg-green-500/20 rounded-xl">
-          <Target className="w-6 h-6 sm:w-8 sm:h-8 text-green-400 mx-auto mb-2" />
-          <div className="text-xl sm:text-2xl font-bold text-green-400">
-            {studiedCards}
-          </div>
-          <div className="text-xs sm:text-sm text-gray-400">Estudados</div>
-        </div>
-        
-        <div className="text-center p-3 sm:p-4 bg-netflix-red/20 rounded-xl">
-          <Award className="w-6 h-6 sm:w-8 sm:h-8 text-netflix-red mx-auto mb-2" />
-          <div className="text-xl sm:text-2xl font-bold text-netflix-red">
-            {accuracy}%
-          </div>
-          <div className="text-xs sm:text-sm text-gray-400">Precisão</div>
-        </div>
-        
-        <div className="text-center p-3 sm:p-4 bg-netflix-gold/20 rounded-xl">
-          <TrendingUp className="w-6 h-6 sm:w-8 sm:h-8 text-netflix-gold mx-auto mb-2" />
-          <div className="text-xl sm:text-2xl font-bold text-netflix-gold">
-            {progress}%
-          </div>
-          <div className="text-xs sm:text-sm text-gray-400">Progresso</div>
-        </div>
+    <div className="bg-netflix-dark/80 rounded-2xl p-6 border border-white/10 backdrop-blur-sm animate-fade-in mb-8 sm:mb-12">
+      <h3 className="text-xl font-semibold text-white mb-6 text-center">Resumo Geral</h3>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {summaryItems.map((item, index) => {
+          const Icon = item.icon;
+          return (
+            <div 
+              key={item.label}
+              className={`
+                text-center p-4 rounded-xl border transition-all duration-300 hover:scale-105
+                ${item.bgColor} ${item.borderColor}
+              `}
+              style={{ animationDelay: `${index * 0.1}s` }}
+            >
+              <Icon className={`w-6 h-6 sm:w-8 sm:h-8 ${item.color} mx-auto mb-3`} />
+              <div className={`text-2xl sm:text-3xl font-bold ${item.color} mb-1`}>
+                {item.value}
+              </div>
+              <div className="text-sm text-gray-300 font-medium">{item.label}</div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

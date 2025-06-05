@@ -77,7 +77,7 @@ const ImprovedThemeSelector = ({
           <Button 
             onClick={onBack} 
             variant="outline" 
-            className="bg-white/10 border-white/20 text-white hover:bg-white/20 flex items-center space-x-2"
+            className="bg-netflix-dark/80 border-white/20 text-white hover:bg-netflix-dark hover:border-white/40 flex items-center space-x-2 backdrop-blur-sm"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Voltar</span>
@@ -89,7 +89,7 @@ const ImprovedThemeSelector = ({
           <h1 className="text-3xl sm:text-4xl font-bold text-white mb-4">
             Selecione os <span style={{ color: areaColor }}>Temas</span>
           </h1>
-          <p className="text-lg text-gray-400 mb-6">
+          <p className="text-lg text-gray-300 mb-6">
             Escolha os temas de {area} que deseja estudar
           </p>
           
@@ -99,7 +99,7 @@ const ImprovedThemeSelector = ({
               onClick={handleSelectAll} 
               variant="outline" 
               size="sm"
-              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+              className="bg-netflix-dark/80 border-white/20 text-white hover:bg-netflix-dark hover:border-white/40 backdrop-blur-sm"
             >
               Selecionar Todos
             </Button>
@@ -107,7 +107,7 @@ const ImprovedThemeSelector = ({
               onClick={handleClearAll} 
               variant="outline" 
               size="sm"
-              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+              className="bg-netflix-dark/80 border-white/20 text-white hover:bg-netflix-dark hover:border-white/40 backdrop-blur-sm"
             >
               Limpar Seleção
             </Button>
@@ -127,14 +127,17 @@ const ImprovedThemeSelector = ({
                 onClick={() => handleThemeToggle(theme)}
                 className={`
                   relative p-6 rounded-xl cursor-pointer transition-all duration-300 hover-lift animate-fade-in
+                  bg-netflix-dark/60 border-2 backdrop-blur-sm
                   ${isSelected 
-                    ? 'ring-2 shadow-2xl' 
-                    : 'hover:scale-105'
+                    ? 'border-opacity-100 shadow-2xl ring-4 ring-opacity-30' 
+                    : 'border-white/10 hover:border-white/20 hover:scale-105'
                   }
                 `}
                 style={{
-                  background: `linear-gradient(135deg, ${areaColor}20 0%, ${areaColor}10 100%)`,
-                  ...(isSelected && { '--tw-ring-color': areaColor }),
+                  ...(isSelected && { 
+                    borderColor: areaColor,
+                    '--tw-ring-color': `${areaColor}50`
+                  }),
                   animationDelay: `${index * 0.1}s`
                 }}
               >
@@ -144,7 +147,7 @@ const ImprovedThemeSelector = ({
                     w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300
                     ${isSelected 
                       ? 'border-white bg-white' 
-                      : 'border-white/50'
+                      : 'border-gray-400'
                     }
                   `}>
                     {isSelected && (
@@ -155,41 +158,50 @@ const ImprovedThemeSelector = ({
 
                 {/* Theme Info */}
                 <div className="mb-4">
-                  <h3 className="text-lg font-semibold text-white mb-2 pr-8">
+                  <h3 className="text-lg font-semibold text-white mb-3 pr-8 leading-tight">
                     {theme}
                   </h3>
                   
-                  <div className="flex items-center justify-between text-sm text-gray-400 mb-3">
-                    <span>{stats.total} cards</span>
-                    <span>{stats.studied} estudados</span>
+                  <div className="grid grid-cols-2 gap-2 text-sm mb-3">
+                    <div className="text-gray-300">
+                      <span className="block text-xs text-gray-400">Cards</span>
+                      <span className="font-medium">{stats.total}</span>
+                    </div>
+                    <div className="text-gray-300">
+                      <span className="block text-xs text-gray-400">Estudados</span>
+                      <span className="font-medium">{stats.studied}</span>
+                    </div>
                     {stats.accuracy > 0 && (
-                      <span>{stats.accuracy}% precisão</span>
+                      <div className="text-gray-300 col-span-2">
+                        <span className="block text-xs text-gray-400">Precisão</span>
+                        <span className="font-medium">{stats.accuracy}%</span>
+                      </div>
                     )}
                   </div>
                 </div>
 
                 {/* Progress Bar */}
-                <div className="w-full bg-gray-700/50 rounded-full h-2">
+                <div className="w-full bg-netflix-gray/50 rounded-full h-2 mb-2">
                   <div
                     className="h-2 rounded-full transition-all duration-700"
                     style={{
                       width: `${progress}%`,
-                      background: `linear-gradient(90deg, ${areaColor}, ${areaColor}80)`
+                      backgroundColor: areaColor
                     }}
                   />
                 </div>
                 
-                <div className="text-xs text-gray-500 mt-2">
+                <div className="text-xs text-gray-400">
                   {Math.round(progress)}% completo
                 </div>
 
-                {/* Hover Effect */}
-                <div 
-                  className="absolute inset-0 opacity-0 hover:opacity-20 transition-opacity duration-300 rounded-xl pointer-events-none"
-                  style={{
-                    background: `radial-gradient(circle at center, ${areaColor} 0%, transparent 70%)`
-                  }}
-                />
+                {/* Accent Border when Selected */}
+                {isSelected && (
+                  <div 
+                    className="absolute top-0 left-0 w-full h-1 rounded-t-xl"
+                    style={{ backgroundColor: areaColor }}
+                  />
+                )}
               </div>
             );
           })}
@@ -200,14 +212,14 @@ const ImprovedThemeSelector = ({
           <Button
             onClick={handleStartStudy}
             disabled={selectedThemes.length === 0}
-            className="bg-netflix-red hover:bg-netflix-red/80 text-white px-8 py-4 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 mx-auto"
+            className="bg-netflix-red hover:bg-netflix-red/80 text-white px-8 py-4 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 mx-auto transition-all duration-300"
           >
             <Play className="w-5 h-5" />
             <span>Iniciar Estudo ({selectedThemes.length} temas)</span>
           </Button>
           
           {selectedThemes.length === 0 && (
-            <p className="text-gray-400 text-sm mt-2">
+            <p className="text-gray-400 text-sm mt-3">
               Selecione pelo menos um tema para começar
             </p>
           )}
