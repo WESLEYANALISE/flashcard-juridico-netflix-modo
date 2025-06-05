@@ -1104,6 +1104,39 @@ export type Database = {
           },
         ]
       }
+      caca_palavras: {
+        Row: {
+          Area: string | null
+          id: number
+          "Nivel 1": string | null
+          "Nivel 2": string | null
+          "Nivel 3": string | null
+          "Nivel 4": string | null
+          "Nivel 5": string | null
+          Tema: string | null
+        }
+        Insert: {
+          Area?: string | null
+          id?: number
+          "Nivel 1"?: string | null
+          "Nivel 2"?: string | null
+          "Nivel 3"?: string | null
+          "Nivel 4"?: string | null
+          "Nivel 5"?: string | null
+          Tema?: string | null
+        }
+        Update: {
+          Area?: string | null
+          id?: number
+          "Nivel 1"?: string | null
+          "Nivel 2"?: string | null
+          "Nivel 3"?: string | null
+          "Nivel 4"?: string | null
+          "Nivel 5"?: string | null
+          Tema?: string | null
+        }
+        Relationships: []
+      }
       categorias: {
         Row: {
           created_at: string | null
@@ -4838,6 +4871,33 @@ export type Database = {
         }
         Relationships: []
       }
+      roleta_juridica: {
+        Row: {
+          Area: string | null
+          created_at: string | null
+          Dica: string | null
+          id: number
+          Tema: string | null
+          Termo: string | null
+        }
+        Insert: {
+          Area?: string | null
+          created_at?: string | null
+          Dica?: string | null
+          id?: number
+          Tema?: string | null
+          Termo?: string | null
+        }
+        Update: {
+          Area?: string | null
+          created_at?: string | null
+          Dica?: string | null
+          id?: number
+          Tema?: string | null
+          Termo?: string | null
+        }
+        Relationships: []
+      }
       search_analytics: {
         Row: {
           article_number: string | null
@@ -6383,6 +6443,51 @@ export type Database = {
           progress_percent?: number | null
           reading_time_minutes?: number | null
           updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_scores: {
+        Row: {
+          area: string | null
+          correct_answers: number
+          created_at: string
+          game_mode: string
+          id: string
+          score: number
+          session_date: string
+          study_mode: string | null
+          tema: string | null
+          time_spent: number | null
+          total_questions: number
+          user_id: string
+        }
+        Insert: {
+          area?: string | null
+          correct_answers?: number
+          created_at?: string
+          game_mode: string
+          id?: string
+          score?: number
+          session_date?: string
+          study_mode?: string | null
+          tema?: string | null
+          time_spent?: number | null
+          total_questions?: number
+          user_id: string
+        }
+        Update: {
+          area?: string | null
+          correct_answers?: number
+          created_at?: string
+          game_mode?: string
+          id?: string
+          score?: number
+          session_date?: string
+          study_mode?: string | null
+          tema?: string | null
+          time_spent?: number | null
+          total_questions?: number
           user_id?: string
         }
         Relationships: []

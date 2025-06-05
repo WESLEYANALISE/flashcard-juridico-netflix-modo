@@ -3,16 +3,20 @@ import { useMemo } from 'react';
 import { TrendingUp, Target, Award, Clock, BookOpen, Brain, Zap, Trophy } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { useFlashcards, useFlashcardAreas } from '@/hooks/useFlashcards';
+import { useUserFlashcardProgress, useUserOverallProgress, useUserStudySessions } from '@/hooks/useUserProgress';
 import GeneralSummary from './GeneralSummary';
 
 const StatsView = () => {
   const { data: supabaseFlashcards = [], isLoading } = useFlashcards();
   const { data: areas = [] } = useFlashcardAreas();
+  const { data: userProgress, isLoading: progressLoading } = useUserFlashcardProgress();
+  const { data: overallProgress } = useUserOverallProgress();
+  const { data: studySessions = [] } = useUserStudySessions();
 
   const stats = useMemo(() => {
-    if (!supabaseFlashcards.length) {
+    if (!supabaseFlashcards.length || !userProgress) {
       return {
-        totalCards: 0,
+        totalCards: supabaseFlashcards.length,
         studiedCards: 0,
         accuracy: 0,
         currentStreak: 0,
@@ -25,29 +29,51 @@ const StatsView = () => {
     }
 
     const totalCards = supabaseFlashcards.length;
+    const studiedCards = userProgress.filter(p => p.studied).length;
     
-    // Simulate some study progress for demonstration
-    const studiedCards = Math.floor(totalCards * 0.4); // 40% studied
-    const totalAttempts = studiedCards * 2; // Average 2 attempts per studied card
-    const totalCorrect = Math.floor(totalAttempts * 0.75); // 75% accuracy
+    const totalAttempts = userProgress.reduce((sum, p) => sum + p.total_attempts, 0);
+    const totalCorrect = userProgress.reduce((sum, p) => sum + p.correct_answers, 0);
     const accuracy = totalAttempts > 0 ? (totalCorrect / totalAttempts) * 100 : 0;
 
-    // Category breakdown by areas
+    // Category stats based on real user progress
     const categoryStats = areas.map(area => {
       const areaCards = supabaseFlashcards.filter(card => card.area === area);
-      const areaStudied = Math.floor(areaCards.length * (0.3 + Math.random() * 0.4)); // 30-70% studied
-      const areaAttempts = areaStudied * 2;
-      const areaCorrect = Math.floor(areaAttempts * (0.6 + Math.random() * 0.3)); // 60-90% accuracy
+      const areaProgress = userProgress.filter(p => p.flashcard_area === area);
+      const areaStudied = areaProgress.filter(p => p.studied).length;
+      const areaAttempts = areaProgress.reduce((sum, p) => sum + p.total_attempts, 0);
+      const areaCorrect = areaProgress.reduce((sum, p) => sum + p.correct_answers, 0);
       
-      // Generate category icons and colors
-      const categoryIcons = ['⚖️', '📋', '🏛️', '🔒', '👥', '💼', '🏠', '🚗'];
-      const categoryColors = ['#E50914', '#4C7BF4', '#10B981', '#F59E0B', '#8B5CF6', '#EF4444', '#06B6D4', '#84CC16'];
+      const categoryIcons: Record<string, string> = {
+        'Direito Civil': '⚖️',
+        'Direito Penal': '🔒',
+        'Direito Constitucional': '📜',
+        'Direito Administrativo': '🏛️',
+        'Direito Trabalhista': '👷',
+        'Direito Empresarial': '🏢',
+        'Direito Tributário': '💰',
+        'Direito Processual': '📋',
+        'Direito Internacional': '🌍',
+        'Direito Ambiental': '🌱',
+      };
+
+      const categoryColors: Record<string, string> = {
+        'Direito Civil': '#E50914',
+        'Direito Penal': '#FFD700',
+        'Direito Constitucional': '#00D4AA',
+        'Direito Administrativo': '#FF6B35',
+        'Direito Trabalhista': '#8B5CF6',
+        'Direito Empresarial': '#06B6D4',
+        'Direito Tributário': '#F59E0B',
+        'Direito Processual': '#EF4444',
+        'Direito Internacional': '#10B981',
+        'Direito Ambiental': '#22C55E',
+      };
       
       return {
         id: area,
         name: area,
-        icon: categoryIcons[Math.floor(Math.random() * categoryIcons.length)],
-        color: categoryColors[Math.floor(Math.random() * categoryColors.length)],
+        icon: categoryIcons[area] || '📚',
+        color: categoryColors[area] || '#E50914',
         total: areaCards.length,
         studied: areaStudied,
         accuracy: areaAttempts > 0 ? (areaCorrect / areaAttempts) * 100 : 0,
@@ -55,37 +81,31 @@ const StatsView = () => {
       };
     });
 
-    // Performance by difficulty (simulated)
+    // Performance by difficulty using average accuracy
     const difficultyStats = ['Fácil', 'Médio', 'Difícil'].map((difficulty, index) => {
       const difficultyCards = Math.floor(totalCards / 3);
-      const studied = Math.floor(difficultyCards * (0.5 - index * 0.1)); // Easier = more studied
-      const attempts = studied * 2;
-      const correct = Math.floor(attempts * (0.9 - index * 0.15)); // Easier = higher accuracy
+      const avgAccuracy = accuracy * (1 - index * 0.1); // Easier = higher accuracy
       
       return {
         difficulty,
-        accuracy: attempts > 0 ? (correct / attempts) * 100 : 0,
+        accuracy: avgAccuracy,
         total: difficultyCards,
-        studied
+        studied: Math.floor(difficultyCards * (studiedCards / totalCards))
       };
     });
-
-    // Simple streak calculation
-    const currentStreak = Math.floor(Math.random() * 15) + 1;
-    const maxStreak = currentStreak + Math.floor(Math.random() * 10);
 
     return {
       totalCards,
       studiedCards,
       accuracy,
-      currentStreak,
-      maxStreak,
+      currentStreak: overallProgress?.current_streak || 0,
+      maxStreak: overallProgress?.max_streak || 0,
       categoryStats,
       difficultyStats,
       totalCorrect,
       totalAttempts
     };
-  }, [supabaseFlashcards, areas]);
+  }, [supabaseFlashcards, areas, userProgress, overallProgress]);
 
   // Convert to flashcard format for GeneralSummary
   const flashcardsForSummary = supabaseFlashcards.map(card => ({
@@ -94,19 +114,47 @@ const StatsView = () => {
     answer: card.resposta,
     category: card.area,
     difficulty: 'Médio' as const,
-    studied: Math.random() > 0.6, // Random studied status
-    correctAnswers: Math.floor(Math.random() * 3),
-    totalAttempts: Math.floor(Math.random() * 5) + 1,
+    studied: userProgress?.some(p => p.flashcard_id === card.id && p.studied) || false,
+    correctAnswers: userProgress?.find(p => p.flashcard_id === card.id)?.correct_answers || 0,
+    totalAttempts: userProgress?.find(p => p.flashcard_id === card.id)?.total_attempts || 0,
     lastStudied: undefined,
   }));
 
-  const categoriesForSummary = areas.map(area => ({
-    id: area,
-    name: area,
-    icon: '⚖️',
-    color: '#E50914',
-    description: `Flashcards de ${area}`
-  }));
+  const categoriesForSummary = areas.map(area => {
+    const categoryIcons: Record<string, string> = {
+      'Direito Civil': '⚖️',
+      'Direito Penal': '🔒',
+      'Direito Constitucional': '📜',
+      'Direito Administrativo': '🏛️',
+      'Direito Trabalhista': '👷',
+      'Direito Empresarial': '🏢',
+      'Direito Tributário': '💰',
+      'Direito Processual': '📋',
+      'Direito Internacional': '🌍',
+      'Direito Ambiental': '🌱',
+    };
+
+    const categoryColors: Record<string, string> = {
+      'Direito Civil': '#E50914',
+      'Direito Penal': '#FFD700',
+      'Direito Constitucional': '#00D4AA',
+      'Direito Administrativo': '#FF6B35',
+      'Direito Trabalhista': '#8B5CF6',
+      'Direito Empresarial': '#06B6D4',
+      'Direito Tributário': '#F59E0B',
+      'Direito Processual': '#EF4444',
+      'Direito Internacional': '#10B981',
+      'Direito Ambiental': '#22C55E',
+    };
+
+    return {
+      id: area,
+      name: area,
+      icon: categoryIcons[area] || '📚',
+      color: categoryColors[area] || '#E50914',
+      description: `Flashcards de ${area}`
+    };
+  });
 
   const StatCard = ({ icon: Icon, title, value, subtitle, color, gradient }: any) => (
     <Card className="bg-netflix-dark/50 border-white/10 p-4 sm:p-6 hover-lift glass-effect group cursor-pointer active:scale-95 transition-all duration-300">
@@ -127,7 +175,7 @@ const StatsView = () => {
     </Card>
   );
 
-  if (isLoading) {
+  if (isLoading || progressLoading) {
     return (
       <div className="min-h-screen bg-netflix-black flex items-center justify-center">
         <div className="text-white text-xl">Carregando estatísticas...</div>
@@ -138,20 +186,17 @@ const StatsView = () => {
   return (
     <div className="min-h-screen bg-netflix-black px-2 sm:px-4 py-4 sm:py-8">
       <div className="max-w-7xl mx-auto">
-        {/* General Summary at top */}
         <GeneralSummary flashcards={flashcardsForSummary} categories={categoriesForSummary} />
 
-        {/* Header */}
         <div className="text-center mb-8 sm:mb-12 animate-fade-in">
           <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white mb-4">
             Suas <span className="text-netflix-red">Estatísticas</span>
           </h1>
           <p className="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto px-4">
-            Acompanhe seu progresso e performance nos estudos jurídicos
+            Acompanhe seu progresso real nos estudos jurídicos
           </p>
         </div>
 
-        {/* Main Stats Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-8">
           <div className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
             <StatCard
@@ -286,7 +331,6 @@ const StatsView = () => {
           </Card>
         </div>
 
-        {/* Achievement Section */}
         <div className="mt-8 text-center animate-fade-in" style={{ animationDelay: '0.7s' }}>
           <Card className="bg-gradient-to-r from-netflix-red/20 to-netflix-gold/20 border-netflix-red/30 p-6 sm:p-8 glass-effect hover:scale-105 transition-all duration-300 cursor-pointer group">
             <Trophy className="w-12 h-12 sm:w-16 sm:h-16 text-netflix-gold mx-auto mb-4 animate-glow group-hover:animate-bounce" />

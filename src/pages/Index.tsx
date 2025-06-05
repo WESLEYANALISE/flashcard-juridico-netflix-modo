@@ -5,7 +5,6 @@ import StudyView from '@/components/StudyView';
 import StatsView from '@/components/StatsView';
 import SettingsView from '@/components/SettingsView';
 import PlaylistView from '@/components/PlaylistView';
-import DailyMissions from '@/components/DailyMissions';
 import { useFlashcards } from '@/hooks/useFlashcards';
 
 const Index = () => {
@@ -13,7 +12,6 @@ const Index = () => {
   const [hideNavbar, setHideNavbar] = useState(false);
   const { data: supabaseFlashcards = [] } = useFlashcards();
 
-  // Convert Supabase flashcards to the expected format
   const flashcards = supabaseFlashcards.map(card => ({
     id: card.id.toString(),
     question: card.pergunta,
@@ -27,7 +25,6 @@ const Index = () => {
   }));
 
   const handleUpdateFlashcard = (id: string, updates: any) => {
-    // This would update the flashcard in the future
     console.log('Updating flashcard:', id, updates);
   };
 
@@ -57,8 +54,6 @@ const Index = () => {
             onStudyPlaylist={handleStudyPlaylist}
           />
         );
-      case 'missions':
-        return <DailyMissions />;
       case 'stats':
         return <StatsView />;
       case 'settings':

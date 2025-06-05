@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Flashcard } from '@/types/flashcard';
 import { useFlashcards, useFlashcardAreas } from '@/hooks/useFlashcards';
 import { useFlashcardsByAreaAndThemes } from '@/hooks/useFlashcardsByArea';
+import { useUpdateFlashcardProgress } from '@/hooks/useUserProgress';
 import { generateCategoriesFromAreas, mapSupabaseFlashcard } from '@/utils/flashcardMapper';
 import { useErrorHandling } from '@/hooks/useErrorHandling';
 import { CardSkeleton, CategoryCardSkeleton } from '@/components/ui/card-skeleton';
@@ -38,8 +39,10 @@ const StudyView = ({ onUpdateFlashcard, onHideNavbar }: StudyViewProps) => {
     maxStreak: 0,
     completed: false
   });
+  const [sessionStartTime, setSessionStartTime] = useState<number>(Date.now());
 
   const { handleError, retry, canRetry } = useErrorHandling();
+  const updateProgress = useUpdateFlashcardProgress();
 
   // Queries com tratamento de erro melhorado
   const {
@@ -109,7 +112,7 @@ const StudyView = ({ onUpdateFlashcard, onHideNavbar }: StudyViewProps) => {
         maxStreak: 0,
         completed: false
       });
-      // Show entering animation for first card
+      setSessionStartTime(Date.now());
       setIsCardEntering(true);
       setTimeout(() => setIsCardEntering(false), 100);
     }
@@ -125,9 +128,11 @@ const StudyView = ({ onUpdateFlashcard, onHideNavbar }: StudyViewProps) => {
     setCurrentStep('studying');
   };
 
-  const handleAnswer = (correct: boolean) => {
-    if (!currentCard) return;
+  const handleAnswer = async (correct: boolean) => {
+    if (!currentCard || !selectedArea) return;
 
+    const timeSpent = Math.floor((Date.now() - sessionStartTime) / 1000);
+    
     const newStats = {
       correct: sessionStats.correct + (correct ? 1 : 0),
       total: sessionStats.total + 1,
@@ -138,6 +143,19 @@ const StudyView = ({ onUpdateFlashcard, onHideNavbar }: StudyViewProps) => {
 
     setSessionStats(newStats);
 
+    // Update progress in database
+    try {
+      await updateProgress.mutateAsync({
+        flashcardId: parseInt(currentCard.id),
+        area: selectedArea,
+        correct,
+        timeSpent: Math.floor(timeSpent / currentCards.length)
+      });
+    } catch (error) {
+      console.error('Error updating progress:', error);
+    }
+
+    // Update local state for immediate feedback
     onUpdateFlashcard(currentCard.id, {
       studied: true,
       correctAnswers: currentCard.correctAnswers + (correct ? 1 : 0),
@@ -152,7 +170,6 @@ const StudyView = ({ onUpdateFlashcard, onHideNavbar }: StudyViewProps) => {
       setIsCardExiting(false);
       if (currentCardIndex < currentCards.length - 1) {
         setCurrentCardIndex(currentCardIndex + 1);
-        // Show entering animation for next card
         setIsCardEntering(true);
         setTimeout(() => setIsCardEntering(false), 100);
       } else {

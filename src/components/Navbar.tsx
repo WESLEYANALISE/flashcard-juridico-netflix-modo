@@ -1,5 +1,5 @@
 
-import { BarChart3, BookOpen, Settings, List, Trophy } from 'lucide-react';
+import { BarChart3, BookOpen, Settings, List } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface NavbarProps {
@@ -20,11 +20,6 @@ const Navbar = ({ activeView, onViewChange }: NavbarProps) => {
       icon: List
     },
     {
-      id: 'missions',
-      label: 'Missões',
-      icon: Trophy
-    },
-    {
       id: 'stats',
       label: 'Estatísticas',
       icon: BarChart3
@@ -41,7 +36,6 @@ const Navbar = ({ activeView, onViewChange }: NavbarProps) => {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-netflix-black/95 backdrop-blur-xl border-b border-white/10 shadow-2xl">
         <div className="w-full px-3 sm:px-6 py-3">
           <div className="flex items-center justify-center">
-            {/* Responsive Navigation Container */}
             <div className="flex items-center gap-1 sm:gap-2 bg-gradient-to-r from-netflix-dark/90 to-netflix-gray/60 rounded-2xl sm:rounded-3xl p-2 sm:p-3 border border-white/15 shadow-2xl backdrop-blur-md overflow-hidden max-w-full">
               {menuItems.map((item) => {
                 const Icon = item.icon;
@@ -66,7 +60,6 @@ const Navbar = ({ activeView, onViewChange }: NavbarProps) => {
                       }
                     `}
                   >
-                    {/* Background glow effect */}
                     <div className={`
                       absolute inset-0 rounded-xl sm:rounded-2xl transition-all duration-300 
                       ${isActive 
@@ -75,7 +68,6 @@ const Navbar = ({ activeView, onViewChange }: NavbarProps) => {
                       }
                     `} />
                     
-                    {/* Icon and Text Container */}
                     <div className={`
                       relative z-10 flex flex-col items-center justify-center 
                       transition-all duration-300 gap-1
@@ -102,12 +94,10 @@ const Navbar = ({ activeView, onViewChange }: NavbarProps) => {
                       </span>
                     </div>
                     
-                    {/* Active indicator dot */}
                     {isActive && (
                       <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white rounded-full shadow-lg" />
                     )}
                     
-                    {/* Ripple effect on click */}
                     <div className="absolute inset-0 rounded-xl sm:rounded-2xl overflow-hidden pointer-events-none">
                       <div className={`
                         absolute inset-0 bg-white/30 rounded-xl sm:rounded-2xl scale-0 
@@ -123,7 +113,6 @@ const Navbar = ({ activeView, onViewChange }: NavbarProps) => {
         </div>
       </nav>
       
-      {/* Responsive spacer for fixed navbar */}
       <div className="h-[76px] sm:h-[86px] lg:h-[100px]" />
     </>
   );

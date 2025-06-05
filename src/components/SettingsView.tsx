@@ -1,39 +1,38 @@
 
-import { useState } from 'react';
-import { Settings, User, Palette, Bell, Shield, HelpCircle, Download, Upload } from 'lucide-react';
+import { Settings, User, Palette, Volume2, Info } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { Slider } from '@/components/ui/slider';
+import { useState } from 'react';
 
 const SettingsView = () => {
-  const [settings, setSettings] = useState({
-    showAnswerByDefault: true,
-    enableNotifications: false,
-    studyReminders: true,
-    soundEffects: false,
-    autoAdvance: false,
-    studyGoalPerDay: 10,
-    difficulty: 'medium'
-  });
+  const [autoPlayAudio, setAutoPlayAudio] = useState(false);
+  const [darkMode, setDarkMode] = useState(true);
+  const [showAnimations, setShowAnimations] = useState(true);
+  const [studyReminders, setStudyReminders] = useState(false);
 
-  const handleSettingChange = (key: string, value: any) => {
-    setSettings(prev => ({ ...prev, [key]: value }));
-  };
-
-  const SettingCard = ({ icon: Icon, title, description, children }: any) => (
-    <Card className="bg-netflix-dark/50 border-white/10 p-6 glass-effect hover-lift">
-      <div className="flex items-start space-x-4">
-        <div className="p-3 bg-netflix-red/20 rounded-lg">
-          <Icon className="w-6 h-6 text-netflix-red" />
+  const SettingCard = ({ icon: Icon, title, children }: any) => (
+    <Card className="bg-netflix-dark/50 border-white/10 p-6 hover-lift glass-effect">
+      <div className="flex items-center space-x-3 mb-4">
+        <div className="p-2 rounded-lg bg-netflix-red/20">
+          <Icon className="w-5 h-5 text-netflix-red" />
         </div>
-        <div className="flex-1">
-          <h3 className="font-semibold text-white mb-1">{title}</h3>
-          <p className="text-sm text-gray-400 mb-4">{description}</p>
-          {children}
-        </div>
+        <h3 className="text-lg font-semibold text-white">{title}</h3>
       </div>
+      {children}
     </Card>
+  );
+
+  const SettingItem = ({ label, description, children }: any) => (
+    <div className="flex items-center justify-between py-3 border-b border-white/10 last:border-b-0">
+      <div className="flex-1">
+        <div className="text-white font-medium">{label}</div>
+        {description && (
+          <div className="text-sm text-gray-400 mt-1">{description}</div>
+        )}
+      </div>
+      <div className="ml-4">{children}</div>
+    </div>
   );
 
   return (
@@ -45,180 +44,129 @@ const SettingsView = () => {
             <span className="text-netflix-red">Configurações</span>
           </h1>
           <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-            Personalize sua experiência de estudo jurídico
+            Personalize sua experiência de estudos jurídicos
           </p>
         </div>
 
-        <div className="space-y-6">
+        <div className="grid gap-6">
           {/* Study Preferences */}
           <div className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
-            <SettingCard
-              icon={User}
-              title="Preferências de Estudo"
-              description="Configure como você prefere estudar"
-            >
+            <SettingCard icon={User} title="Preferências de Estudo">
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <label className="text-white font-medium">Mostrar resposta por padrão</label>
-                    <p className="text-sm text-gray-400">Exibe a resposta automaticamente ao abrir o card</p>
-                  </div>
+                <SettingItem
+                  label="Lembretes de Estudo"
+                  description="Receba notificações para manter sua rotina de estudos"
+                >
                   <Switch
-                    checked={settings.showAnswerByDefault}
-                    onCheckedChange={(checked) => handleSettingChange('showAnswerByDefault', checked)}
+                    checked={studyReminders}
+                    onCheckedChange={setStudyReminders}
                   />
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div>
-                    <label className="text-white font-medium">Avanço automático</label>
-                    <p className="text-sm text-gray-400">Avança automaticamente após responder</p>
-                  </div>
+                </SettingItem>
+                <SettingItem
+                  label="Modo Foco"
+                  description="Oculta distrações durante as sessões de estudo"
+                >
                   <Switch
-                    checked={settings.autoAdvance}
-                    onCheckedChange={(checked) => handleSettingChange('autoAdvance', checked)}
+                    checked={true}
+                    onCheckedChange={() => {}}
                   />
-                </div>
-
-                <div>
-                  <label className="text-white font-medium mb-2 block">
-                    Meta diária: {settings.studyGoalPerDay} cards
-                  </label>
-                  <Slider
-                    value={[settings.studyGoalPerDay]}
-                    onValueChange={(value) => handleSettingChange('studyGoalPerDay', value[0])}
-                    max={50}
-                    min={5}
-                    step={5}
-                    className="w-full"
-                  />
-                </div>
+                </SettingItem>
               </div>
             </SettingCard>
           </div>
 
-          {/* Notifications */}
+          {/* Audio/Visual Settings */}
           <div className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
-            <SettingCard
-              icon={Bell}
-              title="Notificações"
-              description="Configure lembretes e alertas"
-            >
+            <SettingCard icon={Volume2} title="Áudio e Visual">
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <label className="text-white font-medium">Habilitar notificações</label>
-                    <p className="text-sm text-gray-400">Receba notificações sobre seu progresso</p>
-                  </div>
+                <SettingItem
+                  label="Reprodução Automática de Áudio"
+                  description="Reproduz automaticamente comentários em áudio quando disponíveis"
+                >
                   <Switch
-                    checked={settings.enableNotifications}
-                    onCheckedChange={(checked) => handleSettingChange('enableNotifications', checked)}
+                    checked={autoPlayAudio}
+                    onCheckedChange={setAutoPlayAudio}
                   />
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div>
-                    <label className="text-white font-medium">Lembretes de estudo</label>
-                    <p className="text-sm text-gray-400">Receba lembretes para estudar diariamente</p>
-                  </div>
+                </SettingItem>
+                <SettingItem
+                  label="Animações"
+                  description="Habilita animações suaves na interface"
+                >
                   <Switch
-                    checked={settings.studyReminders}
-                    onCheckedChange={(checked) => handleSettingChange('studyReminders', checked)}
-                    disabled={!settings.enableNotifications}
+                    checked={showAnimations}
+                    onCheckedChange={setShowAnimations}
                   />
-                </div>
+                </SettingItem>
               </div>
             </SettingCard>
           </div>
 
-          {/* Audio & Visual */}
+          {/* Theme Settings */}
           <div className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
-            <SettingCard
-              icon={Palette}
-              title="Áudio e Visual"
-              description="Personalize a interface e sons"
-            >
+            <SettingCard icon={Palette} title="Aparência">
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <label className="text-white font-medium">Efeitos sonoros</label>
-                    <p className="text-sm text-gray-400">Sons ao acertar/errar respostas</p>
-                  </div>
+                <SettingItem
+                  label="Tema Escuro"
+                  description="Interface com cores escuras para reduzir o cansaço visual"
+                >
                   <Switch
-                    checked={settings.soundEffects}
-                    onCheckedChange={(checked) => handleSettingChange('soundEffects', checked)}
+                    checked={darkMode}
+                    onCheckedChange={setDarkMode}
                   />
-                </div>
+                </SettingItem>
+                <SettingItem
+                  label="Cor de Destaque"
+                  description="Personalize a cor principal da interface"
+                >
+                  <div className="flex space-x-2">
+                    <div className="w-6 h-6 bg-netflix-red rounded-full border-2 border-white/20 cursor-pointer" />
+                    <div className="w-6 h-6 bg-blue-500 rounded-full border-2 border-white/20 cursor-pointer opacity-50" />
+                    <div className="w-6 h-6 bg-green-500 rounded-full border-2 border-white/20 cursor-pointer opacity-50" />
+                  </div>
+                </SettingItem>
               </div>
             </SettingCard>
           </div>
 
-          {/* Data Management */}
+          {/* App Information */}
           <div className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
-            <SettingCard
-              icon={Shield}
-              title="Gerenciar Dados"
-              description="Backup e restauração do progresso"
-            >
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Button
-                  variant="outline"
-                  className="bg-green-500/20 border-green-500/50 text-green-400 hover:bg-green-500/30"
+            <SettingCard icon={Info} title="Informações do App">
+              <div className="space-y-4">
+                <SettingItem
+                  label="Versão"
+                  description="Versão atual do aplicativo"
                 >
-                  <Download className="w-4 h-4 mr-2" />
-                  Exportar Progresso
-                </Button>
-                
-                <Button
-                  variant="outline"
-                  className="bg-blue-500/20 border-blue-500/50 text-blue-400 hover:bg-blue-500/30"
+                  <span className="text-gray-400">v2.1.0</span>
+                </SettingItem>
+                <SettingItem
+                  label="Base de Dados"
+                  description="Última atualização do conteúdo jurídico"
                 >
-                  <Upload className="w-4 h-4 mr-2" />
-                  Importar Progresso
-                </Button>
+                  <span className="text-gray-400">Janeiro 2024</span>
+                </SettingItem>
+                <SettingItem
+                  label="Política de Privacidade"
+                  description="Saiba como seus dados são protegidos"
+                >
+                  <Button variant="outline" size="sm" className="text-netflix-red border-netflix-red hover:bg-netflix-red hover:text-white">
+                    Ver
+                  </Button>
+                </SettingItem>
               </div>
             </SettingCard>
           </div>
 
-          {/* Help & Support */}
+          {/* Reset Button */}
           <div className="animate-fade-in" style={{ animationDelay: '0.5s' }}>
-            <SettingCard
-              icon={HelpCircle}
-              title="Ajuda e Suporte"
-              description="Precisa de ajuda? Encontre recursos úteis"
-            >
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Button
-                  variant="outline"
-                  className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-                >
-                  <HelpCircle className="w-4 h-4 mr-2" />
-                  Central de Ajuda
+            <Card className="bg-gradient-to-r from-red-500/10 to-orange-500/10 border-red-500/30 p-6">
+              <div className="text-center">
+                <h3 className="text-lg font-semibold text-white mb-2">Redefinir Configurações</h3>
+                <p className="text-gray-400 mb-4">
+                  Restaurar todas as configurações para os valores padrão
+                </p>
+                <Button variant="outline" className="border-red-500 text-red-400 hover:bg-red-500 hover:text-white">
+                  Redefinir
                 </Button>
-                
-                <Button
-                  variant="outline"
-                  className="bg-netflix-red/20 border-netflix-red/50 text-netflix-red hover:bg-netflix-red/30"
-                >
-                  Feedback
-                </Button>
-              </div>
-            </SettingCard>
-          </div>
-
-          {/* App Info */}
-          <div className="animate-fade-in" style={{ animationDelay: '0.6s' }}>
-            <Card className="bg-netflix-dark/50 border-white/10 p-6 text-center glass-effect">
-              <h3 className="text-lg font-semibold text-white mb-2">FlashCards Jurídicos</h3>
-              <p className="text-gray-400 text-sm mb-4">
-                Versão 1.0.0 • Desenvolvido com ❤️ para estudantes de Direito
-              </p>
-              <div className="flex justify-center space-x-4 text-sm text-gray-500">
-                <span>Termos de Uso</span>
-                <span>•</span>
-                <span>Política de Privacidade</span>
-                <span>•</span>
-                <span>Sobre</span>
               </div>
             </Card>
           </div>
