@@ -1,40 +1,34 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { validateFlashcards } from '@/utils/flashcardValidator';
-import type { SupabaseFlashcard } from '@/utils/flashcardValidator';
 
-export type { SupabaseFlashcard };
+export interface SupabaseFlashcard {
+  id: number;
+  pergunta: string;
+  resposta: string;
+  area: string;
+  tema?: string;
+  exemplo?: string;
+  created_at?: string;
+  updated_at?: string;
+}
 
 export const useFlashcards = () => {
   return useQuery({
     queryKey: ['flashcards'],
     queryFn: async () => {
-      try {
-        const { data, error } = await supabase
-          .from('flash_cards')
-          .select('*')
-          .order('area', { ascending: true });
+      const { data, error } = await supabase
+        .from('flash_cards_improved')
+        .select('*');
 
-        if (error) {
-          console.error('Error fetching flashcards:', error);
-          throw new Error(`Erro ao buscar flashcards: ${error.message}`);
-        }
-
-        if (!data || data.length === 0) {
-          return [];
-        }
-
-        return validateFlashcards(data);
-      } catch (error) {
-        console.error('Error in useFlashcards:', error);
+      if (error) {
+        console.error('Error fetching flashcards:', error);
         throw error;
       }
+
+      return data as SupabaseFlashcard[];
     },
-    retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };
 
@@ -42,31 +36,20 @@ export const useFlashcardAreas = () => {
   return useQuery({
     queryKey: ['flashcard-areas'],
     queryFn: async () => {
-      try {
-        const { data, error } = await supabase
-          .from('flash_cards')
-          .select('area')
-          .order('area', { ascending: true });
+      const { data, error } = await supabase
+        .from('flash_cards_improved')
+        .select('area')
+        .not('area', 'is', null);
 
-        if (error) {
-          console.error('Error fetching areas:', error);
-          throw new Error(`Erro ao buscar áreas: ${error.message}`);
-        }
-
-        if (!data) {
-          return [];
-        }
-
-        const uniqueAreas = [...new Set(data.map(item => item.area))].filter(Boolean);
-        return uniqueAreas;
-      } catch (error) {
-        console.error('Error in useFlashcardAreas:', error);
+      if (error) {
+        console.error('Error fetching flashcard areas:', error);
         throw error;
       }
+
+      // Get unique areas
+      const uniqueAreas = [...new Set(data?.map(item => item.area))];
+      return uniqueAreas.filter(Boolean) as string[];
     },
-    retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
     staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
   });
 };

@@ -364,7 +364,7 @@ const StudyView = ({ onUpdateFlashcard, onHideNavbar }: StudyViewProps) => {
                 areaColor={selectedCategory?.color || '#E50914'} 
                 isExiting={isCardExiting} 
                 exitDirection={exitDirection} 
-                tema={selectedFlashcards[currentCardIndex]?.tema}
+                tema={currentSupabaseCard?.tema}
                 isEntering={isCardEntering}
                 exemplo={currentSupabaseCard?.exemplo}
               />

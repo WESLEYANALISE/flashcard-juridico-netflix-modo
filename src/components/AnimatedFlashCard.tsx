@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Flashcard } from '@/types/flashcard';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, XCircle, Scale } from 'lucide-react';
+import { CheckCircle, XCircle, Scale, Lightbulb } from 'lucide-react';
 
 interface AnimatedFlashCardProps {
   flashcard: Flashcard;
@@ -12,6 +12,7 @@ interface AnimatedFlashCardProps {
   exitDirection?: 'left' | 'right';
   tema?: string;
   isEntering?: boolean;
+  exemplo?: string;
 }
 
 const AnimatedFlashCard = ({
@@ -21,7 +22,8 @@ const AnimatedFlashCard = ({
   isExiting = false,
   exitDirection = 'right',
   tema,
-  isEntering = false
+  isEntering = false,
+  exemplo
 }: AnimatedFlashCardProps) => {
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -120,6 +122,19 @@ const AnimatedFlashCard = ({
                   {flashcard.answer}
                 </div>
               </div>
+
+              {/* Exemplo Prático */}
+              {exemplo && (
+                <div className="mt-4 p-4 sm:p-6 bg-netflix-gold/10 rounded-xl border border-netflix-gold/20 animate-fade-in">
+                  <h3 className="text-base sm:text-lg font-semibold text-netflix-gold mb-3 flex items-center">
+                    <Lightbulb className="w-5 h-5 mr-2" />
+                    Exemplo Prático:
+                  </h3>
+                  <p className="text-sm sm:text-base text-gray-300 leading-relaxed">
+                    {exemplo}
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Answer Buttons */}
@@ -130,7 +145,7 @@ const AnimatedFlashCard = ({
                 className="bg-rose-500/15 border-rose-500/40 text-rose-300 hover:bg-rose-500/25 hover:border-rose-400/60 transition-all duration-300 px-6 py-3 text-base rounded-lg hover:scale-105 shadow-lg hover:shadow-rose-500/20 font-semibold flex-1 sm:flex-none"
               >
                 <XCircle className="w-4 h-4 mr-2" />
-                Errei
+                Preciso Revisar
               </Button>
               
               <Button 
@@ -139,7 +154,7 @@ const AnimatedFlashCard = ({
                 className="bg-emerald-500/15 border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/25 hover:border-emerald-400/60 transition-all duration-300 px-6 py-3 text-base rounded-lg hover:scale-105 shadow-lg hover:shadow-emerald-500/20 font-semibold flex-1 sm:flex-none"
               >
                 <CheckCircle className="w-4 h-4 mr-2" />
-                Acertei
+                Compreendi
               </Button>
             </div>
           </div>
