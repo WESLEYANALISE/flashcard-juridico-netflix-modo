@@ -28,10 +28,17 @@ const ImprovedAnimatedFlashCard = ({
   const [showExample, setShowExample] = useState(false);
   const [isAnswering, setIsAnswering] = useState(false);
   const [answerType, setAnswerType] = useState<'correct' | 'incorrect' | null>(null);
+  const [isShaking, setIsShaking] = useState(false);
 
   const handleAnswer = async (correct: boolean) => {
     setIsAnswering(true);
     setAnswerType(correct ? 'correct' : 'incorrect');
+    
+    // Add shake animation for incorrect answers
+    if (!correct) {
+      setIsShaking(true);
+      setTimeout(() => setIsShaking(false), 600);
+    }
     
     // Wait for animation
     setTimeout(() => {
@@ -56,7 +63,7 @@ const ImprovedAnimatedFlashCard = ({
     : 0;
 
   return (
-    <div className="max-w-2xl mx-auto relative">
+    <div className={`max-w-2xl mx-auto relative ${isShaking ? 'animate-[shake_0.6s_ease-in-out]' : ''}`}>
       {/* Answer Animation Overlay */}
       {isAnswering && answerType && (
         <div className={`
