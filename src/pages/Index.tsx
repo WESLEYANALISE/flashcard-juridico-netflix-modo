@@ -2,8 +2,8 @@
 import { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import StudyView from '@/components/StudyView';
-import StatsView from '@/components/StatsView';
-import SettingsView from '@/components/SettingsView';
+import ImprovedStatsView from '@/components/ImprovedStatsView';
+import ReviewView from '@/components/ReviewView';
 import PlaylistView from '@/components/PlaylistView';
 import { useFlashcards } from '@/hooks/useFlashcards';
 
@@ -33,6 +33,11 @@ const Index = () => {
     setActiveView('study');
   };
 
+  const handleStudyReview = (area: string, themes: string[]) => {
+    console.log('Studying review:', area, themes);
+    setActiveView('study');
+  };
+
   const handleHideNavbar = (hide: boolean) => {
     setHideNavbar(hide);
   };
@@ -55,9 +60,14 @@ const Index = () => {
           />
         );
       case 'stats':
-        return <StatsView />;
-      case 'settings':
-        return <SettingsView />;
+        return <ImprovedStatsView />;
+      case 'review':
+        return (
+          <ReviewView 
+            onStudyReview={handleStudyReview}
+            onBack={() => setActiveView('study')}
+          />
+        );
       default:
         return (
           <StudyView 

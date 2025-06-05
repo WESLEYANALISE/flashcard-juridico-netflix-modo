@@ -6016,6 +6016,54 @@ export type Database = {
         }
         Relationships: []
       }
+      user_flashcard_progress: {
+        Row: {
+          area: string
+          correct_answers: number | null
+          created_at: string | null
+          flashcard_id: number
+          id: string
+          last_studied: string | null
+          mastery_level: string | null
+          needs_review: boolean | null
+          streak_count: number | null
+          tema: string | null
+          total_attempts: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          area: string
+          correct_answers?: number | null
+          created_at?: string | null
+          flashcard_id: number
+          id?: string
+          last_studied?: string | null
+          mastery_level?: string | null
+          needs_review?: boolean | null
+          streak_count?: number | null
+          tema?: string | null
+          total_attempts?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          area?: string
+          correct_answers?: number | null
+          created_at?: string | null
+          flashcard_id?: number
+          id?: string
+          last_studied?: string | null
+          mastery_level?: string | null
+          needs_review?: boolean | null
+          streak_count?: number | null
+          tema?: string | null
+          total_attempts?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_flashcards: {
         Row: {
           conhecimento: number | null

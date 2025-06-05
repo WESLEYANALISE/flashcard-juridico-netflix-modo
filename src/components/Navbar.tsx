@@ -1,5 +1,5 @@
 
-import { BarChart3, BookOpen, Settings, List } from 'lucide-react';
+import { BarChart3, BookOpen, List, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface NavbarProps {
@@ -25,9 +25,9 @@ const Navbar = ({ activeView, onViewChange }: NavbarProps) => {
       icon: BarChart3
     },
     {
-      id: 'settings',
-      label: 'Configurações',
-      icon: Settings
+      id: 'review',
+      label: 'Revisar',
+      icon: RefreshCw
     }
   ];
 
