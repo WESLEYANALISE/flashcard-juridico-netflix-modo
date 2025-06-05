@@ -267,7 +267,7 @@ const StudyView = ({
     }
     return <ErrorBoundary>
         <div className="min-h-screen bg-netflix-black">
-          <div className="sm:px-4 py-4 sm:py-8 px-[3px]">
+          <div className="sm:px-4 sm:py-8 py-[8px] my-0 mx-0 px-0">
             {/* Compact Top Controls */}
             <div className="max-w-2xl mx-auto mb-6">
               <div className="flex items-center justify-between">
