@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { ArrowLeft, Shuffle, Scale, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Flashcard } from '@/types/flashcard';
-import { useFlashcards, useFlashcardAreas } from '@/hooks/useFlashcards';
+import { useFlashcards, useFlashcardAreas, SupabaseFlashcard } from '@/hooks/useFlashcards';
 import { useFlashcardsByAreaAndThemes } from '@/hooks/useFlashcardsByArea';
 import { useUpdateFlashcardProgress } from '@/hooks/useUserProgress';
 import { generateCategoriesFromAreas, mapSupabaseFlashcard } from '@/utils/flashcardMapper';
@@ -115,7 +115,7 @@ const StudyView = ({ onUpdateFlashcard, onHideNavbar }: StudyViewProps) => {
       });
       setSessionStartTime(Date.now());
       setIsCardEntering(true);
-      setTimeout(() => setIsCardEntering(false), 100);
+      setTimeout(() => setIsCardEntering(false), 50);
     }
   }, [currentStep, selectedThemes, isShuffled]);
 
@@ -172,11 +172,11 @@ const StudyView = ({ onUpdateFlashcard, onHideNavbar }: StudyViewProps) => {
       if (currentCardIndex < currentCards.length - 1) {
         setCurrentCardIndex(currentCardIndex + 1);
         setIsCardEntering(true);
-        setTimeout(() => setIsCardEntering(false), 100);
+        setTimeout(() => setIsCardEntering(false), 50);
       } else {
         setSessionStats(prev => ({ ...prev, completed: true }));
       }
-    }, 700);
+    }, 300);
   };
 
   const handleBackToCategories = () => {
@@ -288,7 +288,7 @@ const StudyView = ({ onUpdateFlashcard, onHideNavbar }: StudyViewProps) => {
     );
   }
 
-  // Study session with no background effects and responsive sizing
+  // Study session with faster animations
   if (currentStep === 'studying' && selectedArea && currentCard) {
     if (selectedFlashcardsLoading) {
       return (
@@ -346,7 +346,7 @@ const StudyView = ({ onUpdateFlashcard, onHideNavbar }: StudyViewProps) => {
               <div className="mt-4">
                 <div className="w-full bg-gray-700/30 rounded-full h-1">
                   <div 
-                    className="h-1 rounded-full transition-all duration-500" 
+                    className="h-1 rounded-full transition-all duration-300" 
                     style={{
                       width: `${(currentCardIndex + 1) / currentCards.length * 100}%`,
                       background: `linear-gradient(90deg, ${selectedCategory?.color || '#E50914'}, ${selectedCategory?.color || '#E50914'}80)`
@@ -356,7 +356,7 @@ const StudyView = ({ onUpdateFlashcard, onHideNavbar }: StudyViewProps) => {
               </div>
             </div>
 
-            {/* Flashcard with improved animations */}
+            {/* Flashcard with faster animations */}
             <div className="max-w-2xl mx-auto">
               <AnimatedFlashCard 
                 flashcard={currentCard} 

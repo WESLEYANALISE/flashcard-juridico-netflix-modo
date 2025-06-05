@@ -4874,6 +4874,30 @@ export type Database = {
         }
         Relationships: []
       }
+      RESUMOS_pro: {
+        Row: {
+          Area: string | null
+          Assunto: string | null
+          id: number
+          Resumo: string | null
+          Tema: string | null
+        }
+        Insert: {
+          Area?: string | null
+          Assunto?: string | null
+          id?: number
+          Resumo?: string | null
+          Tema?: string | null
+        }
+        Update: {
+          Area?: string | null
+          Assunto?: string | null
+          id?: number
+          Resumo?: string | null
+          Tema?: string | null
+        }
+        Relationships: []
+      }
       roleta_juridica: {
         Row: {
           Area: string | null

@@ -56,9 +56,9 @@ const AnimatedFlashCard = ({
 
   return (
     <div className="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl mx-auto relative px-2">
-      <div className={`relative transform transition-all duration-700 ease-out ${getCardTransform()}`}>
+      <div className={`relative transform transition-all duration-300 ease-out ${getCardTransform()}`}>
         {/* Main Card */}
-        <div className="w-full bg-gradient-to-br from-neutral-900/95 via-neutral-800/95 to-neutral-900/95 rounded-xl sm:rounded-2xl border border-neutral-600/40 overflow-hidden shadow-xl backdrop-blur-lg transition-all duration-300 hover:scale-[1.02]">
+        <div className="w-full bg-gradient-to-br from-neutral-900/95 via-neutral-800/95 to-neutral-900/95 rounded-xl sm:rounded-2xl border border-neutral-600/40 overflow-hidden shadow-xl backdrop-blur-lg transition-all duration-200 hover:scale-[1.02]">
           
           {/* Card Header */}
           <div className="relative overflow-hidden">
@@ -68,7 +68,7 @@ const AnimatedFlashCard = ({
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <div className="flex items-center space-x-3">
                   <div 
-                    className="p-2 rounded-lg shadow-md border backdrop-blur-sm transition-all duration-300"
+                    className="p-2 rounded-lg shadow-md border backdrop-blur-sm transition-all duration-200"
                     style={{
                       backgroundColor: `${areaColor}20`,
                       borderColor: `${areaColor}40`,
@@ -96,7 +96,7 @@ const AnimatedFlashCard = ({
                   </div>
                 </div>
                 
-                <div className={`px-3 py-1.5 rounded-lg text-xs font-semibold border backdrop-blur-sm shadow-md transition-all duration-300 ${getDifficultyColor(flashcard.difficulty)}`}>
+                <div className={`px-3 py-1.5 rounded-lg text-xs font-semibold border backdrop-blur-sm shadow-md transition-all duration-200 ${getDifficultyColor(flashcard.difficulty)}`}>
                   {flashcard.difficulty}
                 </div>
               </div>
@@ -123,16 +123,20 @@ const AnimatedFlashCard = ({
                 </div>
               </div>
 
-              {/* Exemplo Prático */}
+              {/* Exemplo Prático - Enhanced */}
               {exemplo && (
-                <div className="mt-4 p-4 sm:p-6 bg-netflix-gold/10 rounded-xl border border-netflix-gold/20 animate-fade-in">
-                  <h3 className="text-base sm:text-lg font-semibold text-netflix-gold mb-3 flex items-center">
-                    <Lightbulb className="w-5 h-5 mr-2" />
-                    Exemplo Prático:
-                  </h3>
-                  <p className="text-sm sm:text-base text-gray-300 leading-relaxed">
+                <div className="mt-6 p-4 sm:p-6 bg-gradient-to-br from-amber-500/10 via-yellow-500/5 to-orange-500/10 rounded-xl border border-amber-500/30 backdrop-blur-md shadow-lg animate-fade-in">
+                  <div className="flex items-center mb-3">
+                    <div className="p-2 rounded-lg bg-amber-500/20 mr-3">
+                      <Lightbulb className="w-5 h-5 text-amber-400" />
+                    </div>
+                    <h4 className="text-base sm:text-lg font-bold text-amber-300">
+                      Exemplo Prático
+                    </h4>
+                  </div>
+                  <div className="text-sm sm:text-base text-gray-200 leading-relaxed bg-black/20 p-4 rounded-lg border border-amber-500/20">
                     {exemplo}
-                  </p>
+                  </div>
                 </div>
               )}
             </div>
@@ -142,7 +146,7 @@ const AnimatedFlashCard = ({
               <Button 
                 onClick={() => handleAnswer(false)} 
                 variant="outline" 
-                className="bg-rose-500/15 border-rose-500/40 text-rose-300 hover:bg-rose-500/25 hover:border-rose-400/60 transition-all duration-300 px-6 py-3 text-base rounded-lg hover:scale-105 shadow-lg hover:shadow-rose-500/20 font-semibold flex-1 sm:flex-none"
+                className="bg-rose-500/15 border-rose-500/40 text-rose-300 hover:bg-rose-500/25 hover:border-rose-400/60 transition-all duration-200 px-6 py-3 text-base rounded-lg hover:scale-105 shadow-lg hover:shadow-rose-500/20 font-semibold flex-1 sm:flex-none"
               >
                 <XCircle className="w-4 h-4 mr-2" />
                 Preciso Revisar
@@ -151,7 +155,7 @@ const AnimatedFlashCard = ({
               <Button 
                 onClick={() => handleAnswer(true)} 
                 variant="outline" 
-                className="bg-emerald-500/15 border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/25 hover:border-emerald-400/60 transition-all duration-300 px-6 py-3 text-base rounded-lg hover:scale-105 shadow-lg hover:shadow-emerald-500/20 font-semibold flex-1 sm:flex-none"
+                className="bg-emerald-500/15 border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/25 hover:border-emerald-400/60 transition-all duration-200 px-6 py-3 text-base rounded-lg hover:scale-105 shadow-lg hover:shadow-emerald-500/20 font-semibold flex-1 sm:flex-none"
               >
                 <CheckCircle className="w-4 h-4 mr-2" />
                 Compreendi
