@@ -7,7 +7,7 @@ export interface SupabaseFlashcard {
   resposta: string;
   area: string;
   tema?: string;
-  exemplo?: string;
+  exemplo?: string; // Added exemplo property
   created_at?: string;
   updated_at?: string;
 }
