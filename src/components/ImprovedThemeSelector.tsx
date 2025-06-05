@@ -134,7 +134,7 @@ const ImprovedThemeSelector = ({
                 `}
                 style={{
                   background: `linear-gradient(135deg, ${areaColor}20 0%, ${areaColor}10 100%)`,
-                  ringColor: isSelected ? areaColor : 'transparent',
+                  ...(isSelected && { '--tw-ring-color': areaColor }),
                   animationDelay: `${index * 0.1}s`
                 }}
               >
