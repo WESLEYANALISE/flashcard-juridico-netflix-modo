@@ -1,9 +1,9 @@
 
-import React, { useState, useMemo } from 'react';
-import { ArrowLeft, Search, Filter } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ArrowLeft, CheckCircle, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { SupabaseFlashcard } from '@/hooks/useFlashcards';
 import { useFlashcardsByArea } from '@/hooks/useFlashcardsByArea';
+import { useUserProgressByArea } from '@/hooks/useRealUserProgress';
 
 interface ImprovedThemeSelectorProps {
   area: string;
@@ -19,49 +19,47 @@ const ImprovedThemeSelector = ({
   onBack
 }: ImprovedThemeSelectorProps) => {
   const [selectedThemes, setSelectedThemes] = useState<string[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
   const { data: flashcards = [], isLoading } = useFlashcardsByArea(area);
+  const { data: userProgress = [] } = useUserProgressByArea(area);
 
-  const themes = useMemo(() => {
-    const themeMap = new Map<string, number>();
-    
-    flashcards.forEach(card => {
-      if (card.tema) {
-        themeMap.set(card.tema, (themeMap.get(card.tema) || 0) + 1);
-      }
-    });
-
-    return Array.from(themeMap.entries())
-      .map(([theme, count]) => ({ theme, count }))
-      .sort((a, b) => a.theme.localeCompare(b.theme));
-  }, [flashcards]);
-
-  const filteredThemes = useMemo(() => {
-    return themes.filter(({ theme }) =>
-      theme.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [themes, searchTerm]);
+  // Get unique themes and sort them alphabetically
+  const themes = [...new Set(flashcards.map(card => card.tema).filter(Boolean))].sort();
 
   const handleThemeToggle = (theme: string) => {
-    setSelectedThemes(prev =>
-      prev.includes(theme)
+    setSelectedThemes(prev => 
+      prev.includes(theme) 
         ? prev.filter(t => t !== theme)
         : [...prev, theme]
     );
   };
 
   const handleSelectAll = () => {
-    setSelectedThemes(filteredThemes.map(({ theme }) => theme));
+    setSelectedThemes(themes);
   };
 
   const handleClearAll = () => {
     setSelectedThemes([]);
   };
 
-  const totalSelectedCards = selectedThemes.reduce((total, theme) => {
-    const themeData = themes.find(t => t.theme === theme);
-    return total + (themeData?.count || 0);
-  }, 0);
+  const handleStartStudy = () => {
+    if (selectedThemes.length > 0) {
+      onThemesSelected(selectedThemes);
+    }
+  };
+
+  const getThemeStats = (theme: string) => {
+    const themeCards = flashcards.filter(card => card.tema === theme);
+    const themeProgress = userProgress.filter(p => p.tema === theme);
+    
+    return {
+      total: themeCards.length,
+      studied: themeProgress.length,
+      accuracy: themeProgress.length > 0 
+        ? Math.round((themeProgress.reduce((sum, p) => sum + p.correct_answers, 0) / 
+           themeProgress.reduce((sum, p) => sum + p.total_attempts, 0)) * 100) || 0
+        : 0
+    };
+  };
 
   if (isLoading) {
     return (
@@ -75,151 +73,144 @@ const ImprovedThemeSelector = ({
     <div className="min-h-screen bg-netflix-black px-2 sm:px-4 py-4 sm:py-8">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <Button
-            onClick={onBack}
-            variant="outline"
-            className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+        <div className="flex items-center justify-between mb-8">
+          <Button 
+            onClick={onBack} 
+            variant="outline" 
+            className="bg-white/10 border-white/20 text-white hover:bg-white/20 flex items-center space-x-2"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Voltar
+            <ArrowLeft className="w-4 h-4" />
+            <span>Voltar</span>
           </Button>
-          <div className="text-center">
-            <h1 className="text-2xl sm:text-3xl font-bold text-white">
-              Escolha os <span style={{ color: areaColor }}>Temas</span>
-            </h1>
-            <p className="text-gray-400 mt-1">{area}</p>
-          </div>
-          <div className="w-20"></div>
         </div>
 
-        {/* Search and Filters */}
-        <div className="bg-netflix-dark/50 rounded-xl p-4 mb-6 border border-white/10">
-          <div className="flex flex-col sm:flex-row gap-4 items-center">
-            <div className="relative flex-1 w-full">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <input
-                type="text"
-                placeholder="Buscar temas..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-white/10 border border-white/20 rounded-lg pl-10 pr-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-netflix-red"
-              />
-            </div>
-            
-            <div className="flex gap-2">
-              <Button
-                onClick={handleSelectAll}
-                variant="outline"
-                size="sm"
-                className="bg-green-500/20 border-green-500/50 text-green-400 hover:bg-green-500/30"
-              >
-                Selecionar Todos
-              </Button>
-              <Button
-                onClick={handleClearAll}
-                variant="outline"
-                size="sm"
-                className="bg-red-500/20 border-red-500/50 text-red-400 hover:bg-red-500/30"
-              >
-                Limpar
-              </Button>
-            </div>
-          </div>
-
-          {/* Selection Summary */}
-          <div className="mt-4 p-3 bg-white/5 rounded-lg border border-white/10">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-300">
-                {selectedThemes.length} tema(s) selecionado(s)
-              </span>
-              <span className="text-netflix-red font-semibold">
-                {totalSelectedCards} cards
-              </span>
-            </div>
+        {/* Title */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            Selecione os <span style={{ color: areaColor }}>Temas</span>
+          </h1>
+          <p className="text-lg text-gray-400 mb-6">
+            Escolha os temas de {area} que deseja estudar
+          </p>
+          
+          {/* Quick Actions */}
+          <div className="flex justify-center space-x-4 mb-8">
+            <Button 
+              onClick={handleSelectAll} 
+              variant="outline" 
+              size="sm"
+              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+            >
+              Selecionar Todos
+            </Button>
+            <Button 
+              onClick={handleClearAll} 
+              variant="outline" 
+              size="sm"
+              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+            >
+              Limpar Seleção
+            </Button>
           </div>
         </div>
 
         {/* Themes Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-          {filteredThemes.map(({ theme, count }, index) => {
+          {themes.map((theme, index) => {
             const isSelected = selectedThemes.includes(theme);
+            const stats = getThemeStats(theme);
+            const progress = stats.total > 0 ? (stats.studied / stats.total) * 100 : 0;
             
             return (
               <div
                 key={theme}
                 onClick={() => handleThemeToggle(theme)}
                 className={`
-                  relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 
-                  animate-fade-in hover:scale-105 active:scale-95
-                  ${isSelected
-                    ? `border-[${areaColor}] bg-gradient-to-br from-white/10 to-transparent shadow-lg`
-                    : 'border-white/20 bg-netflix-dark/50 hover:border-white/40'
+                  relative p-6 rounded-xl cursor-pointer transition-all duration-300 hover-lift animate-fade-in
+                  ${isSelected 
+                    ? 'ring-2 shadow-2xl' 
+                    : 'hover:scale-105'
                   }
                 `}
                 style={{
-                  animationDelay: `${index * 0.05}s`,
-                  borderColor: isSelected ? areaColor : undefined,
-                  boxShadow: isSelected ? `0 0 20px ${areaColor}30` : undefined
+                  background: `linear-gradient(135deg, ${areaColor}20 0%, ${areaColor}10 100%)`,
+                  ringColor: isSelected ? areaColor : 'transparent',
+                  animationDelay: `${index * 0.1}s`
                 }}
               >
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="font-semibold text-white text-sm leading-tight">
-                    {theme}
-                  </h3>
+                {/* Selection Indicator */}
+                <div className="absolute top-4 right-4">
                   <div className={`
-                    w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all
-                    ${isSelected ? 'bg-white border-white' : 'border-white/40'}
+                    w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300
+                    ${isSelected 
+                      ? 'border-white bg-white' 
+                      : 'border-white/50'
+                    }
                   `}>
                     {isSelected && (
-                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: areaColor }} />
+                      <CheckCircle className="w-4 h-4" style={{ color: areaColor }} />
                     )}
                   </div>
                 </div>
-                
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-400">
-                    {count} card{count !== 1 ? 's' : ''}
-                  </span>
-                  <div className={`
-                    text-xs px-2 py-1 rounded-full
-                    ${isSelected ? 'bg-white/20 text-white' : 'bg-white/10 text-gray-400'}
-                  `}>
-                    {Math.round((count / flashcards.length) * 100)}%
+
+                {/* Theme Info */}
+                <div className="mb-4">
+                  <h3 className="text-lg font-semibold text-white mb-2 pr-8">
+                    {theme}
+                  </h3>
+                  
+                  <div className="flex items-center justify-between text-sm text-gray-400 mb-3">
+                    <span>{stats.total} cards</span>
+                    <span>{stats.studied} estudados</span>
+                    {stats.accuracy > 0 && (
+                      <span>{stats.accuracy}% precisão</span>
+                    )}
                   </div>
                 </div>
 
-                {/* Selection Animation */}
-                {isSelected && (
-                  <div className="absolute inset-0 rounded-xl overflow-hidden pointer-events-none">
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse" />
-                  </div>
-                )}
+                {/* Progress Bar */}
+                <div className="w-full bg-gray-700/50 rounded-full h-2">
+                  <div
+                    className="h-2 rounded-full transition-all duration-700"
+                    style={{
+                      width: `${progress}%`,
+                      background: `linear-gradient(90deg, ${areaColor}, ${areaColor}80)`
+                    }}
+                  />
+                </div>
+                
+                <div className="text-xs text-gray-500 mt-2">
+                  {Math.round(progress)}% completo
+                </div>
+
+                {/* Hover Effect */}
+                <div 
+                  className="absolute inset-0 opacity-0 hover:opacity-20 transition-opacity duration-300 rounded-xl pointer-events-none"
+                  style={{
+                    background: `radial-gradient(circle at center, ${areaColor} 0%, transparent 70%)`
+                  }}
+                />
               </div>
             );
           })}
         </div>
 
-        {/* Action Button */}
-        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-10">
+        {/* Start Study Button */}
+        <div className="text-center">
           <Button
-            onClick={() => onThemesSelected(selectedThemes)}
+            onClick={handleStartStudy}
             disabled={selectedThemes.length === 0}
-            className={`
-              px-8 py-4 text-lg font-bold rounded-full transition-all duration-300
-              ${selectedThemes.length > 0
-                ? 'bg-netflix-red hover:bg-netflix-red/80 hover:scale-105 text-white shadow-2xl'
-                : 'bg-gray-600 text-gray-400 cursor-not-allowed'
-              }
-            `}
+            className="bg-netflix-red hover:bg-netflix-red/80 text-white px-8 py-4 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 mx-auto"
           >
-            Iniciar Estudo
-            {selectedThemes.length > 0 && (
-              <span className="ml-2 bg-white/20 px-2 py-1 rounded-full text-sm">
-                {totalSelectedCards}
-              </span>
-            )}
+            <Play className="w-5 h-5" />
+            <span>Iniciar Estudo ({selectedThemes.length} temas)</span>
           </Button>
+          
+          {selectedThemes.length === 0 && (
+            <p className="text-gray-400 text-sm mt-2">
+              Selecione pelo menos um tema para começar
+            </p>
+          )}
         </div>
       </div>
     </div>

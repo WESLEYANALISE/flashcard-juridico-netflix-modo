@@ -1,6 +1,8 @@
 
 import { BookOpen, Target, Award, TrendingUp } from 'lucide-react';
 import { Flashcard, Category } from '@/types/flashcard';
+import { useUserStatistics } from '@/hooks/useRealUserProgress';
+import { useFlashcards } from '@/hooks/useFlashcards';
 
 interface GeneralSummaryProps {
   flashcards: Flashcard[];
@@ -8,11 +10,13 @@ interface GeneralSummaryProps {
 }
 
 const GeneralSummary = ({ flashcards, categories }: GeneralSummaryProps) => {
-  const totalCards = flashcards.length;
-  const studiedCards = flashcards.filter(card => card.studied).length;
-  const totalCorrect = flashcards.reduce((sum, card) => sum + card.correctAnswers, 0);
-  const totalAttempts = flashcards.reduce((sum, card) => sum + card.totalAttempts, 0);
-  const accuracy = totalAttempts > 0 ? Math.round((totalCorrect / totalAttempts) * 100) : 0;
+  const { data: userStats } = useUserStatistics();
+  const { data: allFlashcards = [] } = useFlashcards();
+
+  // Use real statistics from the database
+  const totalCards = allFlashcards.length;
+  const studiedCards = userStats?.totalStudied || 0;
+  const accuracy = userStats?.accuracy || 0;
   const progress = totalCards > 0 ? Math.round((studiedCards / totalCards) * 100) : 0;
 
   return (

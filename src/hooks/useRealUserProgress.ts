@@ -18,22 +18,6 @@ export interface UserFlashcardProgress {
   updated_at: string;
 }
 
-export interface UserStudySession {
-  id: string;
-  user_id: string;
-  area: string;
-  temas: string[];
-  total_cards: number;
-  correct_answers: number;
-  cards_reviewed: number;
-  last_card_index: number;
-  session_type: 'normal' | 'review' | 'random';
-  completed: boolean;
-  session_date: string;
-  created_at: string;
-  updated_at: string;
-}
-
 export const useUserProgress = () => {
   return useQuery({
     queryKey: ['user-progress'],
@@ -60,27 +44,6 @@ export const useUserProgressByArea = (area: string) => {
 
       if (error) throw error;
       return data as UserFlashcardProgress[];
-    },
-    enabled: !!area,
-    staleTime: 5 * 60 * 1000,
-  });
-};
-
-export const useLastStudySession = (area: string) => {
-  return useQuery({
-    queryKey: ['last-study-session', area],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('user_study_sessions')
-        .select('*')
-        .eq('area', area)
-        .eq('completed', false)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      if (error) throw error;
-      return data as UserStudySession | null;
     },
     enabled: !!area,
     staleTime: 5 * 60 * 1000,
@@ -166,84 +129,6 @@ export const useUpdateFlashcardProgress = () => {
   });
 };
 
-export const useCreateStudySession = () => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: async ({
-      area,
-      temas,
-      totalCards,
-      sessionType = 'normal'
-    }: {
-      area: string;
-      temas: string[];
-      totalCards: number;
-      sessionType?: 'normal' | 'review' | 'random';
-    }) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
-
-      const { data, error } = await supabase
-        .from('user_study_sessions')
-        .insert([{
-          user_id: user.id,
-          area,
-          temas,
-          total_cards: totalCards,
-          session_type: sessionType,
-        }])
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data as UserStudySession;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['last-study-session'] });
-    },
-  });
-};
-
-export const useUpdateStudySession = () => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: async ({
-      sessionId,
-      lastCardIndex,
-      correctAnswers,
-      cardsReviewed,
-      completed = false
-    }: {
-      sessionId: string;
-      lastCardIndex?: number;
-      correctAnswers?: number;
-      cardsReviewed?: number;
-      completed?: boolean;
-    }) => {
-      const updateData: any = {};
-      if (lastCardIndex !== undefined) updateData.last_card_index = lastCardIndex;
-      if (correctAnswers !== undefined) updateData.correct_answers = correctAnswers;
-      if (cardsReviewed !== undefined) updateData.cards_reviewed = cardsReviewed;
-      if (completed !== undefined) updateData.completed = completed;
-
-      const { data, error } = await supabase
-        .from('user_study_sessions')
-        .update(updateData)
-        .eq('id', sessionId)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data as UserStudySession;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['last-study-session'] });
-    },
-  });
-};
-
 export const useCardsNeedingReview = () => {
   return useQuery({
     queryKey: ['cards-needing-review'],
@@ -269,7 +154,7 @@ export const useUserStatistics = () => {
   const { data: allProgress = [] } = useUserProgress();
   
   return useQuery({
-    queryKey: ['user-statistics', allProgress],
+    queryKey: ['user-statistics', allProgress.length],
     queryFn: () => {
       const totalStudied = allProgress.length;
       const totalCorrect = allProgress.reduce((sum, p) => sum + p.correct_answers, 0);
@@ -341,21 +226,12 @@ export const useResetUserProgress = () => {
 
       if (progressError) throw progressError;
 
-      // Delete all user sessions
-      const { error: sessionsError } = await supabase
-        .from('user_study_sessions')
-        .delete()
-        .eq('user_id', user.id);
-
-      if (sessionsError) throw sessionsError;
-
       return true;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-progress'] });
       queryClient.invalidateQueries({ queryKey: ['user-progress-area'] });
       queryClient.invalidateQueries({ queryKey: ['cards-needing-review'] });
-      queryClient.invalidateQueries({ queryKey: ['last-study-session'] });
       queryClient.invalidateQueries({ queryKey: ['user-statistics'] });
     },
   });

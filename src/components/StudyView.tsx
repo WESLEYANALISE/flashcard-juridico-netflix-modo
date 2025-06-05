@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Flashcard } from '@/types/flashcard';
 import { useFlashcards, useFlashcardAreas, SupabaseFlashcard } from '@/hooks/useFlashcards';
 import { useFlashcardsByAreaAndThemes } from '@/hooks/useFlashcardsByArea';
-import { useUpdateFlashcardProgress, useLastStudySession, useCreateStudySession, useUpdateStudySession } from '@/hooks/useRealUserProgress';
+import { useUpdateFlashcardProgress, useUserStatistics, useUserProgressByArea } from '@/hooks/useRealUserProgress';
 import { generateCategoriesFromAreas, mapSupabaseFlashcard } from '@/utils/flashcardMapper';
 import { useErrorHandling } from '@/hooks/useErrorHandling';
 import { CardSkeleton, CategoryCardSkeleton } from '@/components/ui/card-skeleton';
@@ -38,7 +38,6 @@ const StudyView = ({
   const [isCardExiting, setIsCardExiting] = useState(false);
   const [isCardEntering, setIsCardEntering] = useState(false);
   const [exitDirection, setExitDirection] = useState<'left' | 'right'>('right');
-  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [sessionStats, setSessionStats] = useState({
     correct: 0,
     total: 0,
@@ -54,8 +53,7 @@ const StudyView = ({
   } = useErrorHandling();
 
   const updateProgress = useUpdateFlashcardProgress();
-  const createSession = useCreateStudySession();
-  const updateSession = useUpdateStudySession();
+  const { data: userStats } = useUserStatistics();
 
   // Queries com tratamento de erro melhorado
   const {
@@ -76,8 +74,6 @@ const StudyView = ({
     error: selectedFlashcardsError
   } = useFlashcardsByAreaAndThemes(selectedArea || '', selectedThemes);
 
-  const { data: lastSession } = useLastStudySession(selectedArea || '');
-
   // Control navbar visibility based on study step
   useEffect(() => {
     if (onHideNavbar) {
@@ -93,12 +89,16 @@ const StudyView = ({
   }, [areasError, allFlashcardsError, selectedFlashcardsError, handleError]);
 
   const categories = generateCategoriesFromAreas(areas);
+  
+  // Calculate real statistics per category
   const categoryStats = categories.map(category => {
     const categoryCards = allFlashcards.filter(card => card.area === category.name);
+    const categoryProgress = userStats?.areaStats?.[category.name];
+    
     return {
       ...category,
       cardCount: categoryCards.length,
-      studiedCount: 0
+      studiedCount: categoryProgress?.studied || 0
     };
   });
 
@@ -130,24 +130,9 @@ const StudyView = ({
   const handleStudyModeSelect = async (mode: 'normal' | 'continue' | 'random') => {
     setStudyMode(mode);
     
-    // Create new session
-    try {
-      const session = await createSession.mutateAsync({
-        area: selectedArea!,
-        temas: selectedThemes,
-        totalCards: studyCards.length,
-        sessionType: mode === 'random' ? 'random' : 'normal'
-      });
-      setCurrentSessionId(session.id);
-    } catch (error) {
-      console.error('Error creating session:', error);
-    }
-
     // Set starting index based on mode
     let startIndex = 0;
-    if (mode === 'continue' && lastSession) {
-      startIndex = lastSession.last_card_index;
-    } else if (mode === 'random') {
+    if (mode === 'random') {
       setIsShuffled(true);
     }
     
@@ -184,17 +169,6 @@ const StudyView = ({
         tema: currentSupabaseCard?.tema,
         correct
       });
-
-      // Update session progress
-      if (currentSessionId) {
-        await updateSession.mutateAsync({
-          sessionId: currentSessionId,
-          lastCardIndex: currentCardIndex + 1,
-          correctAnswers: newStats.correct,
-          cardsReviewed: newStats.total,
-          completed: currentCardIndex >= currentCards.length - 1
-        });
-      }
     } catch (error) {
       console.error('Error updating progress:', error);
     }
@@ -227,7 +201,6 @@ const StudyView = ({
     setSelectedArea(null);
     setSelectedThemes([]);
     setCurrentCardIndex(0);
-    setCurrentSessionId(null);
     setSessionStats({
       correct: 0,
       total: 0,
@@ -241,7 +214,6 @@ const StudyView = ({
     setCurrentStep('themes');
     setSelectedThemes([]);
     setCurrentCardIndex(0);
-    setCurrentSessionId(null);
     setSessionStats({
       correct: 0,
       total: 0,
@@ -323,7 +295,6 @@ const StudyView = ({
 
   // Study mode selection
   if (currentStep === 'study-mode' && selectedArea) {
-    const hasProgress = lastSession && lastSession.last_card_index > 0;
     return (
       <StudyModeModal
         isOpen={true}
@@ -331,8 +302,8 @@ const StudyView = ({
         onContinue={() => handleStudyModeSelect('continue')}
         onStartOver={() => handleStudyModeSelect('normal')}
         onRandom={() => handleStudyModeSelect('random')}
-        hasProgress={hasProgress}
-        lastStudiedIndex={lastSession?.last_card_index || 0}
+        hasProgress={false}
+        lastStudiedIndex={0}
         totalCards={studyCards.length}
       />
     );
