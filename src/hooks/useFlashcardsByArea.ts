@@ -5,14 +5,13 @@ import { SupabaseFlashcard } from './useFlashcards';
 
 const validateFlashcards = (data: any[]): SupabaseFlashcard[] => {
   return data.map(item => ({
-    id: parseInt(item.id),
+    id: item.id.toString(),
     pergunta: item.pergunta || '',
     resposta: item.resposta || '',
     area: item.area || '',
     tema: item.tema || undefined,
-    explicacao: item.explicacao || undefined,
-    created_at: item.created_at,
-    updated_at: item.updated_at
+    explicacao: item.exemplo || undefined, // Map the "exemplo" column to "explicacao" property
+    created_at: item.created_at
   }));
 };
 

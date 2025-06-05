@@ -3,14 +3,13 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
 export interface SupabaseFlashcard {
-  id: number;
+  id: string;
   pergunta: string;
   resposta: string;
   area: string;
   tema?: string;
-  explicacao?: string; // This is the "exemplo" field from flash_cards table
+  explicacao?: string; // This maps to the "exemplo" field from flash_cards table
   created_at?: string;
-  updated_at?: string;
 }
 
 export const useFlashcards = () => {
@@ -28,14 +27,13 @@ export const useFlashcards = () => {
 
       // Map the database fields to our interface
       return (data || []).map(item => ({
-        id: parseInt(item.id),
+        id: item.id.toString(),
         pergunta: item.pergunta || '',
         resposta: item.resposta || '',
         area: item.area || '',
         tema: item.tema || undefined,
-        explicacao: item.explicacao || undefined, // This contains the example text
-        created_at: item.created_at,
-        updated_at: item.updated_at
+        explicacao: item.exemplo || undefined, // Map the "exemplo" column to "explicacao" property
+        created_at: item.created_at
       })) as SupabaseFlashcard[];
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
