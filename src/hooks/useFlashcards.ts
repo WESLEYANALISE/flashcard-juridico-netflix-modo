@@ -26,7 +26,17 @@ export const useFlashcards = () => {
         throw error;
       }
 
-      return data as SupabaseFlashcard[];
+      // Map the database fields to our interface
+      return (data || []).map(item => ({
+        id: parseInt(item.id),
+        pergunta: item.pergunta || '',
+        resposta: item.resposta || '',
+        area: item.area || '',
+        tema: item.tema || undefined,
+        exemplo: item.exemplo || undefined,
+        created_at: item.created_at,
+        updated_at: item.updated_at
+      })) as SupabaseFlashcard[];
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
