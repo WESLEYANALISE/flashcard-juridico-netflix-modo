@@ -1,6 +1,16 @@
 
-import { BarChart3, BookOpen, List, RefreshCw } from 'lucide-react';
+import { BarChart3, BookOpen, List, RefreshCw, Settings, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator
+} from '@/components/ui/dropdown-menu';
+import { supabase } from '@/integrations/supabase/client';
+import { useResetUserProgress } from '@/hooks/useRealUserProgress';
+import { useToast } from '@/hooks/use-toast';
 
 interface NavbarProps {
   activeView: string;
@@ -8,6 +18,9 @@ interface NavbarProps {
 }
 
 const Navbar = ({ activeView, onViewChange }: NavbarProps) => {
+  const { toast } = useToast();
+  const resetProgress = useResetUserProgress();
+
   const menuItems = [
     {
       id: 'study',
@@ -31,11 +44,68 @@ const Navbar = ({ activeView, onViewChange }: NavbarProps) => {
     }
   ];
 
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast({
+        title: "Logout realizado",
+        description: "Você foi desconectado com sucesso.",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro ao fazer logout",
+        description: "Tente novamente.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleResetStats = async () => {
+    try {
+      await resetProgress.mutateAsync();
+      toast({
+        title: "Estatísticas resetadas",
+        description: "Todos os dados de progresso foram removidos.",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro ao resetar estatísticas",
+        description: "Tente novamente.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <>
       <nav className="fixed top-0 left-0 right-0 z-50 bg-netflix-black/95 backdrop-blur-xl border-b border-white/10 shadow-2xl">
         <div className="w-full px-3 sm:px-6 py-3">
-          <div className="flex items-center justify-center">
+          <div className="flex items-center justify-between">
+            {/* Settings Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-gray-300 hover:text-white hover:bg-white/10"
+                >
+                  <Settings className="w-5 h-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-netflix-dark border-white/20">
+                <DropdownMenuItem onClick={handleResetStats} className="text-orange-400 hover:text-orange-300">
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Resetar Estatísticas
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="bg-white/20" />
+                <DropdownMenuItem onClick={handleLogout} className="text-red-400 hover:text-red-300">
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Navigation Menu */}
             <div className="flex items-center gap-1 sm:gap-2 bg-gradient-to-r from-netflix-dark/90 to-netflix-gray/60 rounded-2xl sm:rounded-3xl p-2 sm:p-3 border border-white/15 shadow-2xl backdrop-blur-md overflow-hidden max-w-full">
               {menuItems.map((item) => {
                 const Icon = item.icon;
@@ -109,6 +179,9 @@ const Navbar = ({ activeView, onViewChange }: NavbarProps) => {
                 );
               })}
             </div>
+
+            {/* Spacer */}
+            <div className="w-10"></div>
           </div>
         </div>
       </nav>

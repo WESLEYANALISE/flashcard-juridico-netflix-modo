@@ -208,15 +208,10 @@ const ImprovedThemeSelector = ({
             className={`
               px-8 py-4 text-lg font-bold rounded-full transition-all duration-300
               ${selectedThemes.length > 0
-                ? `bg-gradient-to-r from-[${areaColor}] to-[${areaColor}80] hover:scale-105 text-white shadow-2xl`
+                ? 'bg-netflix-red hover:bg-netflix-red/80 hover:scale-105 text-white shadow-2xl'
                 : 'bg-gray-600 text-gray-400 cursor-not-allowed'
               }
             `}
-            style={{
-              background: selectedThemes.length > 0 
-                ? `linear-gradient(90deg, ${areaColor}, ${areaColor}80)`
-                : undefined
-            }}
           >
             Iniciar Estudo
             {selectedThemes.length > 0 && (

@@ -102,11 +102,15 @@ export const useUpdateFlashcardProgress = () => {
       tema?: string;
       correct: boolean; 
     }) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
       // First, get current progress
       const { data: existing } = await supabase
         .from('user_flashcard_progress')
         .select('*')
         .eq('flashcard_id', flashcardId)
+        .eq('user_id', user.id)
         .maybeSingle();
 
       const newCorrectAnswers = (existing?.correct_answers || 0) + (correct ? 1 : 0);
@@ -121,6 +125,7 @@ export const useUpdateFlashcardProgress = () => {
       else if (accuracy >= 0.5 && newTotalAttempts >= 2) masteryLevel = 'intermediate';
 
       const progressData = {
+        user_id: user.id,
         flashcard_id: flashcardId,
         area,
         tema,
@@ -156,6 +161,7 @@ export const useUpdateFlashcardProgress = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-progress'] });
       queryClient.invalidateQueries({ queryKey: ['user-progress-area'] });
+      queryClient.invalidateQueries({ queryKey: ['cards-needing-review'] });
     },
   });
 };
@@ -175,9 +181,13 @@ export const useCreateStudySession = () => {
       totalCards: number;
       sessionType?: 'normal' | 'review' | 'random';
     }) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
       const { data, error } = await supabase
         .from('user_study_sessions')
         .insert([{
+          user_id: user.id,
           area,
           temas,
           total_cards: totalCards,
@@ -238,9 +248,13 @@ export const useCardsNeedingReview = () => {
   return useQuery({
     queryKey: ['cards-needing-review'],
     queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return [];
+
       const { data, error } = await supabase
         .from('user_flashcard_progress')
         .select('*')
+        .eq('user_id', user.id)
         .eq('needs_review', true)
         .order('last_studied', { ascending: true });
 
@@ -308,5 +322,41 @@ export const useUserStatistics = () => {
       };
     },
     enabled: true,
+  });
+};
+
+export const useResetUserProgress = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      // Delete all user progress
+      const { error: progressError } = await supabase
+        .from('user_flashcard_progress')
+        .delete()
+        .eq('user_id', user.id);
+
+      if (progressError) throw progressError;
+
+      // Delete all user sessions
+      const { error: sessionsError } = await supabase
+        .from('user_study_sessions')
+        .delete()
+        .eq('user_id', user.id);
+
+      if (sessionsError) throw sessionsError;
+
+      return true;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-progress'] });
+      queryClient.invalidateQueries({ queryKey: ['user-progress-area'] });
+      queryClient.invalidateQueries({ queryKey: ['cards-needing-review'] });
+      queryClient.invalidateQueries({ queryKey: ['last-study-session'] });
+      queryClient.invalidateQueries({ queryKey: ['user-statistics'] });
+    },
   });
 };

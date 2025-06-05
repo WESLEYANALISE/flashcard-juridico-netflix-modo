@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { CheckCircle, XCircle, Eye, EyeOff, Lightbulb, Sparkles } from 'lucide-react';
+import { CheckCircle, XCircle, Lightbulb, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Flashcard } from '@/types/flashcard';
 
@@ -25,7 +25,6 @@ const ImprovedAnimatedFlashCard = ({
   tema,
   exemplo
 }: ImprovedAnimatedFlashCardProps) => {
-  const [showAnswer, setShowAnswer] = useState(true);
   const [showExample, setShowExample] = useState(false);
   const [isAnswering, setIsAnswering] = useState(false);
   const [answerType, setAnswerType] = useState<'correct' | 'incorrect' | null>(null);
@@ -64,7 +63,7 @@ const ImprovedAnimatedFlashCard = ({
           fixed inset-0 z-50 flex items-center justify-center pointer-events-none
           ${answerType === 'correct' 
             ? 'animate-[flash_0.6s_ease-out]' 
-            : 'animate-[shake_0.6s_ease-out]'
+            : 'animate-[flash_0.6s_ease-out]'
           }
         `}>
           <div className={`
@@ -138,91 +137,74 @@ const ImprovedAnimatedFlashCard = ({
                 {flashcard.question}
               </h2>
               
-              {showAnswer && (
-                <div className="mt-6 sm:mt-8 space-y-4">
-                  <div className="p-4 sm:p-6 bg-white/5 rounded-xl border border-white/10 animate-fade-in">
-                    <h3 className="text-base sm:text-lg font-semibold text-netflix-red mb-3">Resposta:</h3>
-                    <p className="text-sm sm:text-base text-gray-300 leading-relaxed">
-                      {flashcard.answer}
-                    </p>
-                  </div>
-
-                  {/* Example Section - Only shows when clicked */}
-                  {exemplo && (
-                    <div className="space-y-2">
-                      <Button
-                        onClick={() => setShowExample(!showExample)}
-                        variant="outline"
-                        size="sm"
-                        className="bg-netflix-gold/20 border-netflix-gold/50 text-netflix-gold hover:bg-netflix-gold/30 transition-all duration-300"
-                      >
-                        <Lightbulb className="w-4 h-4 mr-2" />
-                        {showExample ? 'Ocultar' : 'Mostrar'} Exemplo
-                        <Sparkles className="w-3 h-3 ml-2" />
-                      </Button>
-                      
-                      {showExample && (
-                        <div className="p-4 sm:p-6 bg-netflix-gold/10 rounded-xl border border-netflix-gold/20 animate-fade-in">
-                          <h3 className="text-base sm:text-lg font-semibold text-netflix-gold mb-3 flex items-center">
-                            <Lightbulb className="w-5 h-5 mr-2" />
-                            Exemplo Prático:
-                          </h3>
-                          <p className="text-sm sm:text-base text-gray-300 leading-relaxed">
-                            {exemplo}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  )}
+              <div className="mt-6 sm:mt-8 space-y-4">
+                <div className="p-4 sm:p-6 bg-white/5 rounded-xl border border-white/10 animate-fade-in">
+                  <h3 className="text-base sm:text-lg font-semibold text-netflix-red mb-3">Resposta:</h3>
+                  <p className="text-sm sm:text-base text-gray-300 leading-relaxed">
+                    {flashcard.answer}
+                  </p>
                 </div>
-              )}
+
+                {/* Example Section - Only shows when clicked */}
+                {exemplo && (
+                  <div className="space-y-2">
+                    <Button
+                      onClick={() => setShowExample(!showExample)}
+                      variant="outline"
+                      size="sm"
+                      className="bg-netflix-gold/20 border-netflix-gold/50 text-netflix-gold hover:bg-netflix-gold/30 transition-all duration-300"
+                    >
+                      <Lightbulb className="w-4 h-4 mr-2" />
+                      {showExample ? 'Ocultar' : 'Mostrar'} Exemplo
+                      <Sparkles className="w-3 h-3 ml-2" />
+                    </Button>
+                    
+                    {showExample && (
+                      <div className="p-4 sm:p-6 bg-netflix-gold/10 rounded-xl border border-netflix-gold/20 animate-fade-in">
+                        <h3 className="text-base sm:text-lg font-semibold text-netflix-gold mb-3 flex items-center">
+                          <Lightbulb className="w-5 h-5 mr-2" />
+                          Exemplo Prático:
+                        </h3>
+                        <p className="text-sm sm:text-base text-gray-300 leading-relaxed">
+                          {exemplo}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
           {/* Controls */}
-          <div className="space-y-4">
-            <div className="flex justify-center">
-              <Button
-                onClick={() => setShowAnswer(!showAnswer)}
-                variant="outline"
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20 transition-all duration-300 hover:scale-105"
-              >
-                {showAnswer ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
-                {showAnswer ? 'Ocultar' : 'Mostrar'} Resposta
-              </Button>
-            </div>
-
-            {showAnswer && (
-              <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 animate-fade-in">
-                <Button
-                  onClick={() => handleAnswer(false)}
-                  disabled={isAnswering}
-                  className={`
-                    bg-red-500/20 border-red-500/50 text-red-400 border-2 py-3 px-6
-                    hover:bg-red-500/30 hover:border-red-500 hover:scale-105 active:scale-95
-                    transition-all duration-300 font-semibold
-                    ${isAnswering ? 'opacity-50 cursor-not-allowed' : ''}
-                  `}
-                >
-                  <XCircle className="w-5 h-5 mr-2" />
-                  Preciso Revisar
-                </Button>
-                
-                <Button
-                  onClick={() => handleAnswer(true)}
-                  disabled={isAnswering}
-                  className={`
-                    bg-green-500/20 border-green-500/50 text-green-400 border-2 py-3 px-6
-                    hover:bg-green-500/30 hover:border-green-500 hover:scale-105 active:scale-95
-                    transition-all duration-300 font-semibold
-                    ${isAnswering ? 'opacity-50 cursor-not-allowed' : ''}
-                  `}
-                >
-                  <CheckCircle className="w-5 h-5 mr-2" />
-                  Compreendi
-                </Button>
-              </div>
-            )}
+          <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 animate-fade-in">
+            <Button
+              onClick={() => handleAnswer(false)}
+              disabled={isAnswering}
+              className={`
+                bg-red-500/20 border-red-500/50 text-red-400 border-2 py-3 px-6
+                hover:bg-red-500/30 hover:border-red-500 hover:scale-105 active:scale-95
+                transition-all duration-300 font-semibold
+                ${isAnswering ? 'opacity-50 cursor-not-allowed' : ''}
+              `}
+            >
+              <XCircle className="w-5 h-5 mr-2" />
+              Preciso Revisar
+            </Button>
+            
+            <Button
+              onClick={() => handleAnswer(true)}
+              disabled={isAnswering}
+              className={`
+                bg-green-500/20 border-green-500/50 text-green-400 border-2 py-3 px-6
+                hover:bg-green-500/30 hover:border-green-500 hover:scale-105 active:scale-95
+                transition-all duration-300 font-semibold
+                ${isAnswering ? 'opacity-50 cursor-not-allowed' : ''}
+              `}
+            >
+              <CheckCircle className="w-5 h-5 mr-2" />
+              Compreendi
+            </Button>
           </div>
 
           {/* Decorative Elements */}

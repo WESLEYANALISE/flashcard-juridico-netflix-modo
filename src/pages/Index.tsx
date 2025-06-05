@@ -1,16 +1,54 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import Navbar from '@/components/Navbar';
 import StudyView from '@/components/StudyView';
 import ImprovedStatsView from '@/components/ImprovedStatsView';
 import ReviewView from '@/components/ReviewView';
 import PlaylistView from '@/components/PlaylistView';
+import AuthPage from '@/components/AuthPage';
 import { useFlashcards } from '@/hooks/useFlashcards';
+import { User } from '@supabase/supabase-js';
 
 const Index = () => {
   const [activeView, setActiveView] = useState('study');
   const [hideNavbar, setHideNavbar] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
   const { data: supabaseFlashcards = [] } = useFlashcards();
+
+  useEffect(() => {
+    // Get initial session
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user ?? null);
+      setLoading(false);
+    };
+
+    getSession();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user ?? null);
+        setLoading(false);
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-netflix-black flex items-center justify-center">
+        <div className="text-white text-xl">Carregando...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <AuthPage />;
+  }
 
   const flashcards = supabaseFlashcards.map(card => ({
     id: card.id.toString(),
