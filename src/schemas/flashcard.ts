@@ -7,6 +7,7 @@ export const SupabaseFlashcardSchema = z.object({
   pergunta: z.string().min(1, "Pergunta é obrigatória"),
   resposta: z.string().min(1, "Resposta é obrigatória"),
   tema: z.string().min(1, "Tema é obrigatório"),
+  exemplo: z.string().optional(),
 });
 
 export type SupabaseFlashcard = z.infer<typeof SupabaseFlashcardSchema>;

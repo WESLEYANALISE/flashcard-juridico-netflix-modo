@@ -1,4 +1,3 @@
-
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -33,7 +32,7 @@ export const useFlashcards = () => {
         resposta: item.resposta || '',
         area: item.area || '',
         tema: item.tema || undefined,
-        exemplo: item.exemplo || undefined,
+        exemplo: item.explicacao || undefined, // Map explicacao to exemplo
         created_at: item.created_at,
         updated_at: item.updated_at
       })) as SupabaseFlashcard[];
