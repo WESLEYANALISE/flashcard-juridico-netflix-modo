@@ -1,3 +1,4 @@
+
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -7,7 +8,7 @@ export interface SupabaseFlashcard {
   resposta: string;
   area: string;
   tema?: string;
-  exemplo?: string; // Added exemplo property
+  explicacao?: string; // This is the "exemplo" field from flash_cards table
   created_at?: string;
   updated_at?: string;
 }
@@ -17,7 +18,7 @@ export const useFlashcards = () => {
     queryKey: ['flashcards'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('flash_cards_improved')
+        .from('flash_cards')
         .select('*');
 
       if (error) {
@@ -32,7 +33,7 @@ export const useFlashcards = () => {
         resposta: item.resposta || '',
         area: item.area || '',
         tema: item.tema || undefined,
-        exemplo: item.explicacao || undefined, // Map explicacao to exemplo
+        explicacao: item.explicacao || undefined, // This contains the example text
         created_at: item.created_at,
         updated_at: item.updated_at
       })) as SupabaseFlashcard[];
@@ -46,7 +47,7 @@ export const useFlashcardAreas = () => {
     queryKey: ['flashcard-areas'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('flash_cards_improved')
+        .from('flash_cards')
         .select('area')
         .not('area', 'is', null);
 

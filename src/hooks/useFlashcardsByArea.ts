@@ -1,7 +1,20 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { validateFlashcards, SupabaseFlashcard } from '@/utils/flashcardValidator';
+import { SupabaseFlashcard } from './useFlashcards';
+
+const validateFlashcards = (data: any[]): SupabaseFlashcard[] => {
+  return data.map(item => ({
+    id: parseInt(item.id),
+    pergunta: item.pergunta || '',
+    resposta: item.resposta || '',
+    area: item.area || '',
+    tema: item.tema || undefined,
+    explicacao: item.explicacao || undefined,
+    created_at: item.created_at,
+    updated_at: item.updated_at
+  }));
+};
 
 export const useFlashcardsByArea = (area: string) => {
   return useQuery({

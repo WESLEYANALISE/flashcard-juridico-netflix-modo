@@ -1,10 +1,11 @@
+
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Shuffle, Scale, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Flashcard } from '@/types/flashcard';
 import { useFlashcards, useFlashcardAreas, SupabaseFlashcard } from '@/hooks/useFlashcards';
 import { useFlashcardsByAreaAndThemes } from '@/hooks/useFlashcardsByArea';
-import { useUpdateFlashcardProgress } from '@/hooks/useUserProgress';
+import { useUpdateUserProgress } from '@/hooks/useUserFlashcardProgress';
 import { generateCategoriesFromAreas, mapSupabaseFlashcard } from '@/utils/flashcardMapper';
 import { useErrorHandling } from '@/hooks/useErrorHandling';
 import { CardSkeleton, CategoryCardSkeleton } from '@/components/ui/card-skeleton';
@@ -42,7 +43,7 @@ const StudyView = ({ onUpdateFlashcard, onHideNavbar }: StudyViewProps) => {
   const [sessionStartTime, setSessionStartTime] = useState<number>(Date.now());
 
   const { handleError, retry, canRetry } = useErrorHandling();
-  const updateProgress = useUpdateFlashcardProgress();
+  const updateProgress = useUpdateUserProgress();
 
   // Queries com tratamento de erro melhorado
   const {
@@ -366,7 +367,7 @@ const StudyView = ({ onUpdateFlashcard, onHideNavbar }: StudyViewProps) => {
                 exitDirection={exitDirection} 
                 tema={currentSupabaseCard?.tema}
                 isEntering={isCardEntering}
-                exemplo={currentSupabaseCard?.exemplo}
+                exemplo={currentSupabaseCard?.explicacao}
               />
             </div>
           </div>
@@ -375,12 +376,12 @@ const StudyView = ({ onUpdateFlashcard, onHideNavbar }: StudyViewProps) => {
     );
   }
 
-  // Categories overview (default)
+  // Categories overview (default) - Now passing real flashcard data to GeneralSummary
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-netflix-black px-2 sm:px-4 py-4 sm:py-8">
         <div className="max-w-7xl mx-auto">
-          <GeneralSummary flashcards={[]} categories={categories} />
+          <GeneralSummary flashcards={allFlashcards.map(mapSupabaseFlashcard)} categories={categories} />
 
           <div className="text-center mb-8 sm:mb-12 animate-fade-in">
             <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white mb-4">
