@@ -99,6 +99,7 @@ const StudyView = ({ onUpdateFlashcard, onHideNavbar }: StudyViewProps) => {
 
   const currentCards = getCurrentCards();
   const currentCard = currentCards[currentCardIndex];
+  const currentSupabaseCard = selectedFlashcards[currentCardIndex];
   const selectedCategory = categories.find(cat => cat.name === selectedArea);
 
   // Reset when changing steps
@@ -365,6 +366,7 @@ const StudyView = ({ onUpdateFlashcard, onHideNavbar }: StudyViewProps) => {
                 exitDirection={exitDirection} 
                 tema={selectedFlashcards[currentCardIndex]?.tema}
                 isEntering={isCardEntering}
+                exemplo={currentSupabaseCard?.exemplo}
               />
             </div>
           </div>

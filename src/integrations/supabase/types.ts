@@ -2186,6 +2186,7 @@ export type Database = {
         Row: {
           area: string | null
           created_at: string
+          exemplo: string | null
           id: number
           pergunta: string | null
           resposta: string | null
@@ -2194,6 +2195,7 @@ export type Database = {
         Insert: {
           area?: string | null
           created_at?: string
+          exemplo?: string | null
           id?: number
           pergunta?: string | null
           resposta?: string | null
@@ -2202,6 +2204,7 @@ export type Database = {
         Update: {
           area?: string | null
           created_at?: string
+          exemplo?: string | null
           id?: number
           pergunta?: string | null
           resposta?: string | null

@@ -2,15 +2,16 @@
 import { useState } from 'react';
 import { Flashcard } from '@/types/flashcard';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, XCircle, Eye, EyeOff } from 'lucide-react';
+import { CheckCircle, XCircle, Eye, EyeOff, Lightbulb } from 'lucide-react';
 
 interface FlashCardProps {
   flashcard: Flashcard;
   onAnswer: (correct: boolean) => void;
   showAnswerByDefault?: boolean;
+  exemplo?: string;
 }
 
-const FlashCard = ({ flashcard, onAnswer, showAnswerByDefault = true }: FlashCardProps) => {
+const FlashCard = ({ flashcard, onAnswer, showAnswerByDefault = true, exemplo }: FlashCardProps) => {
   const [showAnswer, setShowAnswer] = useState(showAnswerByDefault);
 
   const getDifficultyColor = (difficulty: string) => {
@@ -52,11 +53,26 @@ const FlashCard = ({ flashcard, onAnswer, showAnswerByDefault = true }: FlashCar
               </h2>
               
               {showAnswer && (
-                <div className="mt-6 sm:mt-8 p-4 sm:p-6 bg-white/5 rounded-xl border border-white/10 animate-fade-in">
-                  <h3 className="text-base sm:text-lg font-semibold text-netflix-red mb-3">Resposta:</h3>
-                  <p className="text-sm sm:text-base text-gray-300 leading-relaxed">
-                    {flashcard.answer}
-                  </p>
+                <div className="mt-6 sm:mt-8 space-y-4">
+                  <div className="p-4 sm:p-6 bg-white/5 rounded-xl border border-white/10 animate-fade-in">
+                    <h3 className="text-base sm:text-lg font-semibold text-netflix-red mb-3">Resposta:</h3>
+                    <p className="text-sm sm:text-base text-gray-300 leading-relaxed">
+                      {flashcard.answer}
+                    </p>
+                  </div>
+
+                  {/* Exemplo Prático */}
+                  {exemplo && (
+                    <div className="p-4 sm:p-6 bg-netflix-gold/10 rounded-xl border border-netflix-gold/20 animate-fade-in">
+                      <h3 className="text-base sm:text-lg font-semibold text-netflix-gold mb-3 flex items-center">
+                        <Lightbulb className="w-5 h-5 mr-2" />
+                        Exemplo Prático:
+                      </h3>
+                      <p className="text-sm sm:text-base text-gray-300 leading-relaxed">
+                        {exemplo}
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -83,7 +99,7 @@ const FlashCard = ({ flashcard, onAnswer, showAnswerByDefault = true }: FlashCar
                   className="bg-red-500/20 border-red-500/50 text-red-400 hover:bg-red-500/30 hover:border-red-500 transition-all duration-300 py-3"
                 >
                   <XCircle className="w-4 h-4 mr-2" />
-                  Errei
+                  Preciso Revisar
                 </Button>
                 
                 <Button
@@ -92,7 +108,7 @@ const FlashCard = ({ flashcard, onAnswer, showAnswerByDefault = true }: FlashCar
                   className="bg-green-500/20 border-green-500/50 text-green-400 hover:bg-green-500/30 hover:border-green-500 transition-all duration-300 py-3"
                 >
                   <CheckCircle className="w-4 h-4 mr-2" />
-                  Acertei
+                  Compreendi
                 </Button>
               </div>
             )}
