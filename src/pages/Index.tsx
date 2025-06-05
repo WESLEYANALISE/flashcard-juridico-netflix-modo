@@ -2,9 +2,9 @@
 import { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import StudyView from '@/components/StudyView';
-import StatsView from '@/components/StatsView';
-import SettingsView from '@/components/SettingsView';
+import ImprovedStatsView from '@/components/ImprovedStatsView';
 import PlaylistView from '@/components/PlaylistView';
+import ReviewView from '@/components/ReviewView';
 import { useFlashcards } from '@/hooks/useFlashcards';
 
 const Index = () => {
@@ -55,9 +55,9 @@ const Index = () => {
           />
         );
       case 'stats':
-        return <StatsView />;
-      case 'settings':
-        return <SettingsView />;
+        return <ImprovedStatsView />;
+      case 'review':
+        return <ReviewView />;
       default:
         return (
           <StudyView 
