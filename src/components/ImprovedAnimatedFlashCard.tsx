@@ -144,7 +144,7 @@ const ImprovedAnimatedFlashCard = ({
           </div>
 
           {/* Controls */}
-          <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-3 md:gap-4 animate-fade-in">
+          <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-3 md:gap-4 animate-fade-in px-[4px] my-[7px] py-[9px] mx-[18px]">
             <Button onClick={() => handleAnswer(false)} disabled={isAnswering} className={`
                 bg-red-500/20 border-red-500/50 text-red-400 border-2 py-2 sm:py-3 px-4 sm:px-6
                 hover:bg-red-500/30 hover:border-red-500 hover:scale-105 active:scale-95
