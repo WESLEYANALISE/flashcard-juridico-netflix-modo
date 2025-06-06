@@ -134,7 +134,7 @@ const ImprovedAnimatedFlashCard = ({
                           <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                           Exemplo Prático:
                         </h3>
-                        <p className="text-xs sm:text-sm md:text-base text-gray-300 leading-relaxed">
+                        <p className="sm:text-sm md:text-base text-gray-300 leading-relaxed text-sm">
                           {exemplo}
                         </p>
                       </div>}
