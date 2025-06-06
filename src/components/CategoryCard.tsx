@@ -20,7 +20,7 @@ const CategoryCard = ({
   }}>
       <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />
       
-      <div className="relative p-6">
+      <div className="relative p-6 py-[6px]">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center space-x-3">
             <Scale className="w-8 h-8 animate-pulse transition-all duration-300 group-hover:scale-110" style={{
