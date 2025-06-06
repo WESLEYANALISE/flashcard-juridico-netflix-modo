@@ -10,8 +10,9 @@ interface StudyModeModalProps {
   onStartOver: () => void;
   onRandom: () => void;
   hasProgress: boolean;
-  lastStudiedIndex?: number;
+  currentIndex?: number;
   totalCards: number;
+  lastStudiedDate?: string;
 }
 
 const StudyModeModal = ({
@@ -21,12 +22,28 @@ const StudyModeModal = ({
   onStartOver,
   onRandom,
   hasProgress,
-  lastStudiedIndex = 0,
-  totalCards
+  currentIndex = 0,
+  totalCards,
+  lastStudiedDate
 }: StudyModeModalProps) => {
   if (!isOpen) return null;
 
-  const progressPercentage = totalCards > 0 ? Math.round(((lastStudiedIndex + 1) / totalCards) * 100) : 0;
+  const progressPercentage = totalCards > 0 ? Math.round(((currentIndex + 1) / totalCards) * 100) : 0;
+  
+  const formatLastStudied = (dateString?: string) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInHours = (now.getTime() - date.getTime()) / (1000 * 3600);
+    
+    if (diffInHours < 24) {
+      const hours = Math.floor(diffInHours);
+      return hours === 0 ? 'agora mesmo' : `há ${hours}h`;
+    } else {
+      const days = Math.floor(diffInHours / 24);
+      return `há ${days} dia${days > 1 ? 's' : ''}`;
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -37,22 +54,22 @@ const StudyModeModal = ({
         </div>
 
         <div className="space-y-3 sm:space-y-4">
-          {/* Continue Button - Melhorado */}
-          <Button
-            onClick={onContinue}
-            className="w-full bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 
-                       text-white border-0 py-3 sm:py-4 text-sm sm:text-lg font-semibold transition-all duration-300 hover:scale-105"
-          >
-            <Clock className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-            <div className="flex flex-col items-center">
-              <span>Continuar de onde parei</span>
-              {hasProgress && lastStudiedIndex > 0 && (
+          {/* Continue Button - Only shows if there's valid progress */}
+          {hasProgress && (
+            <Button
+              onClick={onContinue}
+              className="w-full bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 
+                         text-white border-0 py-3 sm:py-4 text-sm sm:text-lg font-semibold transition-all duration-300 hover:scale-105"
+            >
+              <Clock className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+              <div className="flex flex-col items-center">
+                <span>Continuar de onde parei</span>
                 <span className="text-xs sm:text-sm text-green-200 mt-1">
-                  Card {lastStudiedIndex + 1}/{totalCards} ({progressPercentage}%)
+                  Card {currentIndex + 1}/{totalCards} ({progressPercentage}%) • {formatLastStudied(lastStudiedDate)}
                 </span>
-              )}
-            </div>
-          </Button>
+              </div>
+            </Button>
+          )}
 
           <Button
             onClick={onStartOver}
@@ -66,7 +83,7 @@ const StudyModeModal = ({
           <Button
             onClick={onRandom}
             className="w-full bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 
-                       text-white border-0 py-3 sm:py-4 text-sm sm:text-lg font-semibold transition-all duration-300 hover:scale-105 shake-on-hover"
+                       text-white border-0 py-3 sm:py-4 text-sm sm:text-lg font-semibold transition-all duration-300 hover:scale-105"
           >
             <Shuffle className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
             Modo aleatório
@@ -77,7 +94,7 @@ const StudyModeModal = ({
           <p className="text-xs sm:text-sm text-gray-400 text-center">
             Total de {totalCards} cards nesta seleção
           </p>
-          {hasProgress && lastStudiedIndex > 0 && (
+          {hasProgress && (
             <div className="mt-2">
               <div className="w-full bg-gray-700/30 rounded-full h-1.5">
                 <div 

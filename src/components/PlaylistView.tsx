@@ -1,242 +1,265 @@
 
 import { useState } from 'react';
-import { ArrowLeft, Plus, Save, Trash2, Play, Edit3 } from 'lucide-react';
+import { ArrowLeft, Plus, Save, Music } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
-import { Playlist } from '@/types/playlist';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { useFlashcards } from '@/hooks/useFlashcards';
+import { Textarea } from '@/components/ui/textarea';
+import { useFlashcardAreas } from '@/hooks/useFlashcards';
+import { useFlashcardsByAreaAndThemes } from '@/hooks/useFlashcardsByArea';
+import { generateCategoriesFromAreas } from '@/utils/flashcardMapper';
+import CategoryCard from './CategoryCard';
+import ImprovedThemeSelector from './ImprovedThemeSelector';
+import { CardSkeleton } from '@/components/ui/card-skeleton';
 
 interface PlaylistViewProps {
   onClose: () => void;
-  onStudyPlaylist?: (playlistId: string) => void;
+  onStudyPlaylist: (playlistId: string) => void;
 }
 
-const PlaylistView = ({ onClose, onStudyPlaylist }: PlaylistViewProps) => {
-  const [playlists, setPlaylists] = useLocalStorage<Playlist[]>('user_playlists', []);
-  const [isCreating, setIsCreating] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [newPlaylist, setNewPlaylist] = useState({
-    name: '',
-    description: '',
-    selectedCards: new Set<string>()
-  });
+type PlaylistStep = 'area-selection' | 'theme-selection' | 'playlist-creation';
 
-  const { data: allFlashcards = [] } = useFlashcards();
+const PlaylistView = ({ onClose, onStudyPlaylist }: PlaylistViewProps) => {
+  const [currentStep, setCurrentStep] = useState<PlaylistStep>('area-selection');
+  const [selectedArea, setSelectedArea] = useState<string | null>(null);
+  const [selectedThemes, setSelectedThemes] = useState<string[]>([]);
+  const [playlistName, setPlaylistName] = useState('');
+  const [playlistDescription, setPlaylistDescription] = useState('');
+
+  const { data: areas = [], isLoading: areasLoading } = useFlashcardAreas();
+  const { data: selectedFlashcards = [] } = useFlashcardsByAreaAndThemes(
+    selectedArea || '', 
+    selectedThemes
+  );
+
+  const categories = generateCategoriesFromAreas(areas);
+
+  const handleAreaSelect = (areaName: string) => {
+    setSelectedArea(areaName);
+    setCurrentStep('theme-selection');
+  };
+
+  const handleThemesSelected = (themes: string[]) => {
+    setSelectedThemes(themes);
+    setCurrentStep('playlist-creation');
+    // Auto-generate playlist name
+    const themesText = themes.length > 2 
+      ? `${themes.slice(0, 2).join(', ')} e mais ${themes.length - 2}`
+      : themes.join(' e ');
+    setPlaylistName(`${selectedArea} - ${themesText}`);
+  };
+
+  const handleBackToAreas = () => {
+    setCurrentStep('area-selection');
+    setSelectedArea(null);
+    setSelectedThemes([]);
+    setPlaylistName('');
+    setPlaylistDescription('');
+  };
+
+  const handleBackToThemes = () => {
+    setCurrentStep('theme-selection');
+    setSelectedThemes([]);
+    setPlaylistName('');
+    setPlaylistDescription('');
+  };
 
   const handleCreatePlaylist = () => {
-    if (!newPlaylist.name.trim()) return;
-
-    const playlist: Playlist = {
-      id: Date.now().toString(),
-      name: newPlaylist.name,
-      description: newPlaylist.description,
-      cardIds: Array.from(newPlaylist.selectedCards),
-      createdAt: new Date()
-    };
-
-    setPlaylists(prev => [...prev, playlist]);
-    setNewPlaylist({
-      name: '',
-      description: '',
-      selectedCards: new Set()
+    // Here you would typically save the playlist
+    console.log('Creating playlist:', {
+      name: playlistName,
+      description: playlistDescription,
+      area: selectedArea,
+      themes: selectedThemes,
+      flashcardIds: selectedFlashcards.map(f => f.id)
     });
-    setIsCreating(false);
+    
+    // For now, just close and show success
+    onClose();
   };
 
-  const handleDeletePlaylist = (id: string) => {
-    setPlaylists(prev => prev.filter(p => p.id !== id));
-  };
-
-  const handleCardToggle = (cardId: string) => {
-    setNewPlaylist(prev => {
-      const newSelected = new Set(prev.selectedCards);
-      if (newSelected.has(cardId)) {
-        newSelected.delete(cardId);
-      } else {
-        newSelected.add(cardId);
-      }
-      return { ...prev, selectedCards: newSelected };
-    });
-  };
-
-  if (isCreating) {
+  if (areasLoading) {
     return (
-      <div className="min-h-screen bg-netflix-black px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center mb-6">
-            <Button
-              onClick={() => setIsCreating(false)}
-              variant="outline"
-              size="sm"
-              className="bg-white/10 border-white/20 text-white hover:bg-white/20 mr-4"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Voltar
-            </Button>
-            <h1 className="text-2xl font-bold text-white">Criar Nova Playlist</h1>
+      <div className="min-h-screen bg-netflix-black px-2 sm:px-4 py-4 sm:py-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <CardSkeleton key={i} />
+            ))}
           </div>
-
-          <Card className="bg-netflix-dark/50 border-neutral-700/50 p-6 glass-effect mb-6">
-            <div className="space-y-4 mb-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Nome da Playlist
-                </label>
-                <Input
-                  value={newPlaylist.name}
-                  onChange={(e) => setNewPlaylist(prev => ({ ...prev, name: e.target.value }))}
-                  placeholder="Ex: Direito Civil - Contratos"
-                  className="bg-white/10 border-white/20 text-white"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Descrição (opcional)
-                </label>
-                <Input
-                  value={newPlaylist.description}
-                  onChange={(e) => setNewPlaylist(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Descrição da playlist..."
-                  className="bg-white/10 border-white/20 text-white"
-                />
-              </div>
-            </div>
-
-            {allFlashcards.length > 0 && (
-              <div>
-                <h3 className="text-lg font-semibold text-white mb-4">
-                  Selecionar Cards ({newPlaylist.selectedCards.size} selecionados)
-                </h3>
-                <div className="space-y-2 max-h-64 overflow-y-auto">
-                  {allFlashcards.slice(0, 20).map(card => (
-                    <div
-                      key={card.id}
-                      className={`p-3 rounded-lg border cursor-pointer transition-all ${
-                        newPlaylist.selectedCards.has(card.id.toString())
-                          ? 'bg-netflix-red/20 border-netflix-red/50'
-                          : 'bg-white/5 border-white/10 hover:bg-white/10'
-                      }`}
-                      onClick={() => handleCardToggle(card.id.toString())}
-                    >
-                      <p className="text-white text-sm">{card.pergunta}</p>
-                      <p className="text-gray-400 text-xs mt-1">{card.area} - {card.tema}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="flex gap-4 mt-6">
-              <Button
-                onClick={handleCreatePlaylist}
-                disabled={!newPlaylist.name.trim() || newPlaylist.selectedCards.size === 0}
-                className="bg-netflix-red hover:bg-netflix-red/80 text-white"
-              >
-                <Save className="w-4 h-4 mr-2" />
-                Criar Playlist
-              </Button>
-              <Button
-                onClick={() => setIsCreating(false)}
-                variant="outline"
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-              >
-                Cancelar
-              </Button>
-            </div>
-          </Card>
         </div>
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen bg-netflix-black px-4 py-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center">
-            <Button
-              onClick={onClose}
-              variant="outline"
-              size="sm"
-              className="bg-white/10 border-white/20 text-white hover:bg-white/20 mr-4"
+  // Theme Selection Step
+  if (currentStep === 'theme-selection' && selectedArea) {
+    const selectedCategory = categories.find(cat => cat.name === selectedArea);
+    
+    return (
+      <ImprovedThemeSelector
+        area={selectedArea}
+        areaColor={selectedCategory?.color || '#E50914'}
+        onThemesSelected={handleThemesSelected}
+        onBack={handleBackToAreas}
+      />
+    );
+  }
+
+  // Playlist Creation Step
+  if (currentStep === 'playlist-creation' && selectedArea) {
+    const selectedCategory = categories.find(cat => cat.name === selectedArea);
+
+    return (
+      <div className="min-h-screen bg-netflix-black px-2 sm:px-4 py-4 sm:py-8">
+        <div className="max-w-2xl mx-auto">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6 sm:mb-8">
+            <Button 
+              onClick={handleBackToThemes} 
+              variant="outline" 
+              className="bg-white/10 border-white/20 text-white hover:bg-white/20 flex items-center space-x-2"
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Voltar
+              <ArrowLeft className="w-4 h-4" />
+              <span>Voltar</span>
             </Button>
-            <h1 className="text-2xl font-bold text-white">Minhas Playlists</h1>
           </div>
 
-          <Button
-            onClick={() => setIsCreating(true)}
-            className="bg-netflix-red hover:bg-netflix-red/80 text-white"
+          {/* Create Playlist Card */}
+          <div className="bg-netflix-dark/60 rounded-2xl border border-white/20 p-6 sm:p-8">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center"
+                   style={{ backgroundColor: `${selectedCategory?.color}20` }}>
+                <Music className="w-8 h-8" style={{ color: selectedCategory?.color }} />
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+                Criar Nova Playlist
+              </h1>
+              <p className="text-gray-400">
+                {selectedThemes.length} tema{selectedThemes.length > 1 ? 's' : ''} • {selectedFlashcards.length} cards
+              </p>
+            </div>
+
+            {/* Form */}
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-white mb-2">
+                  Nome da Playlist *
+                </label>
+                <Input
+                  value={playlistName}
+                  onChange={(e) => setPlaylistName(e.target.value)}
+                  placeholder="Digite o nome da playlist..."
+                  className="bg-white/5 border-white/20 text-white placeholder-gray-400"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-white mb-2">
+                  Descrição (opcional)
+                </label>
+                <Textarea
+                  value={playlistDescription}
+                  onChange={(e) => setPlaylistDescription(e.target.value)}
+                  placeholder="Adicione uma descrição para sua playlist..."
+                  className="bg-white/5 border-white/20 text-white placeholder-gray-400 min-h-[100px]"
+                />
+              </div>
+
+              {/* Selected Details */}
+              <div className="bg-white/5 rounded-xl p-4">
+                <h3 className="text-white font-medium mb-3">Conteúdo Selecionado</h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Área:</span>
+                    <span className="text-white">{selectedArea}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Temas:</span>
+                    <span className="text-white">{selectedThemes.length}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Cards:</span>
+                    <span className="text-white">{selectedFlashcards.length}</span>
+                  </div>
+                </div>
+                
+                {/* Theme List */}
+                <div className="mt-3 pt-3 border-t border-white/10">
+                  <div className="flex flex-wrap gap-2">
+                    {selectedThemes.map((theme) => (
+                      <span 
+                        key={theme}
+                        className="px-2 py-1 text-xs rounded-full bg-white/10 text-gray-300"
+                      >
+                        {theme}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex space-x-4 pt-4">
+                <Button
+                  onClick={handleCreatePlaylist}
+                  disabled={!playlistName.trim()}
+                  className="flex-1 bg-netflix-red hover:bg-netflix-red/80 text-white py-3 font-semibold"
+                >
+                  <Save className="w-5 h-5 mr-2" />
+                  Criar Playlist
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Area Selection Step (Default)
+  return (
+    <div className="min-h-screen bg-netflix-black px-2 sm:px-4 py-4 sm:py-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6 sm:mb-8">
+          <Button 
+            onClick={onClose} 
+            variant="outline" 
+            className="bg-white/10 border-white/20 text-white hover:bg-white/20 flex items-center space-x-2"
           >
-            <Plus className="w-4 h-4 mr-2" />
-            Nova Playlist
+            <ArrowLeft className="w-4 h-4" />
+            <span>Voltar</span>
           </Button>
         </div>
 
-        {playlists.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="text-6xl mb-4">📚</div>
-            <h3 className="text-xl font-semibold text-white mb-2">Nenhuma playlist criada</h3>
-            <p className="text-gray-400 mb-6">Crie sua primeira playlist para organizar seus estudos</p>
-            <Button
-              onClick={() => setIsCreating(true)}
-              className="bg-netflix-red hover:bg-netflix-red/80 text-white"
+        {/* Title */}
+        <div className="text-center mb-8 sm:mb-12">
+          <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white mb-4">
+            Criar <span className="text-netflix-red">Playlist</span>
+          </h1>
+          <p className="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto px-4">
+            Escolha uma área para começar a criar sua playlist personalizada
+          </p>
+        </div>
+
+        {/* Categories Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          {categories.map((category, index) => (
+            <div 
+              key={category.id}
+              className="animate-fade-in"
+              style={{ animationDelay: `${index * 0.1}s` }}
             >
-              <Plus className="w-4 h-4 mr-2" />
-              Criar Primeira Playlist
-            </Button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {playlists.map(playlist => (
-              <Card key={playlist.id} className="bg-netflix-dark/50 border-neutral-700/50 p-6 glass-effect">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-white mb-1">{playlist.name}</h3>
-                    {playlist.description && (
-                      <p className="text-sm text-gray-400">{playlist.description}</p>
-                    )}
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={() => setEditingId(playlist.id)}
-                      variant="outline"
-                      size="sm"
-                      className="bg-blue-500/20 border-blue-500/50 text-blue-400 hover:bg-blue-500/30"
-                    >
-                      <Edit3 className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      onClick={() => handleDeletePlaylist(playlist.id)}
-                      variant="outline"
-                      size="sm"
-                      className="bg-red-500/20 border-red-500/50 text-red-400 hover:bg-red-500/30"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="text-sm text-gray-400 mb-4">
-                  {playlist.cardIds.length} cards • Criada em {new Date(playlist.createdAt).toLocaleDateString()}
-                </div>
-
-                <Button
-                  className="w-full bg-netflix-red hover:bg-netflix-red/80 text-white"
-                  onClick={() => onStudyPlaylist?.(playlist.id)}
-                >
-                  <Play className="w-4 h-4 mr-2" />
-                  Estudar Playlist
-                </Button>
-              </Card>
-            ))}
-          </div>
-        )}
+              <CategoryCard
+                category={category}
+                cardCount={0}
+                studiedCount={0}
+                isSelected={false}
+                onClick={() => handleAreaSelect(category.name)}
+              />
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

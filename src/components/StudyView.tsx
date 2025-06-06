@@ -15,6 +15,8 @@ import StudyModeModal from './StudyModeModal';
 import SessionStats from './SessionStats';
 import GeneralSummary from './GeneralSummary';
 import ErrorBoundary from './ErrorBoundary';
+import { useStudyProgress } from '@/hooks/useStudyProgress';
+
 interface StudyViewProps {
   flashcards: Flashcard[];
   onUpdateFlashcard: (id: string, updates: Partial<Flashcard>) => void;
@@ -41,32 +43,37 @@ const StudyView = ({
     maxStreak: 0,
     completed: false
   });
+
   const {
     handleError,
     retry,
     canRetry
   } = useErrorHandling();
-  const updateProgress = useUpdateFlashcardProgress();
-  const {
-    data: userStats
-  } = useUserStatistics();
 
-  // Queries com tratamento de erro melhorado
+  const updateProgress = useUpdateFlashcardProgress();
+  const { data: userStats } = useUserStatistics();
+
+  // Queries with improved error handling
   const {
     data: areas = [],
     isLoading: areasLoading,
     error: areasError
   } = useFlashcardAreas();
+
   const {
     data: allFlashcards = [],
     isLoading: allFlashcardsLoading,
     error: allFlashcardsError
   } = useFlashcards();
+
   const {
     data: selectedFlashcards = [],
     isLoading: selectedFlashcardsLoading,
     error: selectedFlashcardsError
   } = useFlashcardsByAreaAndThemes(selectedArea || '', selectedThemes);
+
+  // Use the new study progress hook
+  const studyProgress = useStudyProgress(selectedArea || '', selectedThemes);
 
   // Control navbar visibility based on study step
   useEffect(() => {
@@ -116,11 +123,14 @@ const StudyView = ({
   const handleStudyModeSelect = async (mode: 'normal' | 'continue' | 'random') => {
     setStudyMode(mode);
 
-    // Set starting index based on mode
+    // Set starting index based on mode and progress
     let startIndex = 0;
-    if (mode === 'random') {
+    if (mode === 'continue' && studyProgress.hasProgress) {
+      startIndex = studyProgress.getStartIndex();
+    } else if (mode === 'random') {
       setIsShuffled(true);
     }
+
     setCurrentCardIndex(startIndex);
     setCurrentStep('studying');
     setSessionStats({
@@ -135,6 +145,7 @@ const StudyView = ({
   };
   const handleAnswer = async (correct: boolean) => {
     if (!currentCard || !selectedArea) return;
+
     const newStats = {
       correct: sessionStats.correct + (correct ? 1 : 0),
       total: sessionStats.total + 1,
@@ -163,8 +174,18 @@ const StudyView = ({
       totalAttempts: currentCard.totalAttempts + 1,
       lastStudied: new Date()
     });
+
+    // Save study progress
+    const nextIndex = currentCardIndex + 1;
+    if (nextIndex < currentCards.length) {
+      studyProgress.saveProgress(nextIndex, currentCards.length);
+    } else {
+      studyProgress.markCompleted();
+    }
+
     setExitDirection(correct ? 'right' : 'left');
     setIsCardExiting(true);
+
     setTimeout(() => {
       setIsCardExiting(false);
       if (currentCardIndex < currentCards.length - 1) {
@@ -256,9 +277,21 @@ const StudyView = ({
       </ErrorBoundary>;
   }
 
-  // Study mode selection
+  // Study mode selection with improved progress detection
   if (currentStep === 'study-mode' && selectedArea) {
-    return <StudyModeModal isOpen={true} onClose={() => setCurrentStep('themes')} onContinue={() => handleStudyModeSelect('continue')} onStartOver={() => handleStudyModeSelect('normal')} onRandom={() => handleStudyModeSelect('random')} hasProgress={false} lastStudiedIndex={0} totalCards={studyCards.length} />;
+    return (
+      <StudyModeModal 
+        isOpen={true} 
+        onClose={() => setCurrentStep('themes')} 
+        onContinue={() => handleStudyModeSelect('continue')} 
+        onStartOver={() => handleStudyModeSelect('normal')} 
+        onRandom={() => handleStudyModeSelect('random')} 
+        hasProgress={studyProgress.hasProgress}
+        currentIndex={studyProgress.progress?.currentIndex || 0}
+        totalCards={studyCards.length}
+        lastStudiedDate={studyProgress.progress?.lastStudied}
+      />
+    );
   }
 
   // Theme selection
@@ -268,30 +301,48 @@ const StudyView = ({
       </ErrorBoundary>;
   }
 
-  // Study session with improved animations and features
+  // Study session with enhanced card display
   if (currentStep === 'studying' && selectedArea && currentCard) {
     if (selectedFlashcardsLoading) {
-      return <div className="min-h-screen bg-netflix-black">
+      return (
+        <div className="min-h-screen bg-netflix-black">
           <div className="px-2 sm:px-4 py-4 sm:py-8">
             <div className="max-w-2xl mx-auto">
               <CardSkeleton />
             </div>
           </div>
-        </div>;
+        </div>
+      );
     }
-    return <ErrorBoundary>
+
+    return (
+      <ErrorBoundary>
         <div className="min-h-screen bg-netflix-black">
-          <div className="sm:px-4 sm:py-8 py-[8px] my-0 mx-0 px-0">
+          <div className="sm:px-4 sm:py-8 py-2 my-0 mx-0 px-0">
             {/* Compact Top Controls */}
             <div className="max-w-2xl mx-auto mb-6">
-              <div className="flex items-center justify-between">
-                <Button onClick={handleBackToThemes} variant="outline" size="sm" className="bg-white/10 border-white/20 text-white hover:bg-white/20 flex items-center space-x-2 backdrop-blur-sm py-[5px] my-[6px] mx-[19px] font-extralight rounded-xl">
+              <div className="flex items-center justify-between px-4">
+                <Button 
+                  onClick={handleBackToThemes} 
+                  variant="outline" 
+                  size="sm" 
+                  className="bg-white/10 border-white/20 text-white hover:bg-white/20 flex items-center space-x-2 backdrop-blur-sm py-2 px-4 rounded-xl"
+                >
                   <ArrowLeft className="w-4 h-4" />
                   <span className="hidden sm:inline">Voltar</span>
                 </Button>
                 
                 <div className="flex items-center space-x-4">
-                  <Button onClick={handleShuffle} variant="outline" size="sm" className={`${isShuffled ? 'bg-netflix-red/20 border-netflix-red/50 text-netflix-red' : 'bg-white/10 border-white/20 text-white'} hover:bg-netflix-red/30 flex items-center space-x-2 backdrop-blur-sm`}>
+                  <Button 
+                    onClick={handleShuffle} 
+                    variant="outline" 
+                    size="sm" 
+                    className={`${
+                      isShuffled 
+                        ? 'bg-netflix-red/20 border-netflix-red/50 text-netflix-red' 
+                        : 'bg-white/10 border-white/20 text-white'
+                    } hover:bg-netflix-red/30 flex items-center space-x-2 backdrop-blur-sm`}
+                  >
                     <Shuffle className="w-4 h-4" />
                     <span className="hidden sm:inline">
                       {isShuffled ? 'Embaralhado' : 'Embaralhar'}
@@ -305,23 +356,37 @@ const StudyView = ({
               </div>
 
               {/* Progress Bar */}
-              <div className="mt-4">
+              <div className="mt-4 px-4">
                 <div className="w-full bg-gray-700/30 rounded-full h-1">
-                  <div className="h-1 rounded-full transition-all duration-300" style={{
-                  width: `${(currentCardIndex + 1) / currentCards.length * 100}%`,
-                  background: `linear-gradient(90deg, ${selectedCategory?.color || '#E50914'}, ${selectedCategory?.color || '#E50914'}80)`
-                }} />
+                  <div 
+                    className="h-1 rounded-full transition-all duration-300" 
+                    style={{
+                      width: `${((currentCardIndex + 1) / currentCards.length) * 100}%`,
+                      background: `linear-gradient(90deg, ${selectedCategory?.color || '#E50914'}, ${selectedCategory?.color || '#E50914'}80)`
+                    }} 
+                  />
                 </div>
               </div>
             </div>
 
-            {/* Improved Flashcard */}
+            {/* Enhanced Flashcard with Area and Theme */}
             <div className="max-w-2xl mx-auto">
-              <ImprovedAnimatedFlashCard flashcard={currentCard} onAnswer={handleAnswer} areaColor={selectedCategory?.color || '#E50914'} isExiting={isCardExiting} exitDirection={exitDirection} tema={currentSupabaseCard?.tema} isEntering={isCardEntering} exemplo={currentSupabaseCard?.explicacao} />
+              <ImprovedAnimatedFlashCard 
+                flashcard={currentCard} 
+                onAnswer={handleAnswer} 
+                areaColor={selectedCategory?.color || '#E50914'} 
+                isExiting={isCardExiting} 
+                exitDirection={exitDirection} 
+                tema={currentSupabaseCard?.tema} 
+                isEntering={isCardEntering} 
+                exemplo={currentSupabaseCard?.explicacao}
+                area={selectedArea}
+              />
             </div>
           </div>
         </div>
-      </ErrorBoundary>;
+      </ErrorBoundary>
+    );
   }
 
   // Categories overview (default) with real flashcard data
