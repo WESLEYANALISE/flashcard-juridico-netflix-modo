@@ -6,6 +6,7 @@ import StudyView from '@/components/StudyView';
 import ImprovedStatsView from '@/components/ImprovedStatsView';
 import ReviewView from '@/components/ReviewView';
 import PlaylistView from '@/components/PlaylistView';
+import SettingsView from '@/components/SettingsView';
 import AuthPage from '@/components/AuthPage';
 import { useFlashcards } from '@/hooks/useFlashcards';
 import { User } from '@supabase/supabase-js';
@@ -106,6 +107,12 @@ const Index = () => {
         return (
           <ReviewView 
             onStudyReview={handleStudyReview}
+            onBack={() => setActiveView('study')}
+          />
+        );
+      case 'settings':
+        return (
+          <SettingsView 
             onBack={() => setActiveView('study')}
           />
         );

@@ -78,7 +78,7 @@ const ImprovedThemeSelector = ({
     <div className="min-h-screen bg-netflix-black px-2 sm:px-4 py-4 sm:py-8 relative">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8 py-[24px]">
+        <div className="flex items-center justify-between mb-6 sm:mb-8 py-6">
           <Button 
             onClick={onBack} 
             variant="outline" 
@@ -90,21 +90,21 @@ const ImprovedThemeSelector = ({
         </div>
 
         {/* Title */}
-        <div className="text-center mb-8 px-[6px]">
-          <h1 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+        <div className="text-center mb-6 sm:mb-8 px-2">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4">
             Selecione os <span style={{ color: areaColor }}>Temas</span>
           </h1>
-          <p className="text-lg text-gray-400 mb-6">
+          <p className="text-base sm:text-lg text-gray-400 mb-6">
             Escolha os temas de {area} que deseja estudar
           </p>
           
           {/* Quick Actions */}
-          <div className="flex justify-center space-x-4 mb-8">
+          <div className="flex justify-center space-x-3 sm:space-x-4 mb-6 sm:mb-8">
             <Button 
               onClick={handleSelectAll} 
               variant="outline" 
               size="sm" 
-              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+              className="bg-white/10 border-white/20 text-white hover:bg-white/20 text-xs sm:text-sm"
             >
               Selecionar Todos
             </Button>
@@ -112,7 +112,7 @@ const ImprovedThemeSelector = ({
               onClick={handleClearAll} 
               variant="outline" 
               size="sm" 
-              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+              className="bg-white/10 border-white/20 text-white hover:bg-white/20 text-xs sm:text-sm"
             >
               Limpar Seleção
             </Button>
@@ -120,7 +120,7 @@ const ImprovedThemeSelector = ({
         </div>
 
         {/* Themes Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-20">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-24 pb-4">
           {themes.map((theme, index) => {
             const isSelected = selectedThemes.includes(theme);
             const stats = getThemeStats(theme);
@@ -131,7 +131,7 @@ const ImprovedThemeSelector = ({
                 key={theme}
                 onClick={() => handleThemeToggle(theme)}
                 className={`
-                  relative p-6 rounded-xl cursor-pointer transition-all duration-300 
+                  relative p-4 sm:p-6 rounded-xl cursor-pointer transition-all duration-300 
                   bg-netflix-dark/60 border-2 hover:scale-[1.02] transform-gpu
                   animate-fade-in hover:shadow-lg
                   ${isSelected 
@@ -145,9 +145,9 @@ const ImprovedThemeSelector = ({
                 }}
               >
                 {/* Selection Indicator */}
-                <div className="absolute top-4 right-4">
+                <div className="absolute top-3 sm:top-4 right-3 sm:right-4">
                   <div className={`
-                    w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200
+                    w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200
                     ${isSelected 
                       ? 'border-white bg-white' 
                       : 'border-white/50'
@@ -155,7 +155,7 @@ const ImprovedThemeSelector = ({
                   `}>
                     {isSelected && (
                       <CheckCircle 
-                        className="w-4 h-4" 
+                        className="w-3 h-3 sm:w-4 sm:h-4" 
                         style={{ color: areaColor }} 
                       />
                     )}
@@ -163,12 +163,12 @@ const ImprovedThemeSelector = ({
                 </div>
 
                 {/* Theme Info */}
-                <div className="mb-4">
-                  <h3 className="text-lg font-semibold text-white mb-2 pr-8">
+                <div className="mb-3 sm:mb-4">
+                  <h3 className="text-base sm:text-lg font-semibold text-white mb-2 pr-6 sm:pr-8 leading-tight">
                     {theme}
                   </h3>
                   
-                  <div className="flex items-center justify-between text-sm text-gray-400 mb-3">
+                  <div className="flex items-center justify-between text-xs sm:text-sm text-gray-400 mb-2 sm:mb-3">
                     <span>{stats.total} cards</span>
                     <span>{stats.studied} estudados</span>
                     {stats.accuracy > 0 && (
@@ -178,9 +178,9 @@ const ImprovedThemeSelector = ({
                 </div>
 
                 {/* Progress Bar */}
-                <div className="w-full bg-gray-700/50 rounded-full h-2">
+                <div className="w-full bg-gray-700/50 rounded-full h-1.5 sm:h-2">
                   <div 
-                    className="h-2 rounded-full transition-all duration-700" 
+                    className="h-1.5 sm:h-2 rounded-full transition-all duration-700" 
                     style={{
                       width: `${progress}%`,
                       background: `linear-gradient(90deg, ${areaColor}, ${areaColor}80)`
@@ -188,7 +188,7 @@ const ImprovedThemeSelector = ({
                   />
                 </div>
                 
-                <div className="text-xs text-gray-500 mt-2">
+                <div className="text-xs text-gray-500 mt-1 sm:mt-2">
                   {Math.round(progress)}% completo
                 </div>
               </div>
@@ -196,19 +196,24 @@ const ImprovedThemeSelector = ({
           })}
         </div>
 
-        {/* Floating Start Study Button */}
+        {/* Fixed Floating Start Study Button - Improved */}
         {selectedThemes.length > 0 && (
-          <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 animate-fade-in">
+          <div 
+            className="fixed bottom-4 sm:bottom-6 left-1/2 transform -translate-x-1/2 z-50 
+                       animate-fade-in px-4 w-full max-w-xs sm:max-w-sm"
+          >
             <Button
               onClick={handleStartStudy}
-              className="bg-netflix-red hover:bg-netflix-red/80 text-white px-8 py-4 text-lg font-semibold 
-                         flex items-center space-x-3 rounded-full shadow-2xl hover:scale-105 
-                         transition-all duration-300 border-2 border-netflix-red/50"
+              className="w-full bg-netflix-red hover:bg-netflix-red/80 text-white px-6 sm:px-8 
+                         py-3 sm:py-4 text-base sm:text-lg font-semibold 
+                         flex items-center justify-center space-x-2 sm:space-x-3 rounded-xl sm:rounded-full 
+                         shadow-2xl hover:scale-105 transition-all duration-300 
+                         border-2 border-netflix-red/50"
               style={{
                 boxShadow: '0 10px 30px rgba(229, 9, 20, 0.4)'
               }}
             >
-              <Play className="w-6 h-6" />
+              <Play className="w-5 h-5 sm:w-6 sm:h-6" />
               <span>Iniciar Estudo ({selectedThemes.length})</span>
             </Button>
           </div>
