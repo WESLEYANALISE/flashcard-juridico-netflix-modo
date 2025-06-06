@@ -1,60 +1,42 @@
 
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import AuthPage from '@/components/AuthPage';
+import Navbar from '@/components/Navbar';
 import StudyView from '@/components/StudyView';
-import PlaylistView from '@/components/PlaylistView';
 import ImprovedStatsView from '@/components/ImprovedStatsView';
 import ReviewView from '@/components/ReviewView';
-import Navbar from '@/components/Navbar';
+import PlaylistView from '@/components/PlaylistView';
+import AuthPage from '@/components/AuthPage';
+import { useFlashcards } from '@/hooks/useFlashcards';
 import { User } from '@supabase/supabase-js';
-import { Flashcard } from '@/types/flashcard';
 
 const Index = () => {
+  const [activeView, setActiveView] = useState('study');
+  const [hideNavbar, setHideNavbar] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeView, setActiveView] = useState('study');
-  const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
-  const navigate = useNavigate();
+  const { data: supabaseFlashcards = [] } = useFlashcards();
 
   useEffect(() => {
-    // Check initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // Get initial session
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
       setUser(session?.user ?? null);
       setLoading(false);
-    });
+    };
+
+    getSession();
 
     // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user ?? null);
+        setLoading(false);
+      }
+    );
 
     return () => subscription.unsubscribe();
   }, []);
-
-  const handleBackToStudy = () => {
-    setActiveView('study');
-  };
-
-  const handleUpdateFlashcard = (id: string, updates: Partial<Flashcard>) => {
-    setFlashcards(prev => prev.map(card => 
-      card.id === id ? { ...card, ...updates } : card
-    ));
-  };
-
-  const handleStudyReview = (area: string, themes: string[]) => {
-    // Logic to start studying review cards
-    setActiveView('study');
-  };
-
-  const handleStudyPlaylist = (playlistId: string) => {
-    // Logic to start studying playlist
-    setActiveView('study');
-  };
 
   if (loading) {
     return (
@@ -68,36 +50,71 @@ const Index = () => {
     return <AuthPage />;
   }
 
-  const renderContent = () => {
+  const flashcards = supabaseFlashcards.map(card => ({
+    id: card.id.toString(),
+    question: card.pergunta,
+    answer: card.resposta,
+    category: card.area,
+    difficulty: 'Médio' as const,
+    studied: false,
+    correctAnswers: 0,
+    totalAttempts: 0,
+    lastStudied: undefined,
+  }));
+
+  const handleUpdateFlashcard = (id: string, updates: any) => {
+    console.log('Updating flashcard:', id, updates);
+  };
+
+  const handleStudyPlaylist = (playlistId: string) => {
+    console.log('Studying playlist:', playlistId);
+    setActiveView('study');
+  };
+
+  const handleStudyReview = (area: string, themes: string[]) => {
+    console.log('Studying review:', area, themes);
+    setActiveView('study');
+  };
+
+  const handleHideNavbar = (hide: boolean) => {
+    setHideNavbar(hide);
+  };
+
+  // Show navbar only when on study view and not hiding it
+  const shouldShowNavbar = activeView === 'study' && !hideNavbar;
+
+  const renderActiveView = () => {
     switch (activeView) {
       case 'study':
         return (
           <StudyView 
-            flashcards={flashcards}
+            flashcards={flashcards} 
             onUpdateFlashcard={handleUpdateFlashcard}
+            onHideNavbar={handleHideNavbar}
           />
         );
       case 'playlist':
         return (
           <PlaylistView 
-            onClose={handleBackToStudy}
+            onClose={() => setActiveView('study')}
             onStudyPlaylist={handleStudyPlaylist}
           />
         );
       case 'stats':
-        return <ImprovedStatsView onBack={handleBackToStudy} />;
+        return <ImprovedStatsView />;
       case 'review':
         return (
           <ReviewView 
             onStudyReview={handleStudyReview}
-            onBack={handleBackToStudy}
+            onBack={() => setActiveView('study')}
           />
         );
       default:
         return (
           <StudyView 
-            flashcards={flashcards}
+            flashcards={flashcards} 
             onUpdateFlashcard={handleUpdateFlashcard}
+            onHideNavbar={handleHideNavbar}
           />
         );
     }
@@ -105,10 +122,10 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-netflix-black">
-      {activeView === 'study' && (
+      {shouldShowNavbar && (
         <Navbar activeView={activeView} onViewChange={setActiveView} />
       )}
-      {renderContent()}
+      {renderActiveView()}
     </div>
   );
 };
