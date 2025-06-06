@@ -9,11 +9,13 @@ import ImprovedStatsView from '@/components/ImprovedStatsView';
 import ReviewView from '@/components/ReviewView';
 import Navbar from '@/components/Navbar';
 import { User } from '@supabase/supabase-js';
+import { Flashcard } from '@/types/flashcard';
 
 const Index = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeView, setActiveView] = useState('study');
+  const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -38,6 +40,22 @@ const Index = () => {
     setActiveView('study');
   };
 
+  const handleUpdateFlashcard = (id: string, updates: Partial<Flashcard>) => {
+    setFlashcards(prev => prev.map(card => 
+      card.id === id ? { ...card, ...updates } : card
+    ));
+  };
+
+  const handleStudyReview = (area: string, themes: string[]) => {
+    // Logic to start studying review cards
+    setActiveView('study');
+  };
+
+  const handleStudyPlaylist = (playlistId: string) => {
+    // Logic to start studying playlist
+    setActiveView('study');
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-netflix-black flex items-center justify-center">
@@ -53,15 +71,35 @@ const Index = () => {
   const renderContent = () => {
     switch (activeView) {
       case 'study':
-        return <StudyView />;
+        return (
+          <StudyView 
+            flashcards={flashcards}
+            onUpdateFlashcard={handleUpdateFlashcard}
+          />
+        );
       case 'playlist':
-        return <PlaylistView />;
+        return (
+          <PlaylistView 
+            onClose={handleBackToStudy}
+            onStudyPlaylist={handleStudyPlaylist}
+          />
+        );
       case 'stats':
         return <ImprovedStatsView onBack={handleBackToStudy} />;
       case 'review':
-        return <ReviewView />;
+        return (
+          <ReviewView 
+            onStudyReview={handleStudyReview}
+            onBack={handleBackToStudy}
+          />
+        );
       default:
-        return <StudyView />;
+        return (
+          <StudyView 
+            flashcards={flashcards}
+            onUpdateFlashcard={handleUpdateFlashcard}
+          />
+        );
     }
   };
 
