@@ -123,7 +123,7 @@ const ImprovedAnimatedFlashCard = ({
 
                 {/* Example Section - Only shows when clicked */}
                 {exemplo && <div className="space-y-2">
-                    <Button onClick={() => setShowExample(!showExample)} variant="outline" size="sm" className="bg-netflix-gold/20 border-netflix-gold/50 text-netflix-gold hover:bg-netflix-gold/30 transition-all duration-300 text-xs sm:text-sm">
+                    <Button onClick={() => setShowExample(!showExample)} variant="outline" size="sm" className="bg-netflix-gold/20 border-netflix-gold/50 text-netflix-gold hover:bg-netflix-gold/30 transition-all duration-300 text-xs sm:text-sm rounded-xl">
                       <Lightbulb className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                       {showExample ? 'Ocultar' : 'Mostrar'} Exemplo
                       <Sparkles className="w-2 h-2 sm:w-3 sm:h-3 ml-1 sm:ml-2" />
@@ -144,7 +144,7 @@ const ImprovedAnimatedFlashCard = ({
           </div>
 
           {/* Controls */}
-          <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-3 md:gap-4 animate-fade-in px-[4px] my-[7px] py-[9px] mx-[18px]">
+          <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-3 md:gap-4 animate-fade-in px-[4px] my-[7px] py-[9px] mx-[18px] rounded-xl">
             <Button onClick={() => handleAnswer(false)} disabled={isAnswering} className={`
                 bg-red-500/20 border-red-500/50 text-red-400 border-2 py-2 sm:py-3 px-4 sm:px-6
                 hover:bg-red-500/30 hover:border-red-500 hover:scale-105 active:scale-95
