@@ -101,7 +101,7 @@ const Index = () => {
           />
         );
       case 'stats':
-        return <ImprovedStatsView />;
+        return <ImprovedStatsView onBack={() => setActiveView('study')} />;
       case 'review':
         return (
           <ReviewView 

@@ -1,14 +1,18 @@
-
 import React, { useMemo } from 'react';
-import { TrendingUp, Target, Award, Clock, BookOpen, Brain, Zap, Trophy, AlertTriangle, CheckCircle2, BarChart3 } from 'lucide-react';
+import { TrendingUp, Target, Award, Clock, BookOpen, Brain, Zap, Trophy, AlertTriangle, CheckCircle2, BarChart3, ArrowLeft } from 'lucide-react';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { useFlashcards, useFlashcardAreas } from '@/hooks/useFlashcards';
 import { useUserStatistics } from '@/hooks/useRealUserProgress';
 import { generateCategoriesFromAreas } from '@/utils/flashcardMapper';
 import GeneralSummary from './GeneralSummary';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 
-const ImprovedStatsView = () => {
+interface ImprovedStatsViewProps {
+  onBack?: () => void;
+}
+
+const ImprovedStatsView = ({ onBack }: ImprovedStatsViewProps) => {
   const { data: supabaseFlashcards = [], isLoading } = useFlashcards();
   const { data: areas = [] } = useFlashcardAreas();
   const { data: userStats } = useUserStatistics();
@@ -131,6 +135,20 @@ const ImprovedStatsView = () => {
   return (
     <div className="min-h-screen bg-netflix-black px-2 sm:px-4 py-4 sm:py-8">
       <div className="max-w-7xl mx-auto">
+        {/* Back Button */}
+        {onBack && (
+          <div className="mb-6">
+            <Button 
+              onClick={onBack} 
+              variant="outline" 
+              className="bg-white/10 border-white/20 text-white hover:bg-white/20 flex items-center space-x-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Voltar</span>
+            </Button>
+          </div>
+        )}
+
         <GeneralSummary flashcards={flashcardsForSummary} categories={categoriesForSummary} />
 
         <div className="text-center mb-8 sm:mb-12 animate-fade-in">

@@ -35,7 +35,7 @@ const StudyModeModal = ({
         </div>
 
         <div className="space-y-4">
-          {/* Continue Button - Always show, even without progress */}
+          {/* Continue Button */}
           <Button
             onClick={onContinue}
             className="w-full bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 
@@ -43,9 +43,9 @@ const StudyModeModal = ({
           >
             <Clock className="w-5 h-5 mr-2" />
             Continuar de onde parei
-            {hasProgress && (
+            {hasProgress && lastStudiedIndex > 0 && (
               <span className="ml-2 text-green-200 text-sm">
-                ({lastStudiedIndex}/{totalCards})
+                (Card {lastStudiedIndex + 1}/{totalCards})
               </span>
             )}
           </Button>
@@ -62,7 +62,7 @@ const StudyModeModal = ({
           <Button
             onClick={onRandom}
             className="w-full bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 
-                       text-white border-0 py-4 text-lg font-semibold transition-all duration-300 hover:scale-105"
+                       text-white border-0 py-4 text-lg font-semibold transition-all duration-300 hover:scale-105 shake-on-hover"
           >
             <Shuffle className="w-5 h-5 mr-2" />
             Modo aleatório

@@ -19,7 +19,6 @@ const ImprovedThemeSelector = ({
   onBack
 }: ImprovedThemeSelectorProps) => {
   const [selectedThemes, setSelectedThemes] = useState<string[]>([]);
-  const [showFloatingButton, setShowFloatingButton] = useState(false);
   
   const {
     data: flashcards = [],
@@ -32,11 +31,6 @@ const ImprovedThemeSelector = ({
 
   // Get unique themes and sort them alphabetically
   const themes = [...new Set(flashcards.map(card => card.tema).filter(Boolean))].sort();
-
-  // Show floating button when themes are selected
-  useEffect(() => {
-    setShowFloatingButton(selectedThemes.length > 0);
-  }, [selectedThemes]);
 
   const handleThemeToggle = (theme: string) => {
     setSelectedThemes(prev => 
@@ -126,7 +120,7 @@ const ImprovedThemeSelector = ({
         </div>
 
         {/* Themes Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-20">
           {themes.map((theme, index) => {
             const isSelected = selectedThemes.includes(theme);
             const stats = getThemeStats(theme);
@@ -141,13 +135,11 @@ const ImprovedThemeSelector = ({
                   bg-netflix-dark/60 border-2 hover:scale-[1.02] transform-gpu
                   animate-fade-in hover:shadow-lg
                   ${isSelected 
-                    ? `border-2 shadow-lg` 
+                    ? 'border-white shadow-lg bg-white/10' 
                     : 'border-white/10 hover:border-white/20'
                   }
                 `}
                 style={{
-                  borderColor: isSelected ? areaColor : undefined,
-                  boxShadow: isSelected ? `0 0 20px ${areaColor}40` : undefined,
                   animationDelay: `${index * 0.05}s`,
                   animationFillMode: 'both'
                 }}
@@ -205,7 +197,7 @@ const ImprovedThemeSelector = ({
         </div>
 
         {/* Floating Start Study Button */}
-        {showFloatingButton && (
+        {selectedThemes.length > 0 && (
           <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 animate-fade-in">
             <Button
               onClick={handleStartStudy}
