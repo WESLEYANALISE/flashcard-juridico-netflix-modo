@@ -19,7 +19,6 @@ const ImprovedThemeSelector = ({
   onBack
 }: ImprovedThemeSelectorProps) => {
   const [selectedThemes, setSelectedThemes] = useState<string[]>([]);
-  const [showFloatingButton, setShowFloatingButton] = useState(false);
   
   const {
     data: flashcards = [],
@@ -32,11 +31,6 @@ const ImprovedThemeSelector = ({
 
   // Get unique themes and sort them alphabetically
   const themes = [...new Set(flashcards.map(card => card.tema).filter(Boolean))].sort();
-
-  // Show floating button when themes are selected
-  useEffect(() => {
-    setShowFloatingButton(selectedThemes.length > 0);
-  }, [selectedThemes]);
 
   const handleThemeToggle = (theme: string) => {
     setSelectedThemes(prev => 
@@ -82,7 +76,7 @@ const ImprovedThemeSelector = ({
 
   return (
     <div className="min-h-screen bg-netflix-black px-2 sm:px-4 py-4 sm:py-8 relative">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl mx-auto pb-24">
         {/* Header */}
         <div className="flex items-center justify-between mb-8 py-[24px]">
           <Button 
@@ -137,12 +131,12 @@ const ImprovedThemeSelector = ({
                 key={theme}
                 onClick={() => handleThemeToggle(theme)}
                 className={`
-                  relative p-6 rounded-xl cursor-pointer transition-all duration-300 
-                  bg-netflix-dark/60 border-2 hover:scale-[1.02] transform-gpu
+                  relative p-6 rounded-xl cursor-pointer transition-all duration-200 
+                  bg-netflix-dark/80 border-2 hover:scale-[1.02] transform-gpu
                   animate-fade-in hover:shadow-lg
                   ${isSelected 
                     ? `border-2 shadow-lg` 
-                    : 'border-white/10 hover:border-white/20'
+                    : 'border-white/20 hover:border-white/40'
                   }
                 `}
                 style={{
@@ -203,25 +197,25 @@ const ImprovedThemeSelector = ({
             );
           })}
         </div>
-
-        {/* Floating Start Study Button */}
-        {showFloatingButton && (
-          <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 animate-fade-in">
-            <Button
-              onClick={handleStartStudy}
-              className="bg-netflix-red hover:bg-netflix-red/80 text-white px-8 py-4 text-lg font-semibold 
-                         flex items-center space-x-3 rounded-full shadow-2xl hover:scale-105 
-                         transition-all duration-300 border-2 border-netflix-red/50"
-              style={{
-                boxShadow: '0 10px 30px rgba(229, 9, 20, 0.4)'
-              }}
-            >
-              <Play className="w-6 h-6" />
-              <span>Iniciar Estudo ({selectedThemes.length})</span>
-            </Button>
-          </div>
-        )}
       </div>
+
+      {/* Floating Start Study Button - Fixed Position */}
+      {selectedThemes.length > 0 && (
+        <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 animate-fade-in">
+          <Button
+            onClick={handleStartStudy}
+            className="bg-netflix-red hover:bg-netflix-red/80 text-white px-8 py-4 text-lg font-semibold 
+                       flex items-center space-x-3 rounded-full shadow-2xl hover:scale-105 
+                       transition-all duration-300 border-2 border-netflix-red/50"
+            style={{
+              boxShadow: '0 10px 30px rgba(229, 9, 20, 0.4)'
+            }}
+          >
+            <Play className="w-6 h-6" />
+            <span>Iniciar Estudo ({selectedThemes.length})</span>
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
