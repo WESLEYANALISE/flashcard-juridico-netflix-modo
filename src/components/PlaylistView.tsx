@@ -1,11 +1,10 @@
-
 import { useState } from 'react';
 import { ArrowLeft, Plus, Save, Music, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useFlashcardAreas } from '@/hooks/useFlashcards';
-import { useFlashcardsByArea } from '@/hooks/useFlashcardsByArea';
+import { useFlashcards } from '@/hooks/useFlashcards';
 import { generateCategoriesFromAreas } from '@/utils/flashcardMapper';
 import CategoryCard from './CategoryCard';
 import { CardSkeleton } from '@/components/ui/card-skeleton';
@@ -31,15 +30,14 @@ const PlaylistView = ({ onClose, onStudyPlaylist }: PlaylistViewProps) => {
   const [playlistDescription, setPlaylistDescription] = useState('');
 
   const { data: areas = [], isLoading: areasLoading } = useFlashcardAreas();
+  const { data: flashcards = [], isLoading: flashcardsLoading } = useFlashcards();
   const categories = generateCategoriesFromAreas(areas);
 
   // Get all flashcards for selected areas and themes
   const getAllSelectedFlashcards = () => {
     let allFlashcards: any[] = [];
     selectedAreaThemes.forEach(({ area, themes }) => {
-      // This would need to be called for each area/theme combination
-      // For now, we'll simulate the count
-      const areaFlashcards = areas.filter(card => card.area === area);
+      const areaFlashcards = flashcards.filter(card => card.area === area);
       const filteredCards = areaFlashcards.filter(card => themes.length === 0 || themes.includes(card.tema || ''));
       allFlashcards = [...allFlashcards, ...filteredCards];
     });
@@ -159,7 +157,7 @@ const PlaylistView = ({ onClose, onStudyPlaylist }: PlaylistViewProps) => {
     return getAllSelectedFlashcards().length;
   };
 
-  if (areasLoading) {
+  if (areasLoading || flashcardsLoading) {
     return (
       <div className="min-h-screen bg-netflix-black px-2 sm:px-4 py-4 sm:py-8">
         <div className="max-w-7xl mx-auto">
@@ -203,7 +201,7 @@ const PlaylistView = ({ onClose, onStudyPlaylist }: PlaylistViewProps) => {
           {/* Areas and Themes */}
           <div className="space-y-8 mb-24">
             {selectedAreaThemes.map((areaItem) => {
-              const areaFlashcards = areas.filter(card => card.area === areaItem.area);
+              const areaFlashcards = flashcards.filter(card => card.area === areaItem.area);
               const themes = [...new Set(areaFlashcards.map(card => card.tema).filter(Boolean))].sort();
               
               return (
