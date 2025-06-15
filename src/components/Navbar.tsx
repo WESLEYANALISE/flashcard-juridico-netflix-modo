@@ -1,3 +1,4 @@
+
 import { BarChart3, BookOpen, List, RefreshCw, Settings, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { 
@@ -10,6 +11,8 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { useResetUserProgress } from '@/hooks/useRealUserProgress';
 import { useToast } from '@/hooks/use-toast';
+import { useIsMobileDevice } from '@/hooks/useIsMobileDevice';
+import MobileBottomNavigation from './MobileBottomNavigation';
 
 interface NavbarProps {
   activeView: string;
@@ -19,6 +22,7 @@ interface NavbarProps {
 const Navbar = ({ activeView, onViewChange }: NavbarProps) => {
   const { toast } = useToast();
   const resetProgress = useResetUserProgress();
+  const isMobile = useIsMobileDevice();
 
   const menuItems = [
     {
@@ -75,6 +79,12 @@ const Navbar = ({ activeView, onViewChange }: NavbarProps) => {
     }
   };
 
+  // Render mobile navigation if on mobile device
+  if (isMobile) {
+    return <MobileBottomNavigation activeView={activeView} onViewChange={onViewChange} />;
+  }
+
+  // Desktop navigation (existing code)
   return (
     <>
       <nav className="fixed top-0 left-0 right-0 z-50 bg-netflix-black/98 backdrop-blur-xl border-b border-white/10 shadow-2xl">

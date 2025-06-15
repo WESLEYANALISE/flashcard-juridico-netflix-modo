@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import Navbar from '@/components/Navbar';
@@ -8,7 +7,9 @@ import ReviewView from '@/components/ReviewView';
 import PlaylistView from '@/components/PlaylistView';
 import SettingsView from '@/components/SettingsView';
 import AuthPage from '@/components/AuthPage';
+import PageTransition from '@/components/PageTransition';
 import { useFlashcards } from '@/hooks/useFlashcards';
+import { useIsMobileDevice } from '@/hooks/useIsMobileDevice';
 import { User } from '@supabase/supabase-js';
 
 const Index = () => {
@@ -17,6 +18,7 @@ const Index = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const { data: supabaseFlashcards = [] } = useFlashcards();
+  const isMobile = useIsMobileDevice();
 
   useEffect(() => {
     // Get initial session
@@ -81,8 +83,8 @@ const Index = () => {
     setHideNavbar(hide);
   };
 
-  // Show navbar only when on study view and not hiding it
-  const shouldShowNavbar = activeView === 'study' && !hideNavbar;
+  // Show navbar based on device type and hiding state
+  const shouldShowNavbar = !hideNavbar || (isMobile && activeView !== 'studying');
 
   const renderActiveView = () => {
     switch (activeView) {
@@ -111,6 +113,7 @@ const Index = () => {
           />
         );
       case 'settings':
+      case 'profile':
         return (
           <SettingsView 
             onBack={() => setActiveView('study')}
@@ -128,11 +131,14 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-netflix-black">
+    <div className={`min-h-screen bg-netflix-black ${isMobile ? 'pb-20' : ''}`}>
       {shouldShowNavbar && (
         <Navbar activeView={activeView} onViewChange={setActiveView} />
       )}
-      {renderActiveView()}
+      
+      <PageTransition pageKey={activeView}>
+        {renderActiveView()}
+      </PageTransition>
     </div>
   );
 };
