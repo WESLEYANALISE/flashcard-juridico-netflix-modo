@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { CheckCircle, XCircle, Lightbulb, Sparkles, Scale } from 'lucide-react';
+import { CheckCircle, XCircle, Lightbulb, Sparkles, Scale, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Flashcard } from '@/types/flashcard';
 
@@ -32,6 +32,16 @@ const ImprovedAnimatedFlashCard = ({
   const [answerType, setAnswerType] = useState<'correct' | 'incorrect' | null>(null);
   const [isShaking, setIsShaking] = useState(false);
 
+  // Debug log for this specific card
+  console.log('Rendering flashcard:', {
+    id: flashcard.id,
+    question: flashcard.question,
+    answer: flashcard.answer,
+    area: area,
+    tema: tema,
+    exemplo: exemplo
+  });
+
   const handleAnswer = async (correct: boolean) => {
     setIsAnswering(true);
     setAnswerType(correct ? 'correct' : 'incorrect');
@@ -52,6 +62,9 @@ const ImprovedAnimatedFlashCard = ({
   };
 
   const accuracy = flashcard.totalAttempts > 0 ? Math.round(flashcard.correctAnswers / flashcard.totalAttempts * 100) : 0;
+
+  // Check if answer is empty or invalid
+  const hasValidAnswer = flashcard.answer && flashcard.answer.trim() !== '' && flashcard.answer !== 'Resposta não disponível';
 
   return (
     <div className={`max-w-2xl mx-auto relative px-2 sm:px-0 ${isShaking ? 'animate-[shake_0.6s_ease-in-out]' : ''}`}>
@@ -146,9 +159,19 @@ const ImprovedAnimatedFlashCard = ({
               <div className="mt-6 sm:mt-8 space-y-4 sm:space-y-6">
                 <div className="p-4 sm:p-6 md:p-8 bg-white/5 rounded-lg sm:rounded-xl border border-white/10 animate-fade-in">
                   <h3 className="text-sm sm:text-base md:text-lg font-semibold text-netflix-red mb-3 sm:mb-4">Resposta:</h3>
-                  <p className="text-sm sm:text-base md:text-lg text-gray-300 leading-relaxed">
-                    {flashcard.answer}
-                  </p>
+                  
+                  {hasValidAnswer ? (
+                    <p className="text-sm sm:text-base md:text-lg text-gray-300 leading-relaxed">
+                      {flashcard.answer}
+                    </p>
+                  ) : (
+                    <div className="flex items-center justify-center space-x-2 text-yellow-400">
+                      <AlertTriangle className="w-5 h-5" />
+                      <p className="text-sm sm:text-base text-yellow-400">
+                        Resposta não disponível para este flashcard
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Example Section */}
@@ -186,12 +209,12 @@ const ImprovedAnimatedFlashCard = ({
           <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 md:gap-6 animate-fade-in px-2 py-4 mx-4 rounded-xl">
             <Button 
               onClick={() => handleAnswer(false)} 
-              disabled={isAnswering} 
+              disabled={isAnswering || !hasValidAnswer} 
               className={`
                 bg-red-500/20 border-red-500/50 text-red-400 border-2 py-3 sm:py-4 px-6 sm:px-8
                 hover:bg-red-500/30 hover:border-red-500 hover:scale-105 active:scale-95
                 transition-all duration-300 font-semibold text-sm sm:text-base md:text-lg
-                ${isAnswering ? 'opacity-50 cursor-not-allowed' : ''}
+                ${(isAnswering || !hasValidAnswer) ? 'opacity-50 cursor-not-allowed' : ''}
               `}
             >
               <XCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
@@ -200,12 +223,12 @@ const ImprovedAnimatedFlashCard = ({
             
             <Button 
               onClick={() => handleAnswer(true)} 
-              disabled={isAnswering} 
+              disabled={isAnswering || !hasValidAnswer} 
               className={`
                 bg-green-500/20 border-green-500/50 text-green-400 border-2 py-3 sm:py-4 px-6 sm:px-8
                 hover:bg-green-500/30 hover:border-green-500 hover:scale-105 active:scale-95
                 transition-all duration-300 font-semibold text-sm sm:text-base md:text-lg
-                ${isAnswering ? 'opacity-50 cursor-not-allowed' : ''}
+                ${(isAnswering || !hasValidAnswer) ? 'opacity-50 cursor-not-allowed' : ''}
               `}
             >
               <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />

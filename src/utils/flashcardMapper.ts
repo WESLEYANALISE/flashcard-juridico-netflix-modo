@@ -1,19 +1,28 @@
-
 import { SupabaseFlashcard } from '@/hooks/useFlashcards';
 import { Flashcard, Category } from '@/types/flashcard';
 
 // Map Supabase flashcard to our app's flashcard format
 export const mapSupabaseFlashcard = (supabaseCard: SupabaseFlashcard): Flashcard => {
-  return {
+  console.log('Mapping Supabase card:', supabaseCard);
+
+  // Use exemplo as fallback if resposta is empty
+  const answer = supabaseCard.resposta && supabaseCard.resposta.trim() !== '' 
+    ? supabaseCard.resposta 
+    : supabaseCard.explicacao || 'Resposta não disponível';
+
+  const mappedCard = {
     id: supabaseCard.id.toString(),
-    question: supabaseCard.pergunta,
-    answer: supabaseCard.resposta,
-    category: supabaseCard.area,
+    question: supabaseCard.pergunta || 'Pergunta não disponível',
+    answer: answer,
+    category: supabaseCard.area || 'Categoria não especificada',
     difficulty: 'Médio' as const, // Default difficulty since not in DB
     studied: false,
     correctAnswers: 0,
     totalAttempts: 0,
   };
+
+  console.log('Mapped card result:', mappedCard);
+  return mappedCard;
 };
 
 // Generate categories from flashcard areas

@@ -25,16 +25,40 @@ export const useFlashcards = () => {
         throw error;
       }
 
-      // Map the database fields to our interface
-      return (data || []).map(item => ({
-        id: item.id.toString(),
-        pergunta: item.pergunta || '',
-        resposta: item.resposta || '',
-        area: item.area || '',
-        tema: item.tema || undefined,
-        explicacao: item.exemplo || undefined, // Map the "exemplo" column to "explicacao" property
-        created_at: item.created_at
-      })) as SupabaseFlashcard[];
+      console.log('Raw flashcards data from Supabase:', data);
+
+      // Map the database fields to our interface with better validation
+      const mappedData = (data || []).map(item => {
+        console.log(`Processing flashcard ID ${item.id}:`, {
+          pergunta: item.pergunta,
+          resposta: item.resposta,
+          area: item.area,
+          tema: item.tema,
+          exemplo: item.exemplo
+        });
+
+        return {
+          id: item.id.toString(),
+          pergunta: item.pergunta || 'Pergunta não disponível',
+          resposta: item.resposta || item.exemplo || 'Resposta não disponível', // Fallback to exemplo if resposta is empty
+          area: item.area || 'Área não especificada',
+          tema: item.tema || undefined,
+          explicacao: item.exemplo || undefined,
+          created_at: item.created_at
+        };
+      }) as SupabaseFlashcard[];
+
+      console.log('Mapped flashcards data:', mappedData);
+      
+      // Filter out completely empty cards
+      const validCards = mappedData.filter(card => 
+        card.pergunta && card.pergunta !== 'Pergunta não disponível' &&
+        card.resposta && card.resposta !== 'Resposta não disponível'
+      );
+
+      console.log(`Filtered ${mappedData.length - validCards.length} invalid cards`);
+      
+      return validCards;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
