@@ -1,14 +1,24 @@
+
 import { SupabaseFlashcard } from '@/hooks/useFlashcards';
 import { Flashcard, Category } from '@/types/flashcard';
 
 // Map Supabase flashcard to our app's flashcard format
 export const mapSupabaseFlashcard = (supabaseCard: SupabaseFlashcard): Flashcard => {
-  console.log('Mapping Supabase card:', supabaseCard);
+  console.log('🔄 Mapping Supabase card:', supabaseCard);
 
-  // Use exemplo as fallback if resposta is empty
-  const answer = supabaseCard.resposta && supabaseCard.resposta.trim() !== '' 
-    ? supabaseCard.resposta 
-    : supabaseCard.explicacao || 'Resposta não disponível';
+  // Intelligent fallback logic for answer
+  let answer = '';
+  
+  if (supabaseCard.resposta && supabaseCard.resposta.trim() !== '') {
+    answer = supabaseCard.resposta;
+    console.log(`✅ Using resposta for card ${supabaseCard.id}`);
+  } else if (supabaseCard.explicacao && supabaseCard.explicacao.trim() !== '') {
+    answer = supabaseCard.explicacao;
+    console.log(`⚠️ Using explicacao as fallback for card ${supabaseCard.id}`);
+  } else {
+    answer = 'Resposta não disponível';
+    console.error(`❌ No valid answer found for card ${supabaseCard.id}`);
+  }
 
   const mappedCard = {
     id: supabaseCard.id.toString(),
@@ -21,7 +31,7 @@ export const mapSupabaseFlashcard = (supabaseCard: SupabaseFlashcard): Flashcard
     totalAttempts: 0,
   };
 
-  console.log('Mapped card result:', mappedCard);
+  console.log('✅ Mapped card result:', mappedCard);
   return mappedCard;
 };
 

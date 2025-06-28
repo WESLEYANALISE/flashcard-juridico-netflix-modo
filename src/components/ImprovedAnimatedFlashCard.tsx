@@ -33,13 +33,14 @@ const ImprovedAnimatedFlashCard = ({
   const [isShaking, setIsShaking] = useState(false);
 
   // Debug log for this specific card
-  console.log('Rendering flashcard:', {
+  console.log('🎴 Rendering flashcard:', {
     id: flashcard.id,
     question: flashcard.question,
     answer: flashcard.answer,
     area: area,
     tema: tema,
-    exemplo: exemplo
+    exemplo: exemplo,
+    answerLength: flashcard.answer?.length || 0
   });
 
   const handleAnswer = async (correct: boolean) => {
@@ -63,8 +64,13 @@ const ImprovedAnimatedFlashCard = ({
 
   const accuracy = flashcard.totalAttempts > 0 ? Math.round(flashcard.correctAnswers / flashcard.totalAttempts * 100) : 0;
 
-  // Check if answer is empty or invalid
-  const hasValidAnswer = flashcard.answer && flashcard.answer.trim() !== '' && flashcard.answer !== 'Resposta não disponível';
+  // Enhanced validation for answer availability
+  const hasValidAnswer = flashcard.answer && 
+                         flashcard.answer.trim() !== '' && 
+                         flashcard.answer !== 'Resposta não disponível';
+
+  // Check if we're using exemplo as answer fallback
+  const isUsingExemploAsAnswer = !hasValidAnswer && exemplo && exemplo.trim() !== '';
 
   return (
     <div className={`max-w-2xl mx-auto relative px-2 sm:px-0 ${isShaking ? 'animate-[shake_0.6s_ease-in-out]' : ''}`}>
@@ -164,18 +170,30 @@ const ImprovedAnimatedFlashCard = ({
                     <p className="text-sm sm:text-base md:text-lg text-gray-300 leading-relaxed">
                       {flashcard.answer}
                     </p>
+                  ) : isUsingExemploAsAnswer ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-center space-x-2 text-yellow-400 mb-3">
+                        <AlertTriangle className="w-4 h-4" />
+                        <p className="text-xs text-yellow-400">
+                          Usando exemplo como resposta
+                        </p>
+                      </div>
+                      <p className="text-sm sm:text-base md:text-lg text-gray-300 leading-relaxed">
+                        {exemplo}
+                      </p>
+                    </div>
                   ) : (
-                    <div className="flex items-center justify-center space-x-2 text-yellow-400">
+                    <div className="flex items-center justify-center space-x-2 text-red-400">
                       <AlertTriangle className="w-5 h-5" />
-                      <p className="text-sm sm:text-base text-yellow-400">
+                      <p className="text-sm sm:text-base text-red-400">
                         Resposta não disponível para este flashcard
                       </p>
                     </div>
                   )}
                 </div>
 
-                {/* Example Section */}
-                {exemplo && (
+                {/* Example Section - Only show if it's different from the answer */}
+                {exemplo && exemplo !== flashcard.answer && (
                   <div className="space-y-3">
                     <Button 
                       onClick={() => setShowExample(!showExample)} 
@@ -209,12 +227,12 @@ const ImprovedAnimatedFlashCard = ({
           <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 md:gap-6 animate-fade-in px-2 py-4 mx-4 rounded-xl">
             <Button 
               onClick={() => handleAnswer(false)} 
-              disabled={isAnswering || !hasValidAnswer} 
+              disabled={isAnswering || (!hasValidAnswer && !isUsingExemploAsAnswer)} 
               className={`
                 bg-red-500/20 border-red-500/50 text-red-400 border-2 py-3 sm:py-4 px-6 sm:px-8
                 hover:bg-red-500/30 hover:border-red-500 hover:scale-105 active:scale-95
                 transition-all duration-300 font-semibold text-sm sm:text-base md:text-lg
-                ${(isAnswering || !hasValidAnswer) ? 'opacity-50 cursor-not-allowed' : ''}
+                ${(isAnswering || (!hasValidAnswer && !isUsingExemploAsAnswer)) ? 'opacity-50 cursor-not-allowed' : ''}
               `}
             >
               <XCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
@@ -223,12 +241,12 @@ const ImprovedAnimatedFlashCard = ({
             
             <Button 
               onClick={() => handleAnswer(true)} 
-              disabled={isAnswering || !hasValidAnswer} 
+              disabled={isAnswering || (!hasValidAnswer && !isUsingExemploAsAnswer)} 
               className={`
                 bg-green-500/20 border-green-500/50 text-green-400 border-2 py-3 sm:py-4 px-6 sm:px-8
                 hover:bg-green-500/30 hover:border-green-500 hover:scale-105 active:scale-95
                 transition-all duration-300 font-semibold text-sm sm:text-base md:text-lg
-                ${(isAnswering || !hasValidAnswer) ? 'opacity-50 cursor-not-allowed' : ''}
+                ${(isAnswering || (!hasValidAnswer && !isUsingExemploAsAnswer)) ? 'opacity-50 cursor-not-allowed' : ''}
               `}
             >
               <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />

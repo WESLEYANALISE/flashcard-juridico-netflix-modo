@@ -37,10 +37,19 @@ export const useFlashcards = () => {
           exemplo: item.exemplo
         });
 
+        // Debug specifically for empty resposta fields
+        if (!item.resposta || item.resposta.trim() === '') {
+          console.warn(`⚠️ Empty resposta for card ${item.id} (${item.area}):`, {
+            resposta: item.resposta,
+            exemplo: item.exemplo,
+            hasExemplo: !!item.exemplo
+          });
+        }
+
         return {
           id: item.id.toString(),
           pergunta: item.pergunta || 'Pergunta não disponível',
-          resposta: item.resposta || item.exemplo || 'Resposta não disponível', // Fallback to exemplo if resposta is empty
+          resposta: item.resposta || item.exemplo || 'Resposta não disponível', // Use exemplo as fallback
           area: item.area || 'Área não especificada',
           tema: item.tema || undefined,
           explicacao: item.exemplo || undefined,
@@ -50,13 +59,27 @@ export const useFlashcards = () => {
 
       console.log('Mapped flashcards data:', mappedData);
       
-      // Filter out completely empty cards
-      const validCards = mappedData.filter(card => 
-        card.pergunta && card.pergunta !== 'Pergunta não disponível' &&
-        card.resposta && card.resposta !== 'Resposta não disponível'
-      );
+      // Filter out completely empty cards but be more lenient
+      const validCards = mappedData.filter(card => {
+        const hasValidQuestion = card.pergunta && card.pergunta !== 'Pergunta não disponível';
+        const hasValidAnswer = card.resposta && card.resposta !== 'Resposta não disponível';
+        
+        if (!hasValidQuestion || !hasValidAnswer) {
+          console.warn(`Filtering out invalid card ${card.id}:`, {
+            hasValidQuestion,
+            hasValidAnswer,
+            area: card.area
+          });
+        }
+        
+        return hasValidQuestion && hasValidAnswer;
+      });
 
-      console.log(`Filtered ${mappedData.length - validCards.length} invalid cards`);
+      console.log(`✅ Final valid cards: ${validCards.length}/${mappedData.length}`);
+      console.log('Cards by area:', validCards.reduce((acc, card) => {
+        acc[card.area] = (acc[card.area] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>));
       
       return validCards;
     },
