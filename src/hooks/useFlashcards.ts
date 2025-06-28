@@ -1,4 +1,3 @@
-
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -27,7 +26,7 @@ export const useFlashcards = () => {
 
       console.log('Raw flashcards data from Supabase:', data);
 
-      // Map the database fields to our interface with better validation
+      // Map the database fields to our interface with enhanced validation
       const mappedData = (data || []).map(item => {
         console.log(`Processing flashcard ID ${item.id}:`, {
           pergunta: item.pergunta,
@@ -37,42 +36,56 @@ export const useFlashcards = () => {
           exemplo: item.exemplo
         });
 
-        // Debug specifically for empty resposta fields
-        if (!item.resposta || item.resposta.trim() === '') {
-          console.warn(`⚠️ Empty resposta for card ${item.id} (${item.area}):`, {
-            resposta: item.resposta,
-            exemplo: item.exemplo,
-            hasExemplo: !!item.exemplo
-          });
+        // Enhanced fallback logic for empty answers
+        let finalAnswer = '';
+        let hasValidAnswer = false;
+
+        if (item.resposta && item.resposta.trim() !== '') {
+          finalAnswer = item.resposta.trim();
+          hasValidAnswer = true;
+          console.log(`✅ Using resposta for card ${item.id}`);
+        } else if (item.exemplo && item.exemplo.trim() !== '') {
+          finalAnswer = item.exemplo.trim();
+          hasValidAnswer = true;
+          console.log(`⚠️ Using exemplo as fallback for card ${item.id}`);
+        } else {
+          finalAnswer = 'Resposta não disponível';
+          hasValidAnswer = false;
+          console.warn(`❌ No valid answer found for card ${item.id}`);
         }
 
         return {
           id: item.id.toString(),
           pergunta: item.pergunta || 'Pergunta não disponível',
-          resposta: item.resposta || item.exemplo || 'Resposta não disponível', // Use exemplo as fallback
+          resposta: finalAnswer,
           area: item.area || 'Área não especificada',
           tema: item.tema || undefined,
           explicacao: item.exemplo || undefined,
-          created_at: item.created_at
+          created_at: item.created_at,
+          hasValidAnswer // Add flag to track answer validity
         };
-      }) as SupabaseFlashcard[];
+      }) as (SupabaseFlashcard & { hasValidAnswer: boolean })[];
 
       console.log('Mapped flashcards data:', mappedData);
       
-      // Filter out completely empty cards but be more lenient
+      // Filter out cards without valid answers
       const validCards = mappedData.filter(card => {
         const hasValidQuestion = card.pergunta && card.pergunta !== 'Pergunta não disponível';
-        const hasValidAnswer = card.resposta && card.resposta !== 'Resposta não disponível';
+        const hasValidAnswerFlag = card.hasValidAnswer;
         
-        if (!hasValidQuestion || !hasValidAnswer) {
+        if (!hasValidQuestion || !hasValidAnswerFlag) {
           console.warn(`Filtering out invalid card ${card.id}:`, {
             hasValidQuestion,
-            hasValidAnswer,
+            hasValidAnswer: hasValidAnswerFlag,
             area: card.area
           });
         }
         
-        return hasValidQuestion && hasValidAnswer;
+        return hasValidQuestion && hasValidAnswerFlag;
+      }).map(card => {
+        // Remove the temporary flag before returning
+        const { hasValidAnswer, ...cleanCard } = card;
+        return cleanCard;
       });
 
       console.log(`✅ Final valid cards: ${validCards.length}/${mappedData.length}`);

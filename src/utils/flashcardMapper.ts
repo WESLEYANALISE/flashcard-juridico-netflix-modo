@@ -2,21 +2,25 @@
 import { SupabaseFlashcard } from '@/hooks/useFlashcards';
 import { Flashcard, Category } from '@/types/flashcard';
 
-// Map Supabase flashcard to our app's flashcard format
+// Map Supabase flashcard to our app's flashcard format with enhanced validation
 export const mapSupabaseFlashcard = (supabaseCard: SupabaseFlashcard): Flashcard => {
   console.log('🔄 Mapping Supabase card:', supabaseCard);
 
-  // Intelligent fallback logic for answer
+  // Enhanced answer validation and fallback logic
   let answer = '';
+  let answerSource = '';
   
-  if (supabaseCard.resposta && supabaseCard.resposta.trim() !== '') {
-    answer = supabaseCard.resposta;
+  if (supabaseCard.resposta && supabaseCard.resposta.trim() !== '' && supabaseCard.resposta !== 'Resposta não disponível') {
+    answer = supabaseCard.resposta.trim();
+    answerSource = 'resposta';
     console.log(`✅ Using resposta for card ${supabaseCard.id}`);
   } else if (supabaseCard.explicacao && supabaseCard.explicacao.trim() !== '') {
-    answer = supabaseCard.explicacao;
+    answer = supabaseCard.explicacao.trim();
+    answerSource = 'explicacao';
     console.log(`⚠️ Using explicacao as fallback for card ${supabaseCard.id}`);
   } else {
-    answer = 'Resposta não disponível';
+    answer = 'Conteúdo não disponível para este flashcard';
+    answerSource = 'fallback';
     console.error(`❌ No valid answer found for card ${supabaseCard.id}`);
   }
 
@@ -29,6 +33,7 @@ export const mapSupabaseFlashcard = (supabaseCard: SupabaseFlashcard): Flashcard
     studied: false,
     correctAnswers: 0,
     totalAttempts: 0,
+    answerSource // Track where the answer came from for debugging
   };
 
   console.log('✅ Mapped card result:', mappedCard);
